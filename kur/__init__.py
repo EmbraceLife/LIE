@@ -31,4 +31,7 @@ from . import supplier
 from . import loggers
 from .kurfile import Kurfile
 
+# in order to access functions inside __main__.py
+from .__main__ import *
+
 ### EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF
