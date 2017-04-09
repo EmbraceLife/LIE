@@ -54,7 +54,7 @@ class Kurfile:
 
     ###########################################################################
     def __init__(self, source, engine=None):
-        """ Creates a new Kurfile.
+        """ Kurfile.__init__(source, engine=None): Creates a new Kurfile with source and engine. 1. source: either string or dict; 2. engine is JinjaEngine object
 
                 # Arguments
 
@@ -64,6 +64,9 @@ class Kurfile:
                 engine: Engine instance. The templating engine to use in parsing.
                         If None, a Passthrough engine is instantiated.
         """
+
+        logger.info("Kurfile.__init__(source, engine=None): Creates a new Kurfile with source and engine. 1. source: either string or dict; 2. engine is JinjaEngine object")
+		
         engine = engine or PassthroughEngine()
         if isinstance(source, str):
             filename = os.path.expanduser(os.path.expandvars(source))
@@ -88,7 +91,7 @@ class Kurfile:
 
     ###########################################################################
     def parse(self):
-        """ 1. evaluate all pairs of spec.data dict under scopes; 2. added section aliases (like training, testing); 3. parse model to spec.containers (not None any more); 4. parse tempalte to spec.templates;  Parses the Kurfile.
+        """ 1. evaluate all pairs of spec.data dict under scopes; 2. added section aliases (like training, testing); 3. parse model to spec.containers (not None any more); 4. parse tempalte to spec.templates;
         """
 
         logger.info('Parsing Kurfile...')
@@ -260,7 +263,7 @@ class Kurfile:
 
         # section['data'] is a list, contain one or more data source info
         # assign {'default': section['data']} to 'supplier_list'
-        # section.get('provider') provide some additional info on data
+        # section.get('provider') provide some info on how we want a provider
         supplier_list = section.get('data') or {}
         if isinstance(supplier_list, (list, tuple)):
             supplier_list = {'default': supplier_list}

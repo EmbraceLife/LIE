@@ -42,7 +42,7 @@ from inspect import getdoc, getmembers, getsourcelines, getmodule
 def parse_kurfile(filename, engine, parse=True):
     """ 1. create a Kurfile object; 2. parse the object; 4. arg1: filename with path, string; arg2: engine, as engine object; arg3: parse, boolean, default true; 5. Return: spec: parsed kurfile object
     """
-
+    logger.info("parse_kurfile(filename, engine, parse=True): 1. create a Kurfile object, call it spec; 2. parse spec; 3. return spec; 4. arg1: filename with path, string; arg2: engine, as engine object; arg3: parse, boolean, default true;")
     # initialize a Kurfile object, spec
     # see inside spec:
     # pprint(spec.__dict__.keys())
@@ -52,9 +52,6 @@ def parse_kurfile(filename, engine, parse=True):
 
     # parse the kurfile object spec
     # after parsing, containers is not None anymore
-    # Is it all parse() do? locate parse() and dive in
-    # pprint(getmodule(spec.parse)) to get the module name
-    # pprint(getsourcelines(spec.parse)) to get the line number
     if parse:
         spec.parse()
     return spec
@@ -63,8 +60,10 @@ def parse_kurfile(filename, engine, parse=True):
 
 
 def dump(args):
-    """ Dumps the Kurfile to stdout as a JSON blob.
+    """ Dumps the Kurfile to stdout as a JSON blob: 1. if args.pre_parse is True, then don't parse the kurfile object; 2. then dumps the dict to print out
     """
+    logger.info("dump(args): print out the Kurfile details as dict on console: 1. get the kurfile object spec and parse it; 2. then get spec.data and print it out as a dict")
+
     spec = parse_kurfile(args.kurfile, args.engine, parse=not args.pre_parse)
     print(json.dumps(spec.data, sort_keys=True, indent=4))
 
@@ -193,7 +192,6 @@ def prepare_data(args):
 		# spec.model['additional_sources'] is {} and ['compiled'] is None
         spec.get_model(default_provider)
 
-        set_trace()
         # get trainer on Kurfile spec is to initalize a Executor object with four properties:
         # 1. loss object; 2. Model object; 3. optimizer object; 4. auto_retry as True
         if args.target == 'train':
@@ -426,9 +424,9 @@ def parse_args():
 def main():
     """
     Overarching func of kur program: 1. get console args into program; 2. configurate logging display; 3. monitor process when required by args; 4. show version or do nothing when required by args; 5. create an JinjaEngine object, and assign it to args.engine; 6. run args.func(args) and then exit program
-    """
 
-    print("Everything start from here __main__.main(): ------------------")
+	There are many functions to try: 1. !kur data | dump | build | train | test | evaluate
+    """
 
     # get console arguments
     args = parse_args()
@@ -449,6 +447,8 @@ def main():
         )
     )
     logging.captureWarnings(True)
+
+    logger.info("Overarching func of kur program: 1. get console args into program; 2. configurate logging display; 3. monitor process when required by args; 4. show version or do nothing when required by args; 5. create an JinjaEngine object, and assign it to args.engine; 6. run args.func(args) and then exit program. There are many functions to try: 1. !kur data | dump | build | train | test | evaluate")
 
     # monitor process when required by args
     do_monitor(args)

@@ -37,17 +37,20 @@ class Supplier:
 	###########################################################################
 	@staticmethod
 	def from_specification(spec, kurfile=None):
-		""" Creates a new Supplier from a specification.
+		""" create data supplier from kurfile info e.g. {'mnist':[{}]}
 		"""
-
+		# if spec is not dict, raise error
 		if not isinstance(spec, dict):
 			raise ValueError('Each element of the "input" list must be a '
 				'dictionary.')
 
+		# get supplier name or names for this spec
+		# in this case candicates = set('mnist')
 		candidates = set(
 			cls.get_name() for cls in Supplier.get_all_suppliers()
 		) & set(spec.keys())
 
+		# if there is no supplier available for this spec, raise error
 		if not candidates:
 			raise ValueError('Missing the key naming the Supplier type from '
 				'an element of the "input" list. Valid keys are: {}'.format(
@@ -56,14 +59,19 @@ class Supplier:
 					for cls in Supplier.get_all_suppliers()
 				)
 			))
+
+		# if there are more than 1 suppliers avaiable for this spec, raise error
 		if len(candidates) > 1:
 			raise ValueError('Ambiguous supplier type in an element of the '
 				'"input" list. Exactly one of the following keys must be '
 				'present: {}'.format(', '.join(candidates)))
 
+		# name is 'mnist', params is a nested dict
 		name = candidates.pop()
 		params = spec[name]
 
+		# there is no key as 'name' for spec
+		# so supplier_name is None
 		supplier_name = spec.get('name')
 
 		# All other keys must be parsed out by this point.

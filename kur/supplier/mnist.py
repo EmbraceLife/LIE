@@ -20,6 +20,10 @@ from ..utils import idx, package
 from . import Supplier
 from ..sources import VanillaSource
 
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule
 ###############################################################################
 class MnistSupplier(Supplier):
 	""" A supplier which supplies MNIST image/label pairs. These are downloaded
@@ -35,7 +39,7 @@ class MnistSupplier(Supplier):
 
 	###########################################################################
 	def __init__(self, labels, images, *args, **kwargs):
-		""" Creates a new MNIST supplier.
+		""" Creates a new MNIST supplier by download or access data file based on dicts (store url, path, checksum)
 
 			# Arguments
 
@@ -54,7 +58,11 @@ class MnistSupplier(Supplier):
 				Accepts the same values as `labels`.
 		"""
 		super().__init__(*args, **kwargs)
+		set_trace()
 
+		# MnistSupplier._get_filename: download a gz file and store the dataset in a path, and return this path
+		# idx.load: load the gz file into numpy arrays
+		# VanillaSource(): make numpy array a data source for creating a data supplier
 		self.data = {
 			'images' : MnistSupplier._normalize(
 				VanillaSource(idx.load(MnistSupplier._get_filename(images)))
@@ -109,6 +117,8 @@ class MnistSupplier(Supplier):
 
 		if isinstance(target, str):
 			target = {'path' : target}
+
+		# package.install: ensure the path exist locally 
 		path, _ = package.install(
 			url=target.get('url'),
 			path=target.get('path'),

@@ -29,6 +29,10 @@ import tqdm
 
 logger = logging.getLogger(__name__)
 
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule
 ###############################################################################
 UploadFile = namedtuple('UploadFile', 'filename')
 UploadFileData = namedtuple('UploadFileData', ('filename', 'data'))
@@ -54,7 +58,7 @@ def get_hash(path):
 
 ###############################################################################
 def download(url, target):
-	""" Downloads a URL.
+	""" Downloads anything not specified format, from a URL.
 	"""
 	logger.debug('Trying to download: %s', url)
 	response = urllib.request.urlopen(url)
