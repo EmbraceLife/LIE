@@ -54,7 +54,7 @@ class Executor:
 
     ###########################################################################
     def __init__(self, model, loss=None, optimizer=None, auto_retry=None):
-        """ Creates a new executor.
+        """ Creates a new executor object: 1. add model object as its attr; 2. add loss object as its attr; 3. add optimizer object as its attr; 4. set its attr auto_retry as True 
 
                 # Arguments
 

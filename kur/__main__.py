@@ -156,7 +156,7 @@ def build(args):
 
 
 def prepare_data(args):
-    """ Print out samples of data of a given section: 1. parse kurfile; 2. update args.target to select a section's data to look into; 3. get data from spec.data['train']['data'] dict to data supplier objects then to data provider; 4. --assemble: get additional_sources into this section's data provider during compilation; 5. print out a batch from data provider, or print only the first or last few samples of the batch with '--number',
+    """ Print out samples of data of a given section: 1. parse kurfile; 2. update args.target to select a section's data to look into; 3. get data from spec.data['train']['data'] dict to data supplier objects then to data provider; 4. --assemble: a. return a parsed model for spec.model, b. et trainer on Kurfile spec is to initalize a Executor object with four properties: loss, model, optimizer objects, c. compile Executor to add a compiled model with keras backend to target.model['compiled'], add real new additional_sources onto target.model['additional_sources'], d. but it seems the additional new data source is not used by BatchProvider; 5. print out a batch from data provider, or print only the first or last few samples of the batch with '--number',
     """
 
     # create a parsed kurfile object
@@ -176,14 +176,8 @@ def prepare_data(args):
 
     logger.info('Preparing data sources for: %s', args.target)
 
-    # get data providers instances based on spec and args ---------------
+    # How data flow from external file as spec.data[section]['data'] to supplier object, to BatchProvider, and finally to a single batch?
     # return providers as a dict {'default': BatchProvider}
-    # check the BatchProvider instance: --
-    # check the data source inside BatchProvider: --
-    # pprint(providers['default'].__dict__['sources'][1].__dict__)
-
-    # How data flow from external file, to source object,
-    # to BatchProvider, and finally to a single batch?
     providers = spec.get_provider(
         args.target,
         accept_many=args.target == 'test'
@@ -192,17 +186,16 @@ def prepare_data(args):
     # set --assemble as True, to get additional dataset when compilation
     if args.assemble:
         # find the provider instance which is set to constructing model
+		# default is BatchProvider
         default_provider = Kurfile.find_default_provider(providers)
 
-        # before 'get_model()': --
-        # spec.__dict__ has no model, no backend
-        # after 'get_model()': --
-        # spec.__dict__ got both model object and backend object
+        # return a parsed model for spec.model
+		# spec.model['additional_sources'] is {} and ['compiled'] is None
         spec.get_model(default_provider)
 
-        # what does `get_trainer` get us?
-        # we get Executor object, which is a dict with 3 objects:
-        # 1. loss.Ctc object; 2. Model object; 3. SGD object
+        set_trace()
+        # get trainer on Kurfile spec is to initalize a Executor object with four properties:
+        # 1. loss object; 2. Model object; 3. optimizer object; 4. auto_retry as True
         if args.target == 'train':
             target = spec.get_trainer(with_optimizer=True)
         elif args.target == 'test':
@@ -214,13 +207,14 @@ def prepare_data(args):
                          args.target)
             return 1
 
+		# compile Executor to add a compiled model with keras backend to target.model['compiled'], add additional_sources onto target.model['additional_sources']:  ------------
         # before compile(): --
         # target.model['additional_sources'] and ['compiled'] are {} or None
         # after compile(): --
-        # target.model added model.compiled: {'raw': compiled model object}
+        # target.model added model.compiled: {'raw': kur.engine.training.Model}
         # in speech.yml case: model['additional_sources']:
-        # {'ctc_scaled_utterance_length': <kur.loss.ctc.ScaledSource object at
-        # 0x11560a208>}
+        # {'ctc_scaled_utterance_length': <kur.loss.ctc.ScaledSource object at 0x117479f60>}
+        # the problem is that this new data source is not stored in BatchProvider, not to be used by a batch
         target.compile(assemble_only=True)
 
     # get every data provider one at a time

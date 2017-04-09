@@ -156,17 +156,27 @@ class Kurfile:
 
     ###########################################################################
     def get_model(self, provider=None):
-        """ Returns the parsed Model instance.
+        """ Returns the parsed Model instance: 1. a parsed Kurfile object spec has model and backend as None; 2. build a Model object for spec.model with backend and containers; now spec.model and spec.backend are no more None; 3. parse spec.model with engine, set spec.model['_parsed'] to True; 4. register spec.model['provider'] to be BatchProvider; 5. build spec.model by initialize spec.model['input_aliases'] and spec.model['inputs'] with real content
         """
+
+		# after parse() the Kurfile object, spec.data, templates, containers have been processed, leaving spec.model and spec.backend as None
         if self.model is None:
             if self.containers is None:
                 raise ValueError('No such model available.')
+
+			# build kur.model.Model object with backend and containers
+			# note: many of __dict__ insides are None or {}
             self.model = Model(
                 backend=self.get_backend(),
                 containers=self.containers
             )
+			# parse spec.model:
+			# but all it does: seemingly only set a dict spec.model['_parsed'] from false to true
             self.model.parse(self.engine)
+			# register_provider for spec.model:
+			# now, spec.model['provider'] is set with BatchProvider
             self.model.register_provider(provider)
+			# after build model, spec.model['input_aliases'] set {'images:': 'images'}; spec.model['inputs'] set to be OrderedDict
             self.model.build()
         return self.model
 
@@ -291,12 +301,12 @@ class Kurfile:
 		# then initialize a BatchProvider object with the SpeechRecognitionSupplier object and provider_spec details
 		# now provider has all 8 data sources to provide for batches
 
-        p = None
-        for k, v in suppliers.items():
-	        p = provider(
-	            sources=Supplier.merge_suppliers(v),
-	            **provider_spec
-	        )
+        # p = None
+        # for k, v in suppliers.items():
+	    #     p = provider(
+	    #         sources=Supplier.merge_suppliers(v),
+	    #         **provider_spec
+	    #     )
 
         return {
             k: provider(
@@ -531,7 +541,7 @@ class Kurfile:
 
     ###########################################################################
     def get_trainer(self, with_optimizer=True):
-        """ Creates a new Trainer from the Kurfile.
+        """ get trainer is to Execute with model, loss and optimizer: 1. get a Model object; 2. get a loss object e.g. CategoricalCrossentropy object; 3. get a optimizer object, Adam object; They are no more dict from spec
 
                 # Return value
 
