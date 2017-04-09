@@ -222,7 +222,7 @@ class Kurfile:
 
     ###########################################################################
     def get_provider(self, section, accept_many=False):
-        """ 1. get spec.data[section]; 2. make sure it a key as 'data' or 'provider'; 3. store spec.data[section]['data'] in 'supplier_list'; 4. set `accept_many` true if there are more than 1 data providers; 5. get real data supplier objects using spec.data[section]['data'] the dict; 6. get real data provider instances using spec.data[section]['data'] and spec.data[section]['provider']
+        """ Get data from spec.data[section]['data'] as a dict all the way to data provider object: 1. get spec.data[section]; 2. make sure it has a key as 'data' or 'provider'; 3. store spec.data[section]['data'] in 'supplier_list'; 4. set `accept_many` true if there are more than 1 data providers; 5. get real data supplier objects using spec.data[section]['data'] the dict (keep 8 data sources, extract 3 into {'data': 3 selected sources); 6. get real data provider instances using spec.data[section]['data'] and spec.data[section]['provider'], and make all data sources ready to use for data provider; 7. finally return this provider
 
                 # Arguments
 
@@ -262,15 +262,16 @@ class Kurfile:
             raise ValueError('We only accept a single "data" entry for this '
                              'section, but found {}.'.format(len(supplier_list)))
 
-        # create a dict to store data suppliers object
-        # get real data suppliers objects from section['data'][0] and ...
+        # Extract one or more Supplier objects from spec.data[section]['data']
+		# in speech.yml case, there is only one SpeechRecognitionSupplier object, but it has 8 data sources, only extracted 3 data_dicts (transcript, audio, duration) with length 2432 into this SpeechRecognitionSupplier_object.data
+		# the other 5 data sources are not exacted yet, but it is inside this same supplier object
         suppliers = {}
         for k, v in supplier_list.items():
             if not isinstance(v, (list, tuple)):
                 raise ValueError('Data suppliers must form a list of '
                                  'suppliers.')
             suppliers[k] = [
-                # Creates a new Supplier from a specification.
+                # extract a SpeechRecognitionSupplier object from a spec.data[section]['data']
                 Supplier.from_specification(entry, kurfile=self)
                 for entry in v
             ]
@@ -280,13 +281,23 @@ class Kurfile:
 
         # if data provider has a 'name' key, then get a provider class according
         # to name, otherwise use BatchProvider class instead
+		# BatchProvider has default batch_size as 32
         if 'name' in provider_spec:
             provider = Provider.get_provider_by_name(provider_spec.pop('name'))
         else:
             provider = Kurfile.DEFAULT_PROVIDER
 
-        # use data supplier objects and provider info as inputs, to initialize a
-        # provider instance or more instances if available
+        # In speech case, there is only one SpeechRecognitionSupplier object, if there is more then collect all data sources of one or more supplier objects as `sources` for initializing a provider
+		# then initialize a BatchProvider object with the SpeechRecognitionSupplier object and provider_spec details
+		# now provider has all 8 data sources to provide for batches
+
+        p = None
+        for k, v in suppliers.items():
+	        p = provider(
+	            sources=Supplier.merge_suppliers(v),
+	            **provider_spec
+	        )
+
         return {
             k: provider(
                 sources=Supplier.merge_suppliers(v),

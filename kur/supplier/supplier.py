@@ -21,6 +21,10 @@ from ..sources import StackSource
 
 logger = logging.getLogger(__name__)
 
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule
 ###############################################################################
 class Supplier:
 	""" Base class for all suppliers.
@@ -113,8 +117,8 @@ class Supplier:
 	###########################################################################
 	@classmethod
 	def merge_suppliers(cls, suppliers):
-		""" Merges a number of suppliers together, usually in order to create
-			a data Provider.
+		""" collect all data sources of one or more supplier objects, stored in a dict and return it
+
 
 			# Arguments
 
@@ -125,7 +129,10 @@ class Supplier:
 			A dictionary whose keys are the names of data sources and whose
 			values are sources corresponding to those keys.
 		"""
+
 		result = {}
+
+		# get supplier object, and then take 8 data sources out as individual objects and stored in result dict
 		for supplier in suppliers:
 			sources = supplier.get_sources()
 			for k, v in sources.items():

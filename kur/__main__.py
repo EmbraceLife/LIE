@@ -42,7 +42,7 @@ from inspect import getdoc, getmembers, getsourcelines, getmodule
 def parse_kurfile(filename, engine, parse=True):
     """ 1. create a Kurfile object; 2. parse the object; 4. arg1: filename with path, string; arg2: engine, as engine object; arg3: parse, boolean, default true; 5. Return: spec: parsed kurfile object
     """
-    # set_trace()
+
     # initialize a Kurfile object, spec
     # see inside spec:
     # pprint(spec.__dict__.keys())
@@ -156,7 +156,7 @@ def build(args):
 
 
 def prepare_data(args):
-    """ 1. parse kurfile; 2. update args.target to select a section's data to look into; 3. get data provider; 4. --assemble: search for assistant datasets from elsewhere; 5. get a batch from provider and print it or only the first or last few samples of the batch
+    """ Print out samples of data of a given section: 1. parse kurfile; 2. update args.target to select a section's data to look into; 3. get data from spec.data['train']['data'] dict to data supplier objects then to data provider; 4. --assemble: get additional_sources into this section's data provider during compilation; 5. print out a batch from data provider, or print only the first or last few samples of the batch with '--number',
     """
 
     # create a parsed kurfile object
@@ -223,7 +223,7 @@ def prepare_data(args):
         # 0x11560a208>}
         target.compile(assemble_only=True)
 
-        # get every data provider one at a time
+    # get every data provider one at a time
     for k, provider in providers.items():
         if len(providers) > 1:
             print('Provider:', k)
@@ -353,8 +353,7 @@ def kill_process(pid):
 
 
 def parse_args():
-    """ 1. Constructs an argument parser and
-            2. returns the parsed arguments.
+    """ Create console args for kur program: 1. Constructs an argument parser and the framework; 2. create parser args like '--no-color', '--verbose', '--monitor', '--version'; 3. create cmd subparsers like 'train', 'evaluate', 'test', 'build', 'dump', 'data'; 4. create subparse args like '--step', '--compile' with choices, '--bare', '--pre-parse', '--target' with choices, '--assemble', '--number' with integer; 5. return this parser.parse_args()
     """
     parser = argparse.ArgumentParser(
         description='Descriptive deep learning')
@@ -424,6 +423,7 @@ def parse_args():
     subparser.add_argument('-n', '--number', type=int, help='number of samples to print')
     subparser.set_defaults(func=prepare_data)
 
+	# note: what is the output
     return parser.parse_args()
 
 ###############################################################################
@@ -431,10 +431,10 @@ def parse_args():
 
 def main():
     """
-    Entry point for the Kur command-line script.
+    Overarching func of kur program: 1. get console args into program; 2. configurate logging display; 3. monitor process when required by args; 4. show version or do nothing when required by args; 5. create an JinjaEngine object, and assign it to args.engine; 6. run args.func(args) and then exit program
     """
 
-    print("Everything start from here: ------------------")
+    print("Everything start from here __main__.main(): ------------------")
 
     # get console arguments
     args = parse_args()
