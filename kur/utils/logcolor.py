@@ -16,6 +16,11 @@ limitations under the License.
 
 import logging
 
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule
+
 # Get the eight standard colors.
 BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)
 
@@ -38,6 +43,8 @@ def basicConfig(**kwargs):						# pylint: disable=invalid-name
 	""" A convenience function which mimics the behavior of
 		`logging.basicConfig()`, but creates a color formatter.
 	"""
+
+
 	logger = logging.getLogger()
 	if logger.hasHandlers():
 		return

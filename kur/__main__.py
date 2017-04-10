@@ -34,7 +34,8 @@ logger = logging.getLogger(__name__)
 from pdb import set_trace
 from pprint import pprint
 from inspect import getdoc, getmembers, getsourcelines, getmodule
-
+# to write multiple lines inside pdb
+# !import code; code.interact(local=vars())
 
 ###############################################################################
 
@@ -42,7 +43,8 @@ from inspect import getdoc, getmembers, getsourcelines, getmodule
 def parse_kurfile(filename, engine, parse=True):
     """ 1. create a Kurfile object; 2. parse the object; 4. arg1: filename with path, string; arg2: engine, as engine object; arg3: parse, boolean, default true; 5. Return: spec: parsed kurfile object
     """
-    logger.info("parse_kurfile(filename, engine, parse=True): 1. create a Kurfile object, call it spec; 2. parse spec; 3. return spec; 4. arg1: filename with path, string; arg2: engine, as engine object; arg3: parse, boolean, default true;")
+    # logger.warning("(filename_str, engine_object, parse=True): 1. create a Kurfile object, call it spec; 2. parse spec; 3. return spec;")
+
     # initialize a Kurfile object, spec
     # see inside spec:
     # pprint(spec.__dict__.keys())
@@ -54,6 +56,8 @@ def parse_kurfile(filename, engine, parse=True):
     # after parsing, containers is not None anymore
     if parse:
         spec.parse()
+
+
     return spec
 
 ###############################################################################
@@ -62,9 +66,10 @@ def parse_kurfile(filename, engine, parse=True):
 def dump(args):
     """ Dumps the Kurfile to stdout as a JSON blob: 1. if args.pre_parse is True, then don't parse the kurfile object; 2. then dumps the dict to print out
     """
-    logger.info("dump(args): print out the Kurfile details as dict on console: 1. get the kurfile object spec and parse it; 2. then get spec.data and print it out as a dict")
+    logger.warning("(args): print out the Kurfile details as dict on console: 1. get the kurfile object named as spec and parse it; 2. then get spec.data and print it out as a dict")
 
     spec = parse_kurfile(args.kurfile, args.engine, parse=not args.pre_parse)
+
     print(json.dumps(spec.data, sort_keys=True, indent=4))
 
 ###############################################################################
@@ -73,8 +78,11 @@ def dump(args):
 def train(args):
     """ Trains a model.
     """
+    logger.warning("(args): trains a model: 1. create a kurfile object and assign info to its properties; 2. get training function for spec; 3. run this training function with args.step")
+
     spec = parse_kurfile(args.kurfile, args.engine)
     func = spec.get_training_function()
+    set_trace()
     func(step=args.step)
 
 ###############################################################################
@@ -103,13 +111,28 @@ def evaluate(args):
 def build(args):
     """ Builds a model.
     """
-    spec = parse_kurfile(args.kurfile, args.engine)
+    logger.warning("(args): build a model: 1. create a kurfile instance and fill in some of its properties; 2. we select from three sections: train, test, evaluate to build model; 3. if section is not available or args.compile as none, only do spec.get_model(provider=none) without Executor_trainer/evaluator, nor compile(); 4. get one or more providers from spec, but only use the default or any provider; 6. create a model object with spec.get_model(provider), build Executor as trainer or evaluator, and compile")
 
+    # spec = parse_kurfile(args.kurfile, args.engine)
+    spec = Kurfile(args.kurfile, args.engine)
+    logger.warning("spec just instantiated: ")
+    pprint(spec.__dict__)
+
+    # parse the kurfile object spec
+    # after parsing, containers is not None anymore
+    if parse:
+        spec.parse()
+    logger.warning("spec after parse(): ")
+    pprint(spec.__dict__)
+
+	# By default, we select all three sections: train, test, evaluate
     if args.compile == 'auto':
         result = []
         for section in ('train', 'test', 'evaluate'):
             if section in spec.data:
                 result.append((section, 'data' in spec.data[section]))
+
+		# if none of the three sections availabe in spec.data, then we don't compile model or just build a bare model; or a train section is available but has no data value, then just build a bare model
         if not result:
             logger.info('Trying to build a bare model.')
             args.compile = 'none'
@@ -120,21 +143,40 @@ def build(args):
                 logger.info('There is not data defined for this model, '
                             'though, so we will be running as if --bare was '
                             'specified.')
+
+	# If args.compile set to 'none', build a bare model
     elif args.compile == 'none':
         logger.info('Trying to build a bare model.')
+
+	# or we can select any section of the three, and build a model
     else:
         logger.info('Trying to build a "%s" model.', args.compile)
 
+	# if we are building a bare model, then no need for provider
     if args.bare or args.compile == 'none':
         provider = None
+
+	# otherwise, we create a BatchProvider instance with spec (accept many data sources only when testing)
     else:
         providers = spec.get_provider(
             args.compile,
             accept_many=args.compile == 'test'
         )
+		# get default provider or any provider if many providers available
         provider = Kurfile.find_default_provider(providers)
 
+    logger.warning("The provider used for build a model object: provider.__dict__")
+    pprint(provider.__dict__)
+	# create a model object and store inside spec.model:
     spec.get_model(provider)
+
+    logger.warning("What spec look like after build a model object: spec.__dict__")
+    pprint(spec.__dict__)
+
+    logger.warning("What the model object look like: spec.model.__dict__")
+    pprint(spec.model.__dict__)
+
+	# if using data from train section, we build a trainer Executor and compile it; if data from test section, we build a trainer Executor without optimizer and compile it; if data from evaluate section, we build a Executor evaluator and compile it
 
     if args.compile == 'none':
         return
@@ -149,14 +191,22 @@ def build(args):
                      args.compile)
         return 1
 
+    logger.warning("What Executor trainer or evaluator look like: target.__dict__")
+    pprint(target.__dict__)
+
+	# get a backend specific representation of model
     target.compile()
+    logger.warning("What effect does compile do: spec.model.__dict__")
+    pprint(spec.model.__dict__)
 
 ###############################################################################
 
 
 def prepare_data(args):
-    """ Print out samples of data of a given section: 1. parse kurfile; 2. update args.target to select a section's data to look into; 3. get data from spec.data['train']['data'] dict to data supplier objects then to data provider; 4. --assemble: a. return a parsed model for spec.model, b. et trainer on Kurfile spec is to initalize a Executor object with four properties: loss, model, optimizer objects, c. compile Executor to add a compiled model with keras backend to target.model['compiled'], add real new additional_sources onto target.model['additional_sources'], d. but it seems the additional new data source is not used by BatchProvider; 5. print out a batch from data provider, or print only the first or last few samples of the batch with '--number',
+    """ Print out samples of data of a given section: 1. parse kurfile; 2. update args.target to select a section's data to look into; 3. get data from spec.data['train']['data'] dict to data supplier objects then to data provider; 4. --assemble: a. return a parsed model for spec.model, b. et trainer on Kurfile spec is to initalize a Executor object with four properties: loss, model, optimizer objects, c. compile Executor to add a compiled model with keras backend to target.model['compiled'], add real new additional_sources onto target.model['additional_sources'], d. but it seems the additional new data source is not used by BatchProvider; 5. print out a batch from data provider, or print only the first or last few samples of the batch with '--number'
     """
+
+    logger.warning("(args): Print out samples of data of a given section: 1. get kurfile instance spec and parse it with some info; 2. select a section's data to look into; 3. get data from e.g., spec.data['train']['data'] dict to data supplier objects then to data provider; 4. --assemble: a. return a parsed model for spec.model, b. get trainer on spec train section is to initalize a Executor object with four properties: loss, model, optimizer objects, _, c. compile Executor to add a compiled model using keras backend to Executor.model['compiled'], add real new additional_sources onto Executor.model['additional_sources'], d. but it seems the additional new data source is not used by BatchProvider; 5. print out a batch from data provider, or print only the first or last few samples of the batch with '--number'")
 
     # create a parsed kurfile object
     # spec is a dict, check inside spec.__dict__
@@ -234,7 +284,7 @@ def prepare_data(args):
         num_entries = len(batch[keys[0]])
 
         for entry in range(num_entries):
-            if (args.number > 0 and entry < args.number) or (args.number < 0 and entry - num_entries >= args.number):
+            if (args.number < num_entries and entry < args.number) or (args.number < 0 and entry - num_entries >= args.number) or args.number == 32:
                 print('Entry {}/{}:'.format(entry + 1, num_entries))
                 for key in keys:
                     print('  {}: {}'.format(key, batch[key][entry]))
@@ -412,7 +462,7 @@ def parse_args():
     subparser.add_argument('--assemble', action='store_true', help='Also '
                            'begin assembling the model to pull in compile-time, auxiliary data '
                            'sources.')
-    subparser.add_argument('-n', '--number', type=int, help='number of samples to print')
+    subparser.add_argument('-n', '--number', type=int, default = 32, help='number of samples to print')
     subparser.set_defaults(func=prepare_data)
 
 	# note: what is the output
@@ -423,13 +473,12 @@ def parse_args():
 
 def main():
     """
-    Overarching func of kur program: 1. get console args into program; 2. configurate logging display; 3. monitor process when required by args; 4. show version or do nothing when required by args; 5. create an JinjaEngine object, and assign it to args.engine; 6. run args.func(args) and then exit program
-
-	There are many functions to try: 1. !kur data | dump | build | train | test | evaluate
+    "main(): 1. get console args into program; 2. configurate logging display; 3. monitor process when required by args; 4. show version or do nothing when required by args; 5. create an JinjaEngine object, and assign it to args.engine; 6. run args.func(args) and then exit program. There are many functions to try: 1. !kur data | dump | build | train | test | evaluate"
     """
 
     # get console arguments
     args = parse_args()
+
 
     # configurate logging display
     loglevel = {
@@ -440,7 +489,7 @@ def main():
     config = logging.basicConfig if args.no_color else logcolor.basicConfig
     config(
         level=loglevel.get(args.verbose, logging.DEBUG),
-        format='{color}[%(levelname)s %(asctime)s %(name)s:%(lineno)s]{reset} '
+        format='{color}[%(levelname)s %(asctime)s %(name)s %(funcName)s:%(lineno)s]{reset} '
         '%(message)s'.format(
             color='' if args.no_color else '$COLOR',
             reset='' if args.no_color else '$RESET'
@@ -448,7 +497,9 @@ def main():
     )
     logging.captureWarnings(True)
 
-    logger.info("Overarching func of kur program: 1. get console args into program; 2. configurate logging display; 3. monitor process when required by args; 4. show version or do nothing when required by args; 5. create an JinjaEngine object, and assign it to args.engine; 6. run args.func(args) and then exit program. There are many functions to try: 1. !kur data | dump | build | train | test | evaluate")
+
+    logger.warning("console args: %s", args)
+    logger.warning("(): 1. get console args into program; 2. configurate logging display; 3. monitor process when required by args; 4. show version or do nothing when required by args; 5. create an JinjaEngine object, and assign it to args.engine; 6. run args.func(args) and then exit program. There are many functions to try: 1. !kur data | dump | build | train | test | evaluate")
 
     # monitor process when required by args
     do_monitor(args)

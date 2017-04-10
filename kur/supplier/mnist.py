@@ -58,7 +58,6 @@ class MnistSupplier(Supplier):
 				Accepts the same values as `labels`.
 		"""
 		super().__init__(*args, **kwargs)
-		set_trace()
 
 		# MnistSupplier._get_filename: download a gz file and store the dataset in a path, and return this path
 		# idx.load: load the gz file into numpy arrays
@@ -118,7 +117,7 @@ class MnistSupplier(Supplier):
 		if isinstance(target, str):
 			target = {'path' : target}
 
-		# package.install: ensure the path exist locally 
+		# package.install: ensure the path exist locally
 		path, _ = package.install(
 			url=target.get('url'),
 			path=target.get('path'),

@@ -54,7 +54,7 @@ class Kurfile:
 
     ###########################################################################
     def __init__(self, source, engine=None):
-        """ Kurfile.__init__(source, engine=None): Creates a new Kurfile with source and engine. 1. source: either string or dict; 2. engine is JinjaEngine object
+        """ (source_str_or_dict_as_loaded_kurfile, engine=None): Creates a new Kurfile with source and engine. 1.return: Kurfile object with a bunch of properties: filename, data, containers, model, backend, engine, templates; Note: only filename, engine, data are not None right now
 
                 # Arguments
 
@@ -65,8 +65,8 @@ class Kurfile:
                         If None, a Passthrough engine is instantiated.
         """
 
-        logger.info("Kurfile.__init__(source, engine=None): Creates a new Kurfile with source and engine. 1. source: either string or dict; 2. engine is JinjaEngine object")
-		
+        # logger.warning("(source_str_or_dict_as_loaded_kurfile, engine=None): Creates a new Kurfile with source and engine. 1.return: Kurfile object with a bunch of properties: filename, data, containers, model, backend, engine, templates; Note: only filename, engine, data are not None right now");
+
         engine = engine or PassthroughEngine()
         if isinstance(source, str):
             filename = os.path.expanduser(os.path.expandvars(source))
@@ -91,20 +91,20 @@ class Kurfile:
 
     ###########################################################################
     def parse(self):
-        """ 1. evaluate all pairs of spec.data dict under scopes; 2. added section aliases (like training, testing); 3. parse model to spec.containers (not None any more); 4. parse tempalte to spec.templates;
+        """ (self): after initialize Kurfile object, we parse it: 1. evaluate all section dicts in spec.data with scopes; 2. as a result, spec.data added section aliases (like training, testing);3. other uses here to be answered ....; 4. assign spec.data['templates'] to spec.templates; 3. convert spec.data['model'] into model as containers, and store the list of containers inside spec.contaienrs ; 5. return Nothing
         """
 
-        logger.info('Parsing Kurfile...')
+        # logger.warning("(self): after initialize Kurfile object, we parse it: 1. evaluate all section dicts in spec.data with scopes; 2. as a result, spec.data added section aliases (like training, testing);3. other uses here to be answered ....; 4. assign spec.data['templates'] to spec.templates; 3. convert spec.data['model'] into model as containers, and store the list of containers inside spec.contaienrs ; 5. return Nothing")
 
-        # These are reserved section names.
+        # These are reserved section names stored in spec.data
         # The first name in each tuple is the one that we should rely on
         # internally when we reference `self.data` in Kurfile.
         builtin = {
             'settings': ('settings', ),
-            'train': ('train', 'training'),
-            'validate': ('validate', 'validation'),
-            'test': ('test', 'testing'),
-            'evaluate': ('evaluate', 'evaluation'),
+            'train': ('train', ), #'training'),
+            'validate': ('validate', ), #'validation'),
+            'test': ('test', ), #'testing'),
+            'evaluate': ('evaluate', ), #'evaluation'),
             'templates': ('templates', ),
             'model': ('model', ),
             'loss': ('loss', )
@@ -136,11 +136,11 @@ class Kurfile:
         self._parse_section(
             self.engine, builtin['evaluate'], stack, include_key=True)
 
-        # Parse the templates
+        # assign spec.data['templates'] to spec.templates
         self.templates = self._parse_templates(
             self.engine, builtin['templates'], stack)
 
-        # Parse the model.
+        # convert model as dict into model as containers, and store the list of containers inside spec.contaienrs
         self.containers = self._parse_model(
             self.engine, builtin['model'], stack, required=True)
 
@@ -323,32 +323,47 @@ class Kurfile:
     def get_training_function(self):
         """ Returns a function that will train the model.
         """
+        logger.warning("(self): return the training function: 1. make sure the spec.data has a 'train' section; 2. If log exist in train section, create a new hook based on it; 3. get number of epochs assigned, get stop_when assigned or as {}, when both epochs and stop_when exist, stop_when has priority. stop_when has epoch_number and mode; 4. get a provider out of providers; 5. get training_hooks dict from train section (a list) and create training_hooks objects; 6. If validate section is available, get all data providers in validate section, and get validate_weights, and set validat_weights to be best_valid weights; 7. If validate section has hooks, get all hook objects into a list; 8. get train_weights, if it is string, set train_weights to be initial weights; if it is a dict, train_weights has 3 elements: initial, best, and last weights; 9. get file path for initial_weights, best_train weights, best_valid and last_weights;... continue ...")
+        logger.warning("10. build model object using data provider to spec, then build Executor trainer; 11. create the actual training function: 1. if initial_weights is available, then restore the weights to model; 2. store all weights paths, data provider, hooks, checkpoint in a dict named defaults; 3. update this list with input arguments; 4. train the Executor trainer with defaults dict; 12. return this actual training function.")
+
+		# make sure the spec.data has a 'train' section
         if 'train' not in self.data:
             raise ValueError('Cannot construct training function. There is a '
                              'missing "train" section.')
 
+		# If log exist in train section, create a new hook based on it
         if 'log' in self.data['train']:
             log = Logger.from_specification(self.data['train']['log'])
         else:
             log = None
 
+		# get number of epochs assigned
         epochs = self.data['train'].get('epochs')
+
+		# get stop_when assigned or as {}
         stop_when = self.data['train'].get('stop_when', {})
+
+		# when both epochs and stop_when exist, stop_when has priority
         if epochs:
             if stop_when:
                 warnings.warn('"stop_when" has replaced "epochs" in the '
                               '"train" section. We will try to merge things together, '
                               'giving "stop_when" priority.', DeprecationWarning)
+
+		    # if epoch is a dict, store epoch_number and epoch_mode inside stop_when dict
             if isinstance(epochs, dict):
                 if 'number' in epochs and 'epochs' not in stop_when:
                     stop_when['epochs'] = epochs['number']
                 if 'mode' in epochs and 'mode' not in stop_when:
                     stop_when['mode'] = epochs['mode']
+			# if epochs is not a dict, nor a key in stop_when, just store epochs in stop_when
             elif 'epochs' not in stop_when:
                 stop_when['epochs'] = epochs
 
+		# get a provider out of providers
         provider = get_any_value(self.get_provider('train'))
 
+		# get training_hooks dict from train section (a list) and create training_hooks objects
         training_hooks = self.data['train'].get('hooks') or []
         if not isinstance(training_hooks, (list, tuple)):
             raise ValueError('"hooks" (in the "train" section) should '
@@ -356,6 +371,7 @@ class Kurfile:
         training_hooks = [TrainingHook.from_specification(spec)
                           for spec in training_hooks]
 
+	    # If validate section is available, get all data providers in validate section, and get validate_weights, and set validat_weights to be best_valid weights
         if 'validate' in self.data:
             validation = self.get_provider('validate', accept_many=True)
             validation_weights = self.data['validate'].get('weights')
@@ -369,6 +385,7 @@ class Kurfile:
                 raise ValueError('Unknown type for validation weights: {}'
                                  .format(validation_weights))
 
+			# If validate section has hooks, get all hook objects into a list
             validation_hooks = self.data['validate'].get('hooks', [])
             if not isinstance(validation_hooks, (list, tuple)):
                 raise ValueError('"hooks" (in the "validate" section) should '
@@ -380,6 +397,7 @@ class Kurfile:
             best_valid = None
             validation_hooks = None
 
+		# get train_weights, if it is string, set train_weights to be initial weights; if it is a dict, train_weights has 3 elements: initial, best, and last weights
         train_weights = self.data['train'].get('weights')
         if train_weights is None:
             initial_weights = best_train = last_weights = None
@@ -400,6 +418,7 @@ class Kurfile:
             raise ValueError('Unknown weight specification for training: {}'
                              .format(train_weights))
 
+		# get train section's checkpoint
         checkpoint = self.data['train'].get('checkpoint')
 
         if deprecated_checkpoint is not None:
@@ -411,18 +430,22 @@ class Kurfile:
                 logger.warning('The currently-accepted "checkpoint" will be '
                                'used over the deprecated "checkpoint".')
 
+	    # get file path for initial_weights, best_train weights, best_valid and last_weights
         def expand(x): return os.path.expanduser(os.path.expandvars(x))
         initial_weights, best_train, best_valid, last_weights = [
             expand(x) if x is not None else x for x in
             (initial_weights, best_train, best_valid, last_weights)
         ]
 
+		# build model object using data provider to spec, then build Executor trainer,
         model = self.get_model(provider)
         trainer = self.get_trainer()
 
+		# create the actual training function: 1. if initial_weights is available, then restore the weights to model; 2. store all weights paths, data provider, hooks, checkpoint in a dict named defaults; 3. update this dict with additional unkown named input arguments; 4. train the Executor trainer with defaults dict
         def func(**kwargs):
             """ Trains a model from a pre-packaged specification file.
             """
+			# if initial_weights is available, then restore model with this weights
             if initial_weights is not None:
                 if os.path.exists(initial_weights):
                     model.restore(initial_weights)
@@ -446,6 +469,8 @@ class Kurfile:
                                     'this is undesireable, set "must_exist" to "yes" '
                                     'in the approriate "weights" section.',
                                     initial_weights)
+
+			# store all weights paths, data provider, hooks, checkpoint in a dict named defaults
             defaults = {
                 'provider': provider,
                 'validation': validation,
@@ -458,7 +483,9 @@ class Kurfile:
                 'validation_hooks': validation_hooks,
                 'checkpoint': checkpoint
             }
+			# update this list with additional unkown named input arguments
             defaults.update(kwargs)
+			# train the Executor trainer with defaults dict
             return trainer.train(**defaults)
 
         return func
@@ -715,7 +742,8 @@ class Kurfile:
 
     ###########################################################################
     def _parse_model(self, engine, section, stack, *, required=True):
-        """ Parses the top-level "model" entry.
+        """ parse():self.containers<->self._parse_model(
+            engine, section, stack, required=True): convert model dicts from spec.data['model'] to a list of containers of all layers: 1. stack: provide scopes for evaulation; 2. section: a string for top level sections, here to be 'model'; 3. make sure 'model' is a key found in spec.data; 4. convert each dict element of spec.data['model'] to a container, parse container with engine, and store all containers in a list; 5. return the list of containers.
 
                 # Arguments
 
@@ -735,6 +763,9 @@ class Kurfile:
                 raised. If the model section is not found and isn't required, None
                 is returned.
         """
+        logger.info("parse():self.containers<->self._parse_model(engine, section, stack, required=True): convert model dicts from spec.data['model'] to a list of containers of all layers: 1. stack: provide scopes for evaulation; 2. section: a string for top level sections, here to be 'model'; 3. make sure 'model' is a key found in spec.data; 4. for each dict element or entry of spec.data['model'] create a container object, parse container with engine, and store all containers in a list; 5. return the list of containers.")
+
+		# make sure 'model' is a key in spec.data
         if isinstance(section, str):
             section = (section, )
 
@@ -753,6 +784,7 @@ class Kurfile:
             raise ValueError(
                 'Section "{}" should contain a list of layers.'.format(key))
 
+		# take each dict elemement entry from spec.data['model'], then do JinjaEngine.evaluate(entry), then create a Container object based on it, and store it inside containers
         with ScopeStack(engine, stack):
             queue = deque(self.data[key])
             containers = []
@@ -762,6 +794,7 @@ class Kurfile:
                 containers.append(
                     Container.create_container_from_data(entry)
                 )
+			# each container insider containers are objects like kur.containers.layers.placeholder.Placeholder...; after container.parse(), container.__dict__['_parsed'] is set True, ...['name'] is set 'images'
             for container in containers:
                 container.parse(engine)
 
@@ -770,9 +803,10 @@ class Kurfile:
     ###########################################################################
     def parse_source(self, engine, *,
                      source=None, context=None, loaded=None):
-        """ Parses a source, and its includes (recursively), and returns the
-                merged sources.
+        """ __init__():self.data->self.parse_source(engine, source=filename, context=None): 1. read data from a yml file, and its-includes files (recursively); 2. merge the data; 3. returns the merged data.
         """
+        logger.info("__init__():self.data->self.parse_source(engine, source=filename, context=None): 1. read data from a yml file, and its-includes files (recursively); 2. merge the data; 3. returns the merged data.")
+
         def get_id(filename):
             """ Returns a tuple which uniquely identifies a file.
 
@@ -785,6 +819,7 @@ class Kurfile:
         # Process the "loaded" iterable.
         loaded = loaded or set()
 
+		# get filename for yaml
         if isinstance(source, str):
             filename = source
             strategy = None
@@ -804,7 +839,7 @@ class Kurfile:
                                'Expected each "include" to be a string or a dictionary. '
                                'Received: {}'.format(context or 'top-level', source))
 
-        logger.info('Parsing source: %s, included by %s.', filename,
+        logger.debug('__init__->parse_source(): Parsing source: %s, included by %s.', filename,
                     context or 'top-level')
 
         if context:
@@ -814,6 +849,8 @@ class Kurfile:
             raise IOError('Error while parsing source file {}. No such '
                           'source file found: {}. Path was expanded to: {}'.format(
                               context or 'top-level', filename, expanded))
+
+	    # get unique id for the yml file, avoid repeating adding files
         file_id = get_id(expanded)
         if file_id in loaded:
             logger.warning('Skipping an already included source file: %s. '
@@ -825,6 +862,7 @@ class Kurfile:
         else:
             loaded.add(file_id)
 
+		# read data from a the main yaml file
         try:
             data = Reader.read_file(expanded)
         except:
@@ -832,8 +870,13 @@ class Kurfile:
                              expanded)
             raise
 
+		# get include yml filename
         new_sources = data.pop('include', [])
+
+		# kur.JinjaEngine.evaluate this yml file and return a file path ??
         engine.evaluate(new_sources, recursive=True)
+
+		# get the yml file into a list
         if isinstance(new_sources, str):
             new_sources = [new_sources]
         elif not isinstance(new_sources, (list, tuple)):
@@ -841,7 +884,7 @@ class Kurfile:
                              'sections must be a single source file or a list of source '
                              'files. Instead we received: {}'.format(
                                  expanded, new_sources))
-
+		# func: read data_new from a new yml file and then merge it with the existing data
         def load_source(source):
             return mergetools.deep_merge(
                 self.parse_source(
@@ -853,6 +896,8 @@ class Kurfile:
                 data,
                 strategy=strategy
             )
+
+		# new includes source to be read and merged: can be dict, string or else
         for new_source in new_sources:
             if isinstance(new_source, dict) and 'source' in new_source:
                 sub_sources = new_source.pop('source')
@@ -893,11 +938,14 @@ class Kurfile:
 
     ###########################################################################
     def _parse_templates(self, engine, section, stack):
-        """ Parses the template section.
+        """ parse()->_parse_templates(self, engine, section, stack): return the templates dict from spec.data['templates']: 1. section should be a string as 'templates'; 2. 'templates' should be a key in spec.data; 3. spec.data['templates'] should be a dict; 4. keys out of spec.data['templates'] should not be a real container object name or real layer object name; 5. engine object has _scope, _templates, env, state; only env is not Empty; fill _templates with spec.data['templates']; 6. return spec.data['templates']
         """
+        logger.info("parse()->_parse_templates(self, engine, section, stack): return the templates dict from spec.data['templates']: 1. section should be a string as 'templates'; 2. 'templates' should be a key in spec.data; 3. spec.data['templates'] should be a dict; 4. keys out of spec.data['templates'] should not be a real container object name or real layer object name; 5. engine object has _scope, _templates, env, state; only env is not Empty; fill _templates with spec.data['templates']; 6. return spec.data['templates']")
+		# section should be a string as 'templates'
         if isinstance(section, str):
             section = (section, )
 
+		# 'templates' should be a key in spec.data
         key = None		# Not required, but shuts pylint up.
         for key in section:
             if key in self.data:
@@ -908,18 +956,20 @@ class Kurfile:
         if not self.data[key]:
             return None
 
+		# spec.data['templates'] should be a dict
         if not isinstance(self.data[key], dict):
             raise ValueError('Section "{}" should contain a dictionary of '
                              'templates.'.format(key))
 
+		# keys out of spec.data['templates'] should not be a real container object name or real layer object name
         for template in self.data[key]:
             other = Container.get_container_for_name(template)
             if other:
                 raise ValueError('Templates cannot override built-in layers. '
                                  'We found a conflict with template "{}".'.format(template))
-
+		# engine object has _scope, _templates, env, state; only env is not Empty; fill _templates with spec.data['templates']
         engine.register_templates(self.data[key])
-
+		# return the templates dict from spec.data
         return self.data[key]
 
     ###########################################################################
@@ -953,12 +1003,12 @@ class Kurfile:
                 - This will replace the values of `self.data` with the evaluated
                   version.
         """
-
+        logger.info("")
         # make the selected section to be a tuple
         if isinstance(section, str):
             section = (section, )
 
-        logger.debug('Parsing Kurfile section: %s', section[0])
+        logger.debug('_parse_section(): Parsing Kurfile section: %s', section[0])
 
         # assign the section name to key
         key = None		# Not required, but shuts pylint up.
@@ -983,7 +1033,10 @@ class Kurfile:
 
         # Chek this question and understanding
             #  http://stackoverflow.com/questions/43291756/how-to-understand-scope-and-engine-evaluate-in-parse-section-in-kur
+
+		# add stack as a list of dicts ['host', 'raw', 'parsed', 'filename'] and extra_stack ['settings'] to engine._scope
         with ScopeStack(engine, stack + extra_stack):
+
             evaluated = engine.evaluate(self.data[key], recursive=True)
 
         if not include_key:

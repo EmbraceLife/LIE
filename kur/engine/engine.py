@@ -20,6 +20,10 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule
 ###############################################################################
 class ScopeStack:					# pylint: disable=too-few-public-methods
 	""" Context management for Engine scopes.
@@ -181,7 +185,7 @@ class Engine:
 
 	###########################################################################
 	def evaluate(self, expression, recursive=False):
-		""" Evaluates an expression in the current scope.
+		""" Evaluates an string expression in the current scope, as itself: (how does scope help evaluate expression? Not sure how is scope used); if expression is not a string, then do some recursion.
 
 			# Arguments
 
@@ -201,6 +205,9 @@ class Engine:
 
 			The evaluated expression (some Python object/class).
 		"""
+
+		logger.info("evaluate(self, expression, recursive=False): Evaluates an string expression in the current scope, as itself: (how does scope help evaluate expression? Not sure how is scope used); if expression is not a string, then do some recursion.")
+
 		if isinstance(expression, (str, bytes)):
 			# A string may need several runs through evaluation to get out of
 			# the templating engine.
