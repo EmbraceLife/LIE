@@ -1,4 +1,6 @@
 # LIE: Learning Is Experimenting 
 
-Step by step, this repo will testify this LIE  using Kur (a new Deep Learning library)
+Do you believe this LIE?
+
+Step by step, this repo will testify this LIE by experimenting Kur for deep learning...
 
