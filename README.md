@@ -1,3 +1,4 @@
-# kur_manual
+# LIE: Learning Is Experimenting 
 
-To learn DL is to experiment it
+Step by step, this repo will testify this LIE  using Kur (a new Deep Learning library)
+
