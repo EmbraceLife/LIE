@@ -35,7 +35,7 @@ COLORS = {
 	'INFO': MAGENTA,
 	'WARNING': RED,
 	'ERROR': RED,
-	'CRITICAL': RED
+	'CRITICAL': GREEN
 }
 
 ###############################################################################

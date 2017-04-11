@@ -21,6 +21,12 @@ from ..utils import get_subclasses
 
 logger = logging.getLogger(__name__)
 
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule
+
+
 ###############################################################################
 class Container:
 	""" The base class for all parseable entries in the model representation.
@@ -72,6 +78,8 @@ class Container:
 		""" Factory method for creating containers.
 		"""
 		cls = Container.find_container_for_data(data)
+
+		logger.info("(data, **kwargs): create a container for given dict/layer from spec.data['model'] \n Input dict: %s \n Output container: %s \n ", data, cls(data, **kwargs))
 		if cls:
 			return cls(data, **kwargs)
 
@@ -289,6 +297,8 @@ class Container:
 
 		self._parsed = True
 
+		logger.critical("(self, engine): parse the containers \n 1. _parse_pre: make sure container from spec is just a dict; \n 2. _parse_core: Parse the core components of the container is to add a lot of properties and fill them with values: 2.1. tag; 2.2. name; 2.3. oldest; 2.4. args as container_name; 2.5. input; 2.6. freeze; 2.7. sink; 2.8. when \n 3. _parse: pass \n 4. _parse_post: set for a. engine.state['tags']; b. engine.state['oldest']; c. engine.state['layers'] \n Parse the container, and it becomes: %s \n ", self)
+		pprint(self.__dict__)
 	###########################################################################
 	def build(self, model, rebuild=False):
 		""" Convenience function for building the underlying operations.
@@ -313,6 +323,7 @@ class Container:
 			Specifically, we may need to parse out the "vars" field (if
 			present) so that we can do variable substitution during `_parse()`.
 		"""
+
 		if isinstance(self.data, str):
 			self.data = engine.evaluate(self.data)
 			if isinstance(self.data, str):
@@ -320,7 +331,7 @@ class Container:
 
 	###########################################################################
 	def _parse_post(self, engine):
-		""" Post-parsing hook.
+		""" Post-parsing hook: set for 1. engine.state['tags']; 2. engine.state['oldest']; 3. engine.state['layers']
 
 			The primary purpose of this is to register the container with the
 			templating engine so that it can be referenced by other containers
@@ -338,8 +349,9 @@ class Container:
 
 	###########################################################################
 	def _parse_core(self, engine):
-		""" Parse the core components of the container.
+		""" Parse the core components of the container is to add a lot of properties and fill them with values: 1. tag; 2. name; 3. oldest; 4. args as container_name; 5. input; 6. freeze; 7. sink; 8. when
 		"""
+
 		if 'tag' in self.data:
 			self.tags = engine.evaluate(self.data['tag'], recursive=True)
 			if not isinstance(self.tags, (list, tuple)):
@@ -411,6 +423,7 @@ class Container:
 				logger.info('Container will be suppressed: %s', self.name)
 		else:
 			self.when = True
+
 
 	###########################################################################
 	def _build(self, model):

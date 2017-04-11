@@ -284,7 +284,7 @@ def prepare_data(args):
         num_entries = len(batch[keys[0]])
 
         for entry in range(num_entries):
-            if args.number == None or (args.number < num_entries and entry < args.number) or (entry - num_entries >= args.number):
+            if args.number is None or (args.number < num_entries and entry < args.number) or (entry - num_entries >= args.number):
                 print('Entry {}/{}:'.format(entry + 1, num_entries))
                 for key in keys:
                     print('  {}: {}'.format(key, batch[key][entry]))
@@ -483,9 +483,10 @@ def main():
     # configurate logging display
     loglevel = {
         0: logging.WARNING,
-        1: logging.INFO,
-        2: logging.DEBUG
-		# 3: logging.CRITICAL
+        1: logging.CRITICAL,
+        2: logging.INFO,
+        3: logging.DEBUG
+
     }
     config = logging.basicConfig if args.no_color else logcolor.basicConfig
     config(
