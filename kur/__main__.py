@@ -43,7 +43,7 @@ from inspect import getdoc, getmembers, getsourcelines, getmodule
 def parse_kurfile(filename, engine, parse=True):
     """ 1. create a Kurfile object; 2. parse the object; 4. arg1: filename with path, string; arg2: engine, as engine object; arg3: parse, boolean, default true; 5. Return: spec: parsed kurfile object
     """
-    # logger.warning("(filename_str, engine_object, parse=True): 1. create a Kurfile object, call it spec; 2. parse spec; 3. return spec;")
+    logger.info("(filename_str, engine_object, parse=True): \n 1. create a Kurfile object, call it spec; 2. parse spec; 3. return spec;")
 
     # initialize a Kurfile object, spec
     # see inside spec:
@@ -111,20 +111,23 @@ def evaluate(args):
 def build(args):
     """ Builds a model.
     """
-    logger.warning("(args): build a model: 1. create a kurfile instance and fill in some of its properties; 2. we select from three sections: train, test, evaluate to build model; 3. if section is not available or args.compile as none, only do spec.get_model(provider=none) without Executor_trainer/evaluator, nor compile(); 4. get one or more providers from spec, but only use the default or any provider; 6. create a model object with spec.get_model(provider), build Executor as trainer or evaluator, and compile")
+    logger.warning("(args): build a model: \n 1. create a kurfile instance and fill in some of its properties; \n 2. we select from three sections: train, test, evaluate to build model; \n 3. if section is not available or args.compile as none, only do spec.get_model(provider=none) without Executor_trainer/evaluator, nor compile(); \n 4. get one or more providers from spec, but only use the default or any provider; \n 5. create a model object with spec.get_model(provider), build Executor as trainer or evaluator, and compile \n ")
 
     # spec = parse_kurfile(args.kurfile, args.engine)
+
+	#####################################################
+    logger.warning("step1: Initialize a Kurfile object named spec,  Now .... \n ")
     spec = Kurfile(args.kurfile, args.engine)
-    logger.warning("spec just instantiated: ")
-    pprint(spec.__dict__)
 
     # parse the kurfile object spec
     # after parsing, containers is not None anymore
+    parse = True
     if parse:
+        logger.warning("step2: to fill some properties of spec: Now .... \n ")
         spec.parse()
-    logger.warning("spec after parse(): ")
-    pprint(spec.__dict__)
 
+	#########################################################
+    logger.warning("step3: Decide to build a bare or non-bare model on which section: Now ... \n ")
 	# By default, we select all three sections: train, test, evaluate
     if args.compile == 'auto':
         result = []
@@ -152,6 +155,8 @@ def build(args):
     else:
         logger.info('Trying to build a "%s" model.', args.compile)
 
+	###############################################################
+    logger.warning("step4: Prepare data provider: None for bare model, default or any provider from spec: Now ... \n ")
 	# if we are building a bare model, then no need for provider
     if args.bare or args.compile == 'none':
         provider = None
@@ -165,17 +170,15 @@ def build(args):
 		# get default provider or any provider if many providers available
         provider = Kurfile.find_default_provider(providers)
 
-    logger.warning("The provider used for build a model object: provider.__dict__")
-    pprint(provider.__dict__)
+
+	###############################################################
+    logger.warning("step5: build a model object for spec using data provider: Now ... \n ")
 	# create a model object and store inside spec.model:
     spec.get_model(provider)
 
-    logger.warning("What spec look like after build a model object: spec.__dict__")
-    pprint(spec.__dict__)
 
-    logger.warning("What the model object look like: spec.model.__dict__")
-    pprint(spec.model.__dict__)
-
+	###############################################################
+    logger.warning("step6: Create an Executor trainer or evaluator, target: Now ... \n ")
 	# if using data from train section, we build a trainer Executor and compile it; if data from test section, we build a trainer Executor without optimizer and compile it; if data from evaluate section, we build a Executor evaluator and compile it
 
     if args.compile == 'none':
@@ -191,13 +194,10 @@ def build(args):
                      args.compile)
         return 1
 
-    logger.warning("What Executor trainer or evaluator look like: target.__dict__")
-    pprint(target.__dict__)
-
+    logger.warning("step7: Compile this Executor trainer or evaluator: Now ... \n ")
 	# get a backend specific representation of model
     target.compile()
-    logger.warning("What effect does compile do: spec.model.__dict__")
-    pprint(spec.model.__dict__)
+
 
 ###############################################################################
 
@@ -485,6 +485,7 @@ def main():
         0: logging.WARNING,
         1: logging.INFO,
         2: logging.DEBUG
+		# 3: logging.CRITICAL
     }
     config = logging.basicConfig if args.no_color else logcolor.basicConfig
     config(
@@ -498,8 +499,8 @@ def main():
     logging.captureWarnings(True)
 
 
-    logger.warning("console args: %s", args)
-    logger.warning("(): 1. get console args into program; 2. configurate logging display; 3. monitor process when required by args; 4. show version or do nothing when required by args; 5. create an JinjaEngine object, and assign it to args.engine; 6. run args.func(args) and then exit program. There are many functions to try: 1. !kur data | dump | build | train | test | evaluate")
+    logger.warning("console args: \n \t %s \n", args)
+    logger.warning("(): \n 1. get console args into program; \n 2. configurate logging display; \n 3. monitor process when required by args; \n 4. show version or do nothing when required by args; \n 5. create an JinjaEngine object, and assign it to args.engine; \n 6. run args.func(args) and then exit program. \n There are many functions to try: !kur data | dump | build | train | test | evaluate \n")
 
     # monitor process when required by args
     do_monitor(args)

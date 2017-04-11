@@ -65,7 +65,8 @@ class Kurfile:
                         If None, a Passthrough engine is instantiated.
         """
 
-        # logger.warning("(source_str_or_dict_as_loaded_kurfile, engine=None): Creates a new Kurfile with source and engine. 1.return: Kurfile object with a bunch of properties: filename, data, containers, model, backend, engine, templates; Note: only filename, engine, data are not None right now");
+
+        logger.info("(source_str_or_dict_as_loaded_kurfile, engine=None): \n Creates a new Kurfile with source and engine. \n 1.return: Kurfile object with a bunch of properties: filename, data, containers, model, backend, engine, templates; \n Note: only filename, engine, data are not None right now. \n \t Instantiate Kurfile object with engine: %s, and source file: %s \n ", engine,  source);
 
         engine = engine or PassthroughEngine()
         if isinstance(source, str):
@@ -89,12 +90,14 @@ class Kurfile:
         self.engine = engine
         self.templates = None
 
+
+
     ###########################################################################
     def parse(self):
         """ (self): after initialize Kurfile object, we parse it: 1. evaluate all section dicts in spec.data with scopes; 2. as a result, spec.data added section aliases (like training, testing);3. other uses here to be answered ....; 4. assign spec.data['templates'] to spec.templates; 3. convert spec.data['model'] into model as containers, and store the list of containers inside spec.contaienrs ; 5. return Nothing
         """
 
-        # logger.warning("(self): after initialize Kurfile object, we parse it: 1. evaluate all section dicts in spec.data with scopes; 2. as a result, spec.data added section aliases (like training, testing);3. other uses here to be answered ....; 4. assign spec.data['templates'] to spec.templates; 3. convert spec.data['model'] into model as containers, and store the list of containers inside spec.contaienrs ; 5. return Nothing")
+        logger.info("(self): \n after initialize Kurfile object, we parse it: \n 1. evaluate all section dicts in spec.data with scopes, and reassign them back to spec.data; \n 2. as a result, spec.data added section aliases (like training, testing); \n 3. other uses here to be answered ....; \n 4. assign spec.data['templates'] to spec.templates; \n 5. convert spec.data['model'] into model as containers, and assign the list of containers inside spec.contaienrs ; \n 6. finally spec's properites are renewed or parsed, done. \n ")
 
         # These are reserved section names stored in spec.data
         # The first name in each tuple is the one that we should rely on
@@ -763,7 +766,7 @@ class Kurfile:
                 raised. If the model section is not found and isn't required, None
                 is returned.
         """
-        logger.info("parse():self.containers<->self._parse_model(engine, section, stack, required=True): convert model dicts from spec.data['model'] to a list of containers of all layers: 1. stack: provide scopes for evaulation; 2. section: a string for top level sections, here to be 'model'; 3. make sure 'model' is a key found in spec.data; 4. for each dict element or entry of spec.data['model'] create a container object, parse container with engine, and store all containers in a list; 5. return the list of containers.")
+
 
 		# make sure 'model' is a key in spec.data
         if isinstance(section, str):
@@ -783,6 +786,9 @@ class Kurfile:
         if not isinstance(self.data[key], (list, tuple)):
             raise ValueError(
                 'Section "{}" should contain a list of layers.'.format(key))
+
+        logger.info("(engine, section, stack, required=True): \n Convert model dicts from spec.data['model'] to a list of containers of all layers: \n 1. stack: provide scopes for evaulation; \n 2. section: a string for top level sections, here to be 'model'; \n 3. make sure 'model' is a key found in spec.data; \n 4. for each dict element or entry of spec.data['model'] create a container object, parse container with engine, and store all containers in a list; \n 5. return the list of containers. \n \t Parse model from spec.data['model']: %s \n ", pprint(self.data[key]))
+
 
 		# take each dict elemement entry from spec.data['model'], then do JinjaEngine.evaluate(entry), then create a Container object based on it, and store it inside containers
         with ScopeStack(engine, stack):
@@ -805,7 +811,7 @@ class Kurfile:
                      source=None, context=None, loaded=None):
         """ __init__():self.data->self.parse_source(engine, source=filename, context=None): 1. read data from a yml file, and its-includes files (recursively); 2. merge the data; 3. returns the merged data.
         """
-        logger.info("__init__():self.data->self.parse_source(engine, source=filename, context=None): 1. read data from a yml file, and its-includes files (recursively); 2. merge the data; 3. returns the merged data.")
+        logger.info("(engine, source=filename, context=None):\n Extract kurfile.yml content into a large dict for spec.data : \n 1. read data from a yml file, and its-includes files (recursively); \n 2. merge the data; \n 3. returns the merged data. \n  \t parse source kurfile: %s, included by %s. \n ", source, context or 'top-level')
 
         def get_id(filename):
             """ Returns a tuple which uniquely identifies a file.
@@ -839,8 +845,10 @@ class Kurfile:
                                'Expected each "include" to be a string or a dictionary. '
                                'Received: {}'.format(context or 'top-level', source))
 
-        logger.debug('__init__->parse_source(): Parsing source: %s, included by %s.', filename,
-                    context or 'top-level')
+
+
+		# logger.debug('Parsing source: %s, included by %s.', filename,
+        #             context or 'top-level')
 
         if context:
             filename = os.path.join(os.path.dirname(context), filename)
@@ -940,7 +948,7 @@ class Kurfile:
     def _parse_templates(self, engine, section, stack):
         """ parse()->_parse_templates(self, engine, section, stack): return the templates dict from spec.data['templates']: 1. section should be a string as 'templates'; 2. 'templates' should be a key in spec.data; 3. spec.data['templates'] should be a dict; 4. keys out of spec.data['templates'] should not be a real container object name or real layer object name; 5. engine object has _scope, _templates, env, state; only env is not Empty; fill _templates with spec.data['templates']; 6. return spec.data['templates']
         """
-        logger.info("parse()->_parse_templates(self, engine, section, stack): return the templates dict from spec.data['templates']: 1. section should be a string as 'templates'; 2. 'templates' should be a key in spec.data; 3. spec.data['templates'] should be a dict; 4. keys out of spec.data['templates'] should not be a real container object name or real layer object name; 5. engine object has _scope, _templates, env, state; only env is not Empty; fill _templates with spec.data['templates']; 6. return spec.data['templates']")
+        logger.info("(self, engine, section, stack): \n return the templates dict from spec.data['templates']: \n 1. section should be a string as 'templates'; \n 2. 'templates' should be a key in spec.data; \n 3. spec.data['templates'] should be a dict; \n 4. keys out of spec.data['templates'] should not be a real container object name or real layer object name; \n 5. engine object has _scope, _templates, env, state; only env is not Empty; fill _templates with spec.data['templates']; \n 6. return spec.data['templates'] \n \t Parse template: %s \n ", section)
 		# section should be a string as 'templates'
         if isinstance(section, str):
             section = (section, )
@@ -967,6 +975,8 @@ class Kurfile:
             if other:
                 raise ValueError('Templates cannot override built-in layers. '
                                  'We found a conflict with template "{}".'.format(template))
+
+        logger.debug("Parse Kurfile section: templates")
 		# engine object has _scope, _templates, env, state; only env is not Empty; fill _templates with spec.data['templates']
         engine.register_templates(self.data[key])
 		# return the templates dict from spec.data
@@ -1003,12 +1013,11 @@ class Kurfile:
                 - This will replace the values of `self.data` with the evaluated
                   version.
         """
-        logger.info("")
         # make the selected section to be a tuple
         if isinstance(section, str):
             section = (section, )
 
-        logger.debug('_parse_section(): Parsing Kurfile section: %s', section[0])
+        logger.info('(self, engine, section, stack, *, required=False, include_key=True, auto_scope=False): \n Evaluate a Kurfile section as assign it back to spec.data[section]: \n \t parse section: %s \n ', section[0])
 
         # assign the section name to key
         key = None		# Not required, but shuts pylint up.

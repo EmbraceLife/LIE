@@ -206,7 +206,7 @@ class Engine:
 			The evaluated expression (some Python object/class).
 		"""
 
-		logger.info("evaluate(self, expression, recursive=False): Evaluates an string expression in the current scope, as itself: (how does scope help evaluate expression? Not sure how is scope used); if expression is not a string, then do some recursion.")
+		logger.info("(self, expression, recursive=False):\n  Evaluates an string expression and return a python object: \n \t parse expression(type: %s):  %s \n ", type(expression), expression)
 
 		if isinstance(expression, (str, bytes)):
 			# A string may need several runs through evaluation to get out of

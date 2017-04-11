@@ -32,8 +32,8 @@ BOLD_SEQ = "\033[1m"
 # Color codes for each log-level.
 COLORS = {
 	'DEBUG': BLUE,
-	'INFO': WHITE,
-	'WARNING': YELLOW,
+	'INFO': MAGENTA,
+	'WARNING': RED,
 	'ERROR': RED,
 	'CRITICAL': RED
 }
