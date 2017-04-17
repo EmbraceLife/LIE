@@ -39,6 +39,8 @@ class Supplier:
 	def from_specification(spec, kurfile=None):
 		""" create data supplier from kurfile info e.g. {'mnist':[{}]}
 		"""
+		logger.critical("(spc, kurfile=None): \n create data supplier object from kurfile dict \n1. make sure spec is a dict; \n2. get data supplier name from spec; \n3. get spec dict description for this data supplier; \n4. create the data supplier object by its name; \n5. return this data supplier \n\n")
+		set_trace()
 		# if spec is not dict, raise error
 		if not isinstance(spec, dict):
 			raise ValueError('Each element of the "input" list must be a '
@@ -66,7 +68,7 @@ class Supplier:
 				'"input" list. Exactly one of the following keys must be '
 				'present: {}'.format(', '.join(candidates)))
 
-		# name is 'mnist', params is a nested dict
+		# name is 'mnist', params is a nested dict describe this data supplier
 		name = candidates.pop()
 		params = spec[name]
 
@@ -158,6 +160,7 @@ class Supplier:
 					# Create a stack.
 					logger.info('Stacking data source: %s', k)
 					result[k] = StackSource(result[k], v)
+		logger.debug("(cls, suppliers): \nMerge all data sources into a single dictionary for instantiate a data provider \nInputs: \n1. cls: \n%s \n2. suppliers: \n%s \nReturn: \nA single dictionary: \n%s \n\n", cls, suppliers, result)
 		return result
 
 	###########################################################################

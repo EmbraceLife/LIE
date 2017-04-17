@@ -136,7 +136,7 @@ class JinjaEngine(Engine):
 		except (ValueError, SyntaxError):
 			pass
 
-		logger.info("(self, expression): \n convert a yml expression (a string) to a python object \n \t Evaluate expression: %s, return: %s \n ", expression, result)
+		logger.info("(self, expression): \n convert a yml expression (a string) to a python object \n \n Inputs: \n 1. expression: %s, \n \n Return: \n %s \n \n", expression, result)
 
 		return result
 

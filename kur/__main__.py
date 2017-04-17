@@ -43,7 +43,8 @@ from inspect import getdoc, getmembers, getsourcelines, getmodule
 def parse_kurfile(filename, engine, parse=True):
     """ 1. create a Kurfile object; 2. parse the object; 4. arg1: filename with path, string; arg2: engine, as engine object; arg3: parse, boolean, default true; 5. Return: spec: parsed kurfile object
     """
-    logger.info("(filename_str, engine_object, parse=True): \n 1. create a Kurfile object, call it spec; 2. parse spec; 3. return spec;")
+
+    logger.info("(filename_str, engine_object, parse=True): start \n 1. create a Kurfile object, call it spec; \n 2. parse spec; \n 3. return spec; \n Inputs: \n \t 1. filename: %s; \n \t 2. engine: %s; \n \t 3. parse: default is True, %s. \n \n", filename, engine, parse)
 
     # initialize a Kurfile object, spec
     # see inside spec:
@@ -57,6 +58,7 @@ def parse_kurfile(filename, engine, parse=True):
     if parse:
         spec.parse()
 
+    logger.info("(filename_str, engine_object, parse=True): end \n 1. create a Kurfile object, call it spec; \n 2. parse spec; \n 3. return spec; \n Inputs: \n \t 1. filename: %s; \n \t 2. engine: %s; \n \t 3. parse: default is True, %s. \n Returns: \n \t 1. spec: type is %s, with following keys: %s \n \n", filename, engine, parse, type(spec), spec.__dict__.keys())
 
     return spec
 
@@ -206,7 +208,7 @@ def prepare_data(args):
     """ Print out samples of data of a given section: 1. parse kurfile; 2. update args.target to select a section's data to look into; 3. get data from spec.data['train']['data'] dict to data supplier objects then to data provider; 4. --assemble: a. return a parsed model for spec.model, b. et trainer on Kurfile spec is to initalize a Executor object with four properties: loss, model, optimizer objects, c. compile Executor to add a compiled model with keras backend to target.model['compiled'], add real new additional_sources onto target.model['additional_sources'], d. but it seems the additional new data source is not used by BatchProvider; 5. print out a batch from data provider, or print only the first or last few samples of the batch with '--number'
     """
 
-    logger.warning("(args): Print out samples of data of a given section: 1. get kurfile instance spec and parse it with some info; 2. select a section's data to look into; 3. get data from e.g., spec.data['train']['data'] dict to data supplier objects then to data provider; 4. --assemble: a. return a parsed model for spec.model, b. get trainer on spec train section is to initalize a Executor object with four properties: loss, model, optimizer objects, _, c. compile Executor to add a compiled model using keras backend to Executor.model['compiled'], add real new additional_sources onto Executor.model['additional_sources'], d. but it seems the additional new data source is not used by BatchProvider; 5. print out a batch from data provider, or print only the first or last few samples of the batch with '--number'")
+    logger.warning("(args): start \n Print out samples of data of a given section: \n 1. get kurfile instance spec and parse it with some info; \n 2. select a section's data to look into; \n 3. convert data from e.g., spec.data['train']['data'] dict to data supplier objects then to data provider; \n 4. --assemble: a. return a parsed model for spec.model, b. build trainer for train section is to initialize an Executor object with four properties: loss, model, optimizer objects, _, c. compile Executor is to add a compiled model using keras backend to Executor.model['compiled'], and also add real new additional_sources onto Executor.model['additional_sources'], d. but it seems the additional new data source is not used by BatchProvider (kur team will handle this in the future); \n 5. print out a batch from data provider, or print only the first or last few samples of the batch with '--number' \n \n Inputs: \n \t 1. args: \n%s \n Returns: \n \t Nothing, only print out data in consoles \n \n", args)
 
     # create a parsed kurfile object
     # spec is a dict, check inside spec.__dict__
@@ -223,7 +225,7 @@ def prepare_data(args):
             raise ValueError('No data sections were found in the Kurfile.')
         args.target = result
 
-    logger.info('Preparing data sources for: %s', args.target)
+    logger.info('Preparing data sources for section: %s \n\n', args.target)
 
     # How data flow from external file as spec.data[section]['data'] to supplier object, to BatchProvider, and finally to a single batch?
     # return providers as a dict {'default': BatchProvider}
@@ -283,6 +285,7 @@ def prepare_data(args):
         keys = sorted(batch.keys())
         num_entries = len(batch[keys[0]])
 
+        # if --number is set, then print specific number of samples, otherwise, print a whole batch
         for entry in range(num_entries):
             if args.number is None or (args.number < num_entries and entry < args.number) or (entry - num_entries >= args.number):
                 print('Entry {}/{}:'.format(entry + 1, num_entries))
@@ -292,6 +295,8 @@ def prepare_data(args):
         if num_entries is None:
             logger.error('No data sources was produced.')
             continue
+
+    logger.warning("(args): end \n Print out samples of data of a given section: \n 1. get kurfile instance spec and parse it with some info; \n 2. select a section's data to look into; \n 3. convert data from e.g., spec.data['train']['data'] dict to data supplier objects then to data provider; \n 4. --assemble: a. return a parsed model for spec.model, b. build trainer for train section is to initialize an Executor object with four properties: loss, model, optimizer objects, _, c. compile Executor is to add a compiled model using keras backend to Executor.model['compiled'], and also add real new additional_sources onto Executor.model['additional_sources'], d. but it seems the additional new data source is not used by BatchProvider (kur team will handle this in the future); \n 5. print out a batch from data provider, or print only the first or last few samples of the batch with '--number' \n \n Inputs: \n \t 1. args: \n%s \n Returns: \n \t Nothing, only print out data in consoles \n \n ", args)
 
 ###############################################################################
 
@@ -501,7 +506,7 @@ def main():
 
 
     logger.warning("console args: \n \t %s \n", args)
-    logger.warning("(): \n 1. get console args into program; \n 2. configurate logging display; \n 3. monitor process when required by args; \n 4. show version or do nothing when required by args; \n 5. create an JinjaEngine object, and assign it to args.engine; \n 6. run args.func(args) and then exit program. \n There are many functions to try: !kur data | dump | build | train | test | evaluate \n")
+
 
     # monitor process when required by args
     do_monitor(args)
@@ -519,6 +524,7 @@ def main():
     engine = JinjaEngine()
     setattr(args, 'engine', engine)
 
+    logger.warning("(): \n 1. get console args into program; \n 2. configurate logging display; \n 3. monitor process when required by args; \n 4. show version or do nothing when required by args; \n 5. create an JinjaEngine object, and assign it to args.engine; \n 6. run args.func(args) and then exit program. \n There are many functions to try: !kur data | dump | build | train | test | evaluate \n \n the last function to run before exit program: %s(args) \n \n", args.func)
     # run args.func(args) and then exit program
     sys.exit(args.func(args) or 0)
 

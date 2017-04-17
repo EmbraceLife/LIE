@@ -77,10 +77,20 @@ class Container:
 	def create_container_from_data(data, **kwargs):
 		""" Factory method for creating containers.
 		"""
+		#start here ##############
+		logger.critical("(data, **kwargs):  start \n create a container for given dict/layer from spec.data['model']\n1. create a container class with a string name; \n2. initialize this container class with data, created a number of properties: _parse, _built, name, data, oldest...; \n3. return this container object \n \n Inputs: \n 1. data as dict: %s \n\n", data)
+
+		# create a pure container class with data.keys()
 		cls = Container.find_container_for_data(data)
 
-		logger.info("(data, **kwargs): create a container for given dict/layer from spec.data['model'] \n Input dict: %s \n Output container: %s \n ", data, cls(data, **kwargs))
+		logger.critical("(data, **kwargs):  end \n create a container for given dict/layer from spec.data['model'] \nReturn: \n")
+
+
 		if cls:
+			# for displaying
+			pprint(cls(data, **kwargs).__dict__)
+			print("\n\n")
+
 			return cls(data, **kwargs)
 
 		from .operators.meta import Meta
@@ -102,15 +112,23 @@ class Container:
 	def find_container_for_data(data):
 		""" Finds a class object corresponding to a data blob.
 		"""
+
+		logger.debug("(data): \ncreate a container according to a string name \nInputs: data: %s \nReturn: \n1. one of the following containers: \n%s \n", data, [cls.get_container_name() for cls in get_subclasses(Container)])
+
 		for cls in get_subclasses(Container):
+			# if the name of container is a key to data (dict)
 			if cls.get_container_name() in data:
+				print("2. cls is a empty container: {} \n\n".format(cls))
 				return cls
+
+
 		return None
 
 	###########################################################################
 	def __init__(self, data):
 		""" Creates a new container.
 		"""
+		# data is just a dictionary usually
 		self.data = data
 		self.tags = []
 		self.name = None
@@ -286,6 +304,16 @@ class Container:
 			This should not be overriden in derived classes. Override
 			`_parse()` instead.
 		"""
+
+		logger.critical("(self, engine): start \n parse the containers \n 1. _parse_pre: make sure container.data from spec is not a string; \n 2. _parse_core: Parse the core components of the container is to add a lot of properties and fill them with values: 2.1. tag; 2.2. name; 2.3. oldest; 2.4. args as container_name; 2.5. input; 2.6. freeze; 2.7. sink; 2.8. when \n 3. _parse: pass \n 4. _parse_post: set for a. engine.state['tags']; b. engine.state['oldest']; c. engine.state['layers'] \n\nInputs: 1. engine: %s \n\n ", engine)
+		for k, v in engine.__dict__.items():
+			print("key: ", k)
+			pprint(v)
+			print("")
+		print("Current container: ")
+		pprint(self.__dict__)
+		print("\n\n")
+
 		if self._parsed:
 			return
 
@@ -297,8 +325,13 @@ class Container:
 
 		self._parsed = True
 
-		logger.critical("(self, engine): parse the containers \n 1. _parse_pre: make sure container from spec is just a dict; \n 2. _parse_core: Parse the core components of the container is to add a lot of properties and fill them with values: 2.1. tag; 2.2. name; 2.3. oldest; 2.4. args as container_name; 2.5. input; 2.6. freeze; 2.7. sink; 2.8. when \n 3. _parse: pass \n 4. _parse_post: set for a. engine.state['tags']; b. engine.state['oldest']; c. engine.state['layers'] \n Parse the container, and it becomes: %s \n ", self)
+		logger.critical("(self, engine): end \n parse the containers \n 1. _parse_pre: make sure container.data from spec is not a string; \n 2. _parse_core: Parse the core components of the container is to add a lot of properties and fill them with values: 2.1. tag; 2.2. name; 2.3. oldest; 2.4. args as container_name; 2.5. input; 2.6. freeze; 2.7. sink; 2.8. when \n 3. _parse: pass \n 4. _parse_post: set for a. engine.state['tags']; b. engine.state['oldest']; c. engine.state['layers'] \n\nInputs: 1. engine: %s \n\n ", engine)
+
+		print("After execution of this func, container: ")
 		pprint(self.__dict__)
+		print("After execution of this func, engine.state: ")
+		pprint(engine.state)		
+		print("\n\n")
 	###########################################################################
 	def build(self, model, rebuild=False):
 		""" Convenience function for building the underlying operations.
@@ -323,6 +356,7 @@ class Container:
 			Specifically, we may need to parse out the "vars" field (if
 			present) so that we can do variable substitution during `_parse()`.
 		"""
+		logger.debug("(self, engine): \n If container.data is not a string, then leave it be. \n\n Check: \n1. container.data type: %s \n2. engine.evaluate(container.data): %s\n\n", type(self.data), engine.evaluate(self.data))
 
 		if isinstance(self.data, str):
 			self.data = engine.evaluate(self.data)
@@ -351,6 +385,7 @@ class Container:
 	def _parse_core(self, engine):
 		""" Parse the core components of the container is to add a lot of properties and fill them with values: 1. tag; 2. name; 3. oldest; 4. args as container_name; 5. input; 6. freeze; 7. sink; 8. when
 		"""
+		logger.debug("(self, engine): \n1. check 'tag', 'name', 'oldest', 'args', 'input', 'freeze', 'sink', 'when' inside container.data or not; \n2. if it is inside, get the value out and assign to container.tag|name|oldest... \n3. if not inside, set container.tag|name|oldest... to be None or []\n\n What inside self.data now: %s \n\n", self.data)
 
 		if 'tag' in self.data:
 			self.tags = engine.evaluate(self.data['tag'], recursive=True)
