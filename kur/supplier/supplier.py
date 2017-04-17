@@ -39,8 +39,8 @@ class Supplier:
 	def from_specification(spec, kurfile=None):
 		""" create data supplier from kurfile info e.g. {'mnist':[{}]}
 		"""
-		logger.critical("(spc, kurfile=None): \n create data supplier object from kurfile dict \n1. make sure spec is a dict; \n2. get data supplier name from spec; \n3. get spec dict description for this data supplier; \n4. create the data supplier object by its name; \n5. return this data supplier \n\n")
-		set_trace()
+		logger.critical("(spc, kurfile=None): start \n create data supplier object from kurfile dict \n1. make sure spec is a dict; \n2. get data supplier name from spec: supplier_name; \n3. get spec dict description for this data supplier: params; \n4. create the data supplier class by its name, and then instantiate the supplier object with kurfile object and params; \n5. return this data supplier \n\n")
+
 		# if spec is not dict, raise error
 		if not isinstance(spec, dict):
 			raise ValueError('Each element of the "input" list must be a '
@@ -76,8 +76,8 @@ class Supplier:
 		# so supplier_name is None
 		supplier_name = spec.get('name')
 
-		# All other keys must be parsed out by this point.
-
+		# get the supplier class by name first
+		# instantiate the supplier object with kurfile object and params
 		if isinstance(params, dict):
 			result = Supplier.get_supplier_by_name(name)(
 				name=supplier_name, kurfile=kurfile, **params)
@@ -91,6 +91,8 @@ class Supplier:
 			raise ValueError('Expected the Supplier to be given a dictionary, '
 				'list, tuple, or string for parameters. Instead, we received: '
 				'{}'.format(params))
+
+		logger.critical("(spc, kurfile=None): end \n create data supplier object from kurfile dict \n1. make sure spec is a dict; \n2. get data supplier name from spec: supplier_name; \n3. get spec dict description for this data supplier: params; \n4. create the data supplier class by its name, and then instantiate the supplier object with kurfile object and params; \n5. return this data supplier \n\nCheck-Return: \n1. spec: \n%s \n2. kurfile: \n%s \n3. supplier_name: %s \n4. params: \n%s \n5. supplier class without instantiated: \n%s \n6. what inside this supplier class: \n%s \n7. return: result: \n%s \n8. what is inside this supplier object \n%s \n\n", spec, kurfile, supplier_name, params, Supplier.get_supplier_by_name(name), Supplier.get_supplier_by_name(name).__dict__.keys(), result, result.__dict__.keys())
 
 		return result
 

@@ -320,7 +320,7 @@ class Kurfile:
 		# now provider has all 8 data sources to provide for batches
 
 
-
+		# provider class initialize with supplier sources 
         final_providers = {
             k: provider(
                 sources=Supplier.merge_suppliers(v),
@@ -611,7 +611,14 @@ class Kurfile:
             raise ValueError('Cannot construct optimizer. There is a missing '
                              '"train" section.')
 
-        spec = dict(self.data['train'].get('optimizer', {}))
+        spec = self.data['train'].get('optimizer', {})
+        if isinstance(spec, str):
+            spec = {'name' : spec}
+        elif not isinstance(spec, dict):
+            raise ValueError('Invalid value for optimizer: {}'.format(spec))
+        else:
+            spec = dict(spec)
+
         if 'name' in spec:
             optimizer = Optimizer.get_optimizer_by_name(spec.pop('name'))
         else:
@@ -979,9 +986,13 @@ class Kurfile:
         """ parse()->_parse_templates(self, engine, section, stack): return the templates dict from spec.data['templates']: 1. section should be a string as 'templates'; 2. 'templates' should be a key in spec.data; 3. spec.data['templates'] should be a dict; 4. keys out of spec.data['templates'] should not be a real container object name or real layer object name; 5. engine object has _scope, _templates, env, state; only env is not Empty; fill _templates with spec.data['templates']; 6. return spec.data['templates']
         """
         logger.critical("(self, engine, section, stack): start \n return the templates dict from spec.data['templates']: \n 1. section should be a string as 'templates'; \n 2. 'templates' should be a key in spec.data; \n 3. spec.data['templates'] should be a dict; \n 4. keys out of spec.data['templates'] should not be a real container object name or real layer object name; \n 5. engine object has _scope, _templates, env, state; only env is not Empty; fill _templates with spec.data['templates']; \n 6. return spec.data['templates'] \n \n Parse template: %s \n\n\n Inputs: \n \t 1. engine: %s; \n 2. section: %s; \n 3. stack: %s \n \n", section[0], engine, section, [item.keys() for item in stack])
-        print("spec.data['templates']:")
-        pprint(self.data[section[0]])
-        print("\n \n")
+
+
+        # set_trace()
+        if section[0] in self.data:
+            print("spec.data['templates']:")
+            pprint(self.data[section[0]])
+            print("\n \n")
 
 		# section should be a string as 'templates'
         if isinstance(section, str):

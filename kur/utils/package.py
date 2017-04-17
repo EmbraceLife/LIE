@@ -192,6 +192,7 @@ def install(url=None, path=None, checksum=None):
 		directory (unpacked, as if it were a tar archive that was already
 		extracted).
 	"""
+	logger.debug("(url=None, path=None, checksum=None): \nEnsure that the data source exists locally, if not, download it and store it in the specified path. \n1. only path is available , it works too; \n2. best situation is have path, url, checksum all available \n\n")
 	# if url is None, then path has to exist for access dataset
 	if url is None:
 		# Expect a path to an existing source
