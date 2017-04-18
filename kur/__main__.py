@@ -34,6 +34,7 @@ logger = logging.getLogger(__name__)
 from pdb import set_trace
 from pprint import pprint
 from inspect import getdoc, getmembers, getsourcelines, getmodule
+import numpy as np
 # to write multiple lines inside pdb
 # !import code; code.interact(local=vars())
 
@@ -164,7 +165,20 @@ def prepare_data(args):
 
 	logger.warning("(args): start \n Print out samples of data of a given section: \n 1. get kurfile instance spec and parse it with some info; \n 2. select a section's data to look into; \n 3. convert data from e.g., spec.data['train']['data'] dict to data supplier objects then to data provider; \n 4. --assemble: a. return a parsed model for spec.model, b. build trainer for train section is to initialize an Executor object with four properties: loss, model, optimizer objects, _, c. compile Executor is to add a compiled model using keras backend to Executor.model['compiled'], and also add real new additional_sources onto Executor.model['additional_sources'], d. but it seems the additional new data source is not used by BatchProvider (kur team will handle this in the future); \n 5. print out a batch from data provider, or print only the first or last few samples of the batch with '--number' \n \n Inputs: \n \t 1. args: \n%s \n Returns: \n \t Nothing, only print out data in consoles \n \n", args)
 
+	logger.warning("step1: \nCreate a Kurfile object and parse it with detailed information \n\n")
+
+	#original
 	spec = parse_kurfile(args.kurfile, args.engine)
+
+	logger.critical("\n The parsed kurfile object conatins the following dicts: \n\n")
+	for k in spec.__dict__:
+		print(k, "\n")
+		pprint(spec.__dict__[k])
+		print("\n\n")
+
+
+
+	logger.warning("step2: \nSelect the first available section of ('train', 'validate', 'test', 'evaluate'); \n\n")
 
 	if args.target == 'auto':
 		result = None
@@ -176,17 +190,54 @@ def prepare_data(args):
 			raise ValueError('No data sections were found in the Kurfile.')
 		args.target = result
 
-	logger.info('Preparing data sources for: %s', args.target)
+	logger.critical("In this case, the selected section: {}\n\n".format(args.target))
+
+	logger.warning("step3: \nGet data provider for the section \n\n")
 
 	providers = spec.get_provider(
 		args.target,
 		accept_many=args.target == 'test'
 	)
 
-	if args.assemble:
+	logger.critical("\nThe data provider contains: \n\n")
+	pprint(providers)
+	print("\n\n")
+	logger.critical("\nThe batch provider contains: \n\n")
+	pprint(providers['default'].__dict__)
+	print("\n\n")
+	logger.critical("\nCheck inside each data source of data provider: \n\n")
+	for source in providers['default'].__dict__['sources']:
+		print(source, ": has the following content \n")
+		# pprint(source.__dict__)
+		for k, v in source.__dict__.items():
+			if isinstance(v, list):
+				print("Key:", k, "; Value : is a list of", len(v), "num of ", type(v[0]))
+				print("print v[0:5]")
+				pprint(v[0:5])
+			elif isinstance(v, np.ndarray):
+				print("Key: ", k, "; Value : is array of shape ", v.shape)
+				if len(v.shape)>1:
+					print("print v[0:1]")
+					pprint(v[0:1])
+				else:
+					print("print v[0:5]")
+					pprint(v[0:5])
+			else:
+				print(k, ":", v)
+		print("\n\n")
 
+	logger.warning("step4: \nIf args.assemble == True, do the following: \n1. get default data provider; \n2. get a parsed model for spec.model; \n3. build trainer for train section is to initialize an Executor object with four properties: loss, model, optimizer objects... \n4. compile Executor is to add a compiled model using keras backend to Executor.model['compiled'], and also add real new additional_sources onto Executor.model['additional_sources']\n\n")
+
+	if args.assemble:
 		default_provider = Kurfile.find_default_provider(providers)
+
+		logger.critical("\n\nFind the provider object for constructing the model here: \n%s \n\n", default_provider)
+
 		spec.get_model(default_provider)
+
+		logger.critical("\nspec.model is updated, not None any more: \n%s \n\n", spec.model)
+		pprint(spec.model.__dict__)
+		print("\n\n")
 
 		if args.target == 'train':
 			target = spec.get_trainer(with_optimizer=True)
@@ -199,7 +250,17 @@ def prepare_data(args):
 				args.target)
 			return 1
 
+		logger.critical("\nCreate Executor trainer using spec: is to create a large dict with loss, model, optimizer \n%s \n\n", target)
+		pprint(target.__dict__)
+		print("\n\n")
+
 		target.compile(assemble_only=True)
+
+		logger.critical("\nCompile Executor trainer above \n%s  \nTo compile is to create  `target.model.compiled['raw'].__dict__` with a keras backend Model object \n\nThis keras-backend Model object is \n", target)
+		pprint(pprint(target.model.compiled['raw'].__dict__))
+		print("\n\n")
+
+	logger.warning("step5: \nPrint out data samples \n1. Get (every) data provider \n2. get just one batch from this provider; \n3. print the whole batch; \n4. print specific number of data samples using args.number \n\n")
 
 	for k, provider in providers.items():
 		if len(providers) > 1:
@@ -211,6 +272,16 @@ def prepare_data(args):
 		if batch is None:
 			logger.error('No batches were produced.')
 			continue
+
+		logger.critical("\nWhat a provider look like? \n\n")
+		pprint(provider.__dict__)
+		print("\n\n")
+
+		logger.critical("\nWhat a batch directly from provider look like? batch type: %s\n\n", type(batch))
+
+		for k, v in batch.items():
+			print(k, " : ", type(v), v.shape)
+		print("\n\n")
 
 		num_entries = None
 		keys = sorted(batch.keys())
@@ -226,7 +297,6 @@ def prepare_data(args):
 			logger.error('No data sources was produced.')
 			continue
 
-	logger.warning("(args): end \n Print out samples of data of a given section: \n 1. get kurfile instance spec and parse it with some info; \n 2. select a section's data to look into; \n 3. convert data from e.g., spec.data['train']['data'] dict to data supplier objects then to data provider; \n 4. --assemble: a. return a parsed model for spec.model, b. build trainer for train section is to initialize an Executor object with four properties: loss, model, optimizer objects, _, c. compile Executor is to add a compiled model using keras backend to Executor.model['compiled'], and also add real new additional_sources onto Executor.model['additional_sources'], d. but it seems the additional new data source is not used by BatchProvider (kur team will handle this in the future); \n 5. print out a batch from data provider, or print only the first or last few samples of the batch with '--number' \n \n Inputs: \n \t 1. args: \n%s \n Returns: \n \t Nothing, only print out data in consoles \n\n", args)
 
 ###############################################################################
 def version(args):							# pylint: disable=unused-argument

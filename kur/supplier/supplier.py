@@ -21,6 +21,10 @@ from ..sources import StackSource
 
 logger = logging.getLogger(__name__)
 
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule
 ###############################################################################
 class Supplier:
 	""" Base class for all suppliers.
@@ -35,6 +39,7 @@ class Supplier:
 	def from_specification(spec, kurfile=None):
 		""" Creates a new Supplier from a specification.
 		"""
+		logger.debug("(spc, kurfile=None): start \n create data supplier object from kurfile dict \n1. make sure spec is a dict; \n2. get data supplier name from spec: supplier_name; \n3. get spec dict description for this data supplier: params; \n4. create the data supplier class by its name, and then instantiate the supplier object with kurfile object and params; \n5. return this data supplier \n\n")
 
 		if not isinstance(spec, dict):
 			raise ValueError('Each element of the "input" list must be a '
@@ -77,6 +82,8 @@ class Supplier:
 			raise ValueError('Expected the Supplier to be given a dictionary, '
 				'list, tuple, or string for parameters. Instead, we received: '
 				'{}'.format(params))
+
+		logger.debug("(spc, kurfile=None): end \n create data supplier object from kurfile dict \n1. make sure spec is a dict; \n2. get data supplier name from spec: supplier_name; \n3. get spec dict description for this data supplier: params; \n4. create the data supplier class by its name, and then instantiate the supplier object with kurfile object and params; \n5. return this data supplier \n\nCheck-Return: \n1. spec: \n%s \n2. kurfile: \n%s \n3. supplier_name: %s \n4. params: \n%s \n5. supplier class without instantiated: \n%s \n6. what inside this supplier class: \n%s \n7. return: result: \n%s \n8. what is inside this supplier object \n%s \n\n", spec, kurfile, supplier_name, params, Supplier.get_supplier_by_name(name), Supplier.get_supplier_by_name(name).__dict__.keys(), result, result.__dict__.keys())
 
 		return result
 
@@ -143,6 +150,9 @@ class Supplier:
 					# Create a stack.
 					logger.info('Stacking data source: %s', k)
 					result[k] = StackSource(result[k], v)
+
+		logger.debug("(cls, suppliers): \nMerge all data sources into a single dictionary for instantiate a data provider \nInputs: \n1. cls: \n%s \n2. suppliers: \n%s \nReturn: \nA single dictionary: \n%s \n\n", cls, suppliers, result)
+
 		return result
 
 	###########################################################################

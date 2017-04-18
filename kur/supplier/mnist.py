@@ -20,6 +20,13 @@ from ..utils import idx, package
 from . import Supplier
 from ..sources import VanillaSource
 
+import logging
+logger = logging.getLogger(__name__)
+
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule
 ###############################################################################
 class MnistSupplier(Supplier):
 	""" A supplier which supplies MNIST image/label pairs. These are downloaded
@@ -53,6 +60,9 @@ class MnistSupplier(Supplier):
 			images: str or dict. Specifies where the MNIST images can be found.
 				Accepts the same values as `labels`.
 		"""
+		
+		logger.debug("(self, images, labels, *args, **kwargs): start \nInstantiate MnistSupplier object with spec object \n1. get args from super().__init__(*args, **kwargs); \n2. ensure data file exist locally and return the file path; \n3. load the idx file into numpy arrays; \n4. make the VanillaSource object from numpy array; \n5. normalize the data in the form of VanillaSource; \n6. save it as a dict element inside MnistSupplier.data dict \n\n")
+
 		super().__init__(*args, **kwargs)
 
 		self.data = {

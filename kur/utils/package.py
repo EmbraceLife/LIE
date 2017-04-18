@@ -24,6 +24,10 @@ from .network import get_hash, download
 
 logger = logging.getLogger(__name__)
 
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule
 ###############################################################################
 def canonicalize(path):
 	""" Returns an absolute, canonical path.

@@ -29,6 +29,10 @@ from .hooks import TrainingHook
 
 logger = logging.getLogger(__name__)
 
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule
 ###############################################################################
 class RetryException(Exception):
 	""" Exception class for retrying an operation on a new batch of data.
@@ -54,6 +58,8 @@ class Executor:
 			loss: Loss instance. The loss function to use in training/testing.
 			optimizer: Optimizer instance. The optimizer to use in training.
 		"""
+		logger.debug("(self, model, loss=None, optimizer=None, auto_retry=None): \nCreates a new executor object: \n1. add model object as its attr; \n2. add loss object as its attr; \n3. add optimizer object as its attr; \n4. set its attr auto_retry as True \n\n")
+
 		self.model = model
 		self.loss = loss
 		self.optimizer = optimizer
@@ -65,7 +71,7 @@ class Executor:
 	###########################################################################
 	def compile(self, target=None, recompile=False, with_provider=None,
 		**kwargs):
-		""" Compiles a model.
+		""" Compiles a model. 1. set target to train, test or evaluate; 2. make sure Executor.model is built before compilation; 3. Compiles a model using keras backend; 4. dive into keras.backend.compile, additional dataset is handled
 
 			This generates a backend-specific representation of the model,
 			suitable for training.

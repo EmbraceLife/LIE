@@ -20,6 +20,13 @@ import jinja2
 from .engine import Engine
 from ..utils import CudaContext, CudaError
 
+import logging
+logger = logging.getLogger(__name__)
+
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule
 ###############################################################################
 def combine(value, new=None):
 	""" Jinja2 filter which merges dictionaries.
@@ -132,6 +139,8 @@ class JinjaEngine(Engine):
 			result = ast.literal_eval(result)
 		except (ValueError, SyntaxError):
 			pass
+
+		logger.info("(self, expression): \nconvert a yml expression (a string) to a python object \n\nInputs: \n1. expression: %s, \n\nReturn: \n %s \n\n", expression, result)
 
 		return result
 

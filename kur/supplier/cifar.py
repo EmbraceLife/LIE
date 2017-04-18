@@ -25,6 +25,12 @@ from ..utils import package
 from . import Supplier
 from ..sources import VanillaSource
 
+import logging
+logger = logging.getLogger(__name__)
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule
 ###############################################################################
 class CifarSupplier(Supplier):
 	""" A supplier which supplies MNIST image/label pairs. These are downloaded
@@ -46,6 +52,8 @@ class CifarSupplier(Supplier):
 			# Arguments
 
 		"""
+		logger.debug("(self, url=None, checksum=None, path=None, parts=None, *args, **kwargs): start \nCreate cifar data supplier object given relevant spec info \n1. inherit args from superclass.__init__; \n2. get file path (also download if necessary) stored locally; \n3. convert dataset from compressed file into numpy array; \n4. convert array(40000, 3072) to array(40000, 32,32,3); \n5. store numpy array inside VanillaSource object; \n6. store VanillaSource object into a dict under CifarSupplier.data. \n\n")
+
 		super().__init__(*args, **kwargs)
 
 		path, _ = package.install(
@@ -63,6 +71,8 @@ class CifarSupplier(Supplier):
 	###########################################################################
 	@staticmethod
 	def _load_parts(path, parts):
+
+		logger.debug("(path, parts): load specific parts of the datasets and merge them into a single pair of numpy arrays: \n1. open cifar-10-python.tar.gz file; \n2. get each object inside the file one by one; \n3. find the specified objects and extract them into tar object; \n4. read the tar object into bytes, and then use pickle.loads them into a dict with many arrays inside. by now we can use data.keys() to see what are the structure of the datasets; \n4. save all specified parts into a single dict result; \n5. merge all data arrays into a single data array and all labels arrays into a single label array, and return them as a single dict \n\n ")
 
 		if parts is not None:
 			if not isinstance(parts, (list, tuple)):
