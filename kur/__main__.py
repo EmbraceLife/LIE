@@ -84,7 +84,7 @@ def train(args):
 
     spec = parse_kurfile(args.kurfile, args.engine)
     func = spec.get_training_function()
-    set_trace()
+
     func(step=args.step)
 
 ###############################################################################

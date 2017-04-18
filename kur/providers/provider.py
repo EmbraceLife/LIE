@@ -107,7 +107,7 @@ class Provider:						# pylint: disable=too-few-public-methods
 				to determine which nodes in the network should receive which
 				information.
 		"""
-		set_trace()
+
 		if isinstance(sources, list):
 			self.keys = None
 			self.sources = sources
