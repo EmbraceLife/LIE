@@ -31,6 +31,7 @@ BOLD_SEQ = "\033[1m"
 
 # Color codes for each log-level.
 COLORS = {
+	'TRACE': YELLOW,
 	'DEBUG': BLUE,
 	'INFO': MAGENTA,
 	'WARNING': RED,
@@ -43,8 +44,6 @@ def basicConfig(**kwargs):						# pylint: disable=invalid-name
 	""" A convenience function which mimics the behavior of
 		`logging.basicConfig()`, but creates a color formatter.
 	"""
-
-
 	logger = logging.getLogger()
 	if logger.hasHandlers():
 		return

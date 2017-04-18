@@ -21,10 +21,6 @@ from ..sources import StackSource
 
 logger = logging.getLogger(__name__)
 
-# prepare examine tools
-from pdb import set_trace
-from pprint import pprint
-from inspect import getdoc, getmembers, getsourcelines, getmodule
 ###############################################################################
 class Supplier:
 	""" Base class for all suppliers.
@@ -37,22 +33,17 @@ class Supplier:
 	###########################################################################
 	@staticmethod
 	def from_specification(spec, kurfile=None):
-		""" create data supplier from kurfile info e.g. {'mnist':[{}]}
+		""" Creates a new Supplier from a specification.
 		"""
-		logger.critical("(spc, kurfile=None): start \n create data supplier object from kurfile dict \n1. make sure spec is a dict; \n2. get data supplier name from spec: supplier_name; \n3. get spec dict description for this data supplier: params; \n4. create the data supplier class by its name, and then instantiate the supplier object with kurfile object and params; \n5. return this data supplier \n\n")
 
-		# if spec is not dict, raise error
 		if not isinstance(spec, dict):
 			raise ValueError('Each element of the "input" list must be a '
 				'dictionary.')
 
-		# get supplier name or names for this spec
-		# in this case candicates = set('mnist')
 		candidates = set(
 			cls.get_name() for cls in Supplier.get_all_suppliers()
 		) & set(spec.keys())
 
-		# if there is no supplier available for this spec, raise error
 		if not candidates:
 			raise ValueError('Missing the key naming the Supplier type from '
 				'an element of the "input" list. Valid keys are: {}'.format(
@@ -61,23 +52,18 @@ class Supplier:
 					for cls in Supplier.get_all_suppliers()
 				)
 			))
-
-		# if there are more than 1 suppliers avaiable for this spec, raise error
 		if len(candidates) > 1:
 			raise ValueError('Ambiguous supplier type in an element of the '
 				'"input" list. Exactly one of the following keys must be '
 				'present: {}'.format(', '.join(candidates)))
 
-		# name is 'mnist', params is a nested dict describe this data supplier
 		name = candidates.pop()
 		params = spec[name]
 
-		# there is no key as 'name' for spec
-		# so supplier_name is None
 		supplier_name = spec.get('name')
 
-		# get the supplier class by name first
-		# instantiate the supplier object with kurfile object and params
+		# All other keys must be parsed out by this point.
+
 		if isinstance(params, dict):
 			result = Supplier.get_supplier_by_name(name)(
 				name=supplier_name, kurfile=kurfile, **params)
@@ -91,8 +77,6 @@ class Supplier:
 			raise ValueError('Expected the Supplier to be given a dictionary, '
 				'list, tuple, or string for parameters. Instead, we received: '
 				'{}'.format(params))
-
-		logger.critical("(spc, kurfile=None): end \n create data supplier object from kurfile dict \n1. make sure spec is a dict; \n2. get data supplier name from spec: supplier_name; \n3. get spec dict description for this data supplier: params; \n4. create the data supplier class by its name, and then instantiate the supplier object with kurfile object and params; \n5. return this data supplier \n\nCheck-Return: \n1. spec: \n%s \n2. kurfile: \n%s \n3. supplier_name: %s \n4. params: \n%s \n5. supplier class without instantiated: \n%s \n6. what inside this supplier class: \n%s \n7. return: result: \n%s \n8. what is inside this supplier object \n%s \n\n", spec, kurfile, supplier_name, params, Supplier.get_supplier_by_name(name), Supplier.get_supplier_by_name(name).__dict__.keys(), result, result.__dict__.keys())
 
 		return result
 
@@ -129,8 +113,8 @@ class Supplier:
 	###########################################################################
 	@classmethod
 	def merge_suppliers(cls, suppliers):
-		""" collect all data sources of one or more supplier objects, stored in a dict and return it
-
+		""" Merges a number of suppliers together, usually in order to create
+			a data Provider.
 
 			# Arguments
 
@@ -141,10 +125,7 @@ class Supplier:
 			A dictionary whose keys are the names of data sources and whose
 			values are sources corresponding to those keys.
 		"""
-
 		result = {}
-
-		# get supplier object, and then take 8 data sources out as individual objects and stored in result dict
 		for supplier in suppliers:
 			sources = supplier.get_sources()
 			for k, v in sources.items():
@@ -162,7 +143,6 @@ class Supplier:
 					# Create a stack.
 					logger.info('Stacking data source: %s', k)
 					result[k] = StackSource(result[k], v)
-		logger.debug("(cls, suppliers): \nMerge all data sources into a single dictionary for instantiate a data provider \nInputs: \n1. cls: \n%s \n2. suppliers: \n%s \nReturn: \nA single dictionary: \n%s \n\n", cls, suppliers, result)
 		return result
 
 	###########################################################################

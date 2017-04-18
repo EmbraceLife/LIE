@@ -21,11 +21,6 @@ from ..utils import get_subclasses
 
 logger = logging.getLogger(__name__)
 
-# prepare examine tools
-from pdb import set_trace
-from pprint import pprint
-from inspect import getdoc, getmembers, getsourcelines, getmodule
-
 ###############################################################################
 class Provider:						# pylint: disable=too-few-public-methods
 	""" Base class for all data providers.
@@ -107,7 +102,6 @@ class Provider:						# pylint: disable=too-few-public-methods
 				to determine which nodes in the network should receive which
 				information.
 		"""
-
 		if isinstance(sources, list):
 			self.keys = None
 			self.sources = sources

@@ -19,8 +19,7 @@ import ast
 import jinja2
 from .engine import Engine
 from ..utils import CudaContext, CudaError
-import logging
-logger = logging.getLogger(__name__)
+
 ###############################################################################
 def combine(value, new=None):
 	""" Jinja2 filter which merges dictionaries.
@@ -120,8 +119,6 @@ class JinjaEngine(Engine):
 
 			The evaluated expression (some Python object/class).
 		"""
-
-
 		result = self.env.from_string(expression).render(**self._scope)
 
 		# Jinja2's `render()` will return a string which is a valid Python
@@ -135,8 +132,6 @@ class JinjaEngine(Engine):
 			result = ast.literal_eval(result)
 		except (ValueError, SyntaxError):
 			pass
-
-		logger.info("(self, expression): \n convert a yml expression (a string) to a python object \n \n Inputs: \n 1. expression: %s, \n \n Return: \n %s \n \n", expression, result)
 
 		return result
 

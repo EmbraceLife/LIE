@@ -22,10 +22,6 @@ from ..utils import neighbor_sort
 
 logger = logging.getLogger(__name__)
 
-# prepare examine tools
-from pdb import set_trace
-from pprint import pprint
-from inspect import getdoc, getmembers, getsourcelines, getmodule
 ###############################################################################
 class BatchProvider(ShuffleProvider): # pylint: disable=too-few-public-methods
 	""" A provider which tries to return the same number of samples at every
@@ -55,13 +51,10 @@ class BatchProvider(ShuffleProvider): # pylint: disable=too-few-public-methods
 
 			batch_size: int. The number of batches to return each iteration.
 		"""
-		logger.debug("(self, batch_size=None, num_batches=None,force_batch_size=False, neighborhood_sort=None, neighborhood_size=None, neighborhood_growth=None, *args, **kwargs): \n create a provider object \n0. initialize from shuffle_provider to batch_provider class \n1. set batch_size; \n2. set num_batches; \n3. set force; \n4. set neighborhood_size; \n5. set neighborhood_growth; \n6. set neighborhood_data; \n7. set neighborhood_key \n\n") #Inputs: \n1. **kwargs: %s \n\n", **kwargs)
-
-
 		super().__init__(*args, **kwargs)
 
 		self.batch_size = batch_size or BatchProvider.DEFAULT_BATCH_SIZE
-		# logger.debug('Batch size set to: %d', self.batch_size)
+		logger.trace('Batch size set to: %d', self.batch_size)
 
 		self.num_batches = num_batches
 
@@ -105,7 +98,7 @@ class BatchProvider(ShuffleProvider): # pylint: disable=too-few-public-methods
 		"""
 		self._num_batches = value # pylint: disable=attribute-defined-outside-init
 		if self.num_batches is not None:
-			logger.debug('Maximum number of batches set to: %d',
+			logger.trace('Maximum number of batches set to: %d',
 				self.num_batches)
 			if self.entries > 0:
 				self.entries = min( # pylint: disable=attribute-defined-outside-init
@@ -135,9 +128,7 @@ class BatchProvider(ShuffleProvider): # pylint: disable=too-few-public-methods
 			of entries provided by this data source.
 		"""
 
-
 		# Should always be the first call in __iter__
-		# this is to shuffle the batches
 		self.pre_iter()
 
 		for source in self.sources:
@@ -145,7 +136,7 @@ class BatchProvider(ShuffleProvider): # pylint: disable=too-few-public-methods
 				if source.requested_chunk_size is ChunkSource.USE_BATCH_SIZE:
 					source.set_chunk_size(self.batch_size)
 
-		logger.debug("(self): \nprovider.__iter__ throw batches one at a time with default batch_size. \n\nPreparing next batch of data...\n\n")
+		logger.trace('Preparing next batch of data...')
 
 		iterators = [iter(source) for source in self.sources]
 		ordering = self.order_sources()
@@ -162,7 +153,7 @@ class BatchProvider(ShuffleProvider): # pylint: disable=too-few-public-methods
 		while iterators and proceed:
 
 			if batches_produced:
-				logger.debug('Preparing next batch of data...')
+				logger.trace('Preparing next batch of data...')
 
 			result = [None for it in iterators]
 
@@ -207,10 +198,10 @@ class BatchProvider(ShuffleProvider): # pylint: disable=too-few-public-methods
 					queues[i] = queues[i][self.batch_size:]
 
 					if not result[i].shape[0]:
-						logger.debug('An original source has no data.')
+						logger.trace('An original source has no data.')
 						return
 
-			logger.debug('Next batch of data has been prepared.\n\n')
+			logger.trace('Next batch of data has been prepared.')
 
 			lens = {len(q) for q in result}
 			if len(lens) == 1:
@@ -253,7 +244,7 @@ class BatchProvider(ShuffleProvider): # pylint: disable=too-few-public-methods
 			super().pre_iter()
 			return
 
-		logger.info('Calculating the nearest-neighbor shuffle indices using '
+		logger.debug('Calculating the nearest-neighbor shuffle indices using '
 			'data source "%s".', self.neighborhood_key)
 
 		# Create a local, complete copy of the sort-by data.

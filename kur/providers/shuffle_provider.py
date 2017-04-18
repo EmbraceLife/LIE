@@ -158,7 +158,6 @@ class ShuffleProvider(Provider): \
 
 			This is our opportunity to shuffle the data sources.
 		"""
-
 		super().pre_iter()
 
 		if self.randomize:
@@ -208,9 +207,9 @@ class ShuffleProvider(Provider): \
 
 					self.is_sorted = True
 				else:
-					logger.info('Suppressing shuffle...')
+					logger.debug('Suppressing shuffle...')
 			else:
-				logger.debug('Shuffling all the batches of data provider...\n\n')
+				logger.debug('Shuffling...')
 				indices = numpy.random.permutation(self._shuffle_len)
 				for source in self.sources:
 					source.shuffle(indices)

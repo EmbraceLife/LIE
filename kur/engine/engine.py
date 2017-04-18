@@ -20,10 +20,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# prepare examine tools
-from pdb import set_trace
-from pprint import pprint
-from inspect import getdoc, getmembers, getsourcelines, getmodule
 ###############################################################################
 class ScopeStack:					# pylint: disable=too-few-public-methods
 	""" Context management for Engine scopes.
@@ -105,7 +101,7 @@ class Engine:
 			if not isinstance(v, (list, tuple)):
 				v = [v]
 			self._templates[k] = v
-		logger.info("(self, templates): \n Store spec.data['templates'] as a dict to engine._templates \n \n The key(s) of templates dict stored in engine._templates are: %s \n \n", ', '.join(
+		logger.info('Registering the following templates: %s', ', '.join(
 			self._templates.keys()))
 
 	###########################################################################
@@ -185,7 +181,7 @@ class Engine:
 
 	###########################################################################
 	def evaluate(self, expression, recursive=False):
-		""" Evaluates an string expression in the current scope, as itself: (how does scope help evaluate expression? Not sure how is scope used); if expression is not a string, then do some recursion.
+		""" Evaluates an expression in the current scope.
 
 			# Arguments
 
@@ -205,9 +201,6 @@ class Engine:
 
 			The evaluated expression (some Python object/class).
 		"""
-
-		logger.info("(self, expression, recursive=False): start \n  Every expression in yml file or json file will be evaluated and returned as python object \n \n Inputs: \n 1. expression's type: %s) \n 2. expression is %s \n \n", type(expression), expression)
-
 		if isinstance(expression, (str, bytes)):
 			# A string may need several runs through evaluation to get out of
 			# the templating engine.
@@ -244,8 +237,6 @@ class Engine:
 					type(expression),
 					expression
 				), UserWarning)
-
-		logger.info("(self, expression, recursive=False): end \n  Every expression in yml file or json file will be evaluated and return a python object: \n \n Returns: \n 1. expression: %s \n \n", expression)
 
 		return expression
 

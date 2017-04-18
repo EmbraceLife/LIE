@@ -44,8 +44,8 @@ class PlotHook(TrainingHook):
 			sv = [0.7, 1.0]  # all possible saturation and values
 			hsv = [(x, y, y) for x, y in itertools.product(h, sv)]
 			return numpy.array(list(map(lambda x: colorsys.hsv_to_rgb(*x) + (1, ), hsv)))
-
-		# Too many colors means neighboring colors that are
+	
+		# Too many colors means neighboring colors that are 
 		# hard to distinguish between, so we cap n.
 		colors = taste_the_rainbow(n_hues=7)
 

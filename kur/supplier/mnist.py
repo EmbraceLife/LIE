@@ -20,12 +20,6 @@ from ..utils import idx, package
 from . import Supplier
 from ..sources import VanillaSource
 
-import logging
-logger = logging.getLogger(__name__)
-# prepare examine tools
-from pdb import set_trace
-from pprint import pprint
-from inspect import getdoc, getmembers, getsourcelines, getmodule
 ###############################################################################
 class MnistSupplier(Supplier):
 	""" A supplier which supplies MNIST image/label pairs. These are downloaded
@@ -41,7 +35,7 @@ class MnistSupplier(Supplier):
 
 	###########################################################################
 	def __init__(self, labels, images, *args, **kwargs):
-		""" Creates a new MNIST supplier by download or access data file based on dicts (store url, path, checksum)
+		""" Creates a new MNIST supplier.
 
 			# Arguments
 
@@ -59,28 +53,17 @@ class MnistSupplier(Supplier):
 			images: str or dict. Specifies where the MNIST images can be found.
 				Accepts the same values as `labels`.
 		"""
-		logger.debug("(self, images, labels, *args, **kwargs): start \nInstantiate MnistSupplier object with spec object \n1. get args from super().__init__(*args, **kwargs); \n2. ensure data file exist locally and return the file path; \n3. load the idx file into numpy arrays; \n4. make the VanillaSource object from numpy array; \n5. normalize the data in the form of VanillaSource; \n6. save it as a dict element inside MnistSupplier.data dict \n\n")
-
 		super().__init__(*args, **kwargs)
 
-		# MnistSupplier._get_filename: download a gz file and store the dataset in a path, and return this path
-		# idx.load: load the gz file into numpy arrays
-		# VanillaSource(): make numpy array a data source for creating a data supplier
-		images_path = MnistSupplier._get_filename(images)
-		idx_array_img = idx.load(images_path)
-		VanillaSource_object_img = VanillaSource(idx_array_img)
-		image_norm_MnistSupplier = MnistSupplier._normalize(VanillaSource_object_img)
-
-		labels_path = MnistSupplier._get_filename(labels)
-		idx_array_label = idx.load(labels_path)
-		VanillaSource_object_label = VanillaSource(idx_array_label)
-		labels_onehot_MnistSupplier = MnistSupplier._normalize(VanillaSource_object_label)
 		self.data = {
-			'images' : image_norm_MnistSupplier,
-			'labels' : labels_onehot_MnistSupplier
+			'images' : MnistSupplier._normalize(
+				VanillaSource(idx.load(MnistSupplier._get_filename(images)))
+			),
+			'labels' : MnistSupplier._onehot(
+				VanillaSource(idx.load(MnistSupplier._get_filename(labels)))
+			)
 		}
 
-		logger.debug("(self, images, labels, *args, **kwargs): start \nInstantiate MnistSupplier object with spec object \n1. get args from super().__init__(*args, **kwargs); \n2. ensure data file exist locally and return the file path; \n3. load the idx file into numpy arrays; \n4. make the VanillaSource object from numpy array; \n5. normalize the data in the form of VanillaSource; \n6. save it as a dict element inside MnistSupplier.data dict \n\n Processed_Inputs: \n1. images: \n%s \n2. image idx file path: \n%s \n3. load idx file into numpy array: \n%s \n4. save numpy array into VanillaSource: \n%s \n5. normalize(onehot) VanillaSource object \n%s \n\n", images, images_path, idx_array_img.shape, VanillaSource_object_img.__dict__.keys(), image_norm_MnistSupplier.__dict__.keys())
 	###########################################################################
 	@staticmethod
 	def _onehot(source):
@@ -126,8 +109,6 @@ class MnistSupplier(Supplier):
 
 		if isinstance(target, str):
 			target = {'path' : target}
-
-		# package.install: ensure the path exist locally
 		path, _ = package.install(
 			url=target.get('url'),
 			path=target.get('path'),

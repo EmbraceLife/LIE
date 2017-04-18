@@ -14,6 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import logging
+TRACE_LEVEL = 5
+def _trace(self, message, *args, **kwargs):
+	""" Writes a trace-level message to the log.
+	"""
+	if self.isEnabledFor(TRACE_LEVEL):
+		self._log(TRACE_LEVEL, message, args, **kwargs)
+logging.addLevelName(TRACE_LEVEL, 'TRACE')
+logging.TRACE = TRACE_LEVEL
+logging.Logger.trace = _trace
+
 __homepage__ = 'https://kur.deepgram.com'
 from .version import __version__
 
@@ -30,8 +41,5 @@ from . import model
 from . import supplier
 from . import loggers
 from .kurfile import Kurfile
-
-# in order to access functions inside __main__.py
-from .__main__ import *
 
 ### EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF

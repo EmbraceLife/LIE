@@ -24,10 +24,6 @@ from .network import get_hash, download
 
 logger = logging.getLogger(__name__)
 
-# prepare examine tools
-from pdb import set_trace
-from pprint import pprint
-from inspect import getdoc, getmembers, getsourcelines, getmodule
 ###############################################################################
 def canonicalize(path):
 	""" Returns an absolute, canonical path.
@@ -182,7 +178,7 @@ def unpack(path, dest=None, recursive=False, ignore_error=False):
 
 ###############################################################################
 def install(url=None, path=None, checksum=None):
-	""" Ensure that the data source exists locally, if not, download it and store it in the specified path.
+	""" Ensure that the data source exists locally.
 
 		# Return value
 
@@ -192,16 +188,12 @@ def install(url=None, path=None, checksum=None):
 		directory (unpacked, as if it were a tar archive that was already
 		extracted).
 	"""
-	logger.debug("(url=None, path=None, checksum=None): \nEnsure that the data source exists locally, if not, download it and store it in the specified path. \n1. only path is available , it works too; \n2. best situation is have path, url, checksum all available \n\n")
-	# if url is None, then path has to exist for access dataset
 	if url is None:
 		# Expect a path to an existing source
 		if path is None:
 			raise ValueError('Either "url" or "path" needs to be '
 				'specified in the data supplier.')
 		path = os.path.expanduser(os.path.expandvars(path))
-
-		# Make sure the path is a file and checksum is good
 		if os.path.isfile(path):
 			# Perfect. Checksum it.
 			if checksum is not None:
@@ -216,8 +208,6 @@ def install(url=None, path=None, checksum=None):
 			raise ValueError('"path" was specified in a data supplier, but '
 				'the path does not exist. Check that the path is correct, or '
 				'specify a URL to download data.')
-
-	# If url exist, but path not; let's create a path
 	else:
 		if path is None:
 			# URL, but no path: use temporary directory as path.
@@ -235,10 +225,8 @@ def install(url=None, path=None, checksum=None):
 			_, filename = os.path.split(url)
 			path = os.path.join(path, filename)
 
-		# if File already exists.
 		if os.path.isfile(path):
-			# if a checksum exist, and if path hash == checksum
-			# then dataset is within the path, return path
+			# File already exists. Checksum it.
 			if checksum is not None:
 				if get_hash(path).lower() == checksum.lower():
 					logger.debug('File exists and passed checksum: %s',

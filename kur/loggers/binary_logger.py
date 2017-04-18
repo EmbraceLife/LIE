@@ -77,10 +77,10 @@ class BinaryLogger(PersistentLogger):
 					self.load_summary()
 					has_summary = True
 				else:
-					logger.debug('Loading old-style binary logger.')
+					logger.trace('Loading old-style binary logger.')
 					has_summary = False
 
-				_, _, training_loss = self.load_statistic(
+				_, training_time, training_loss = self.load_statistic(
 					Statistic(Statistic.Type.TRAINING, 'loss', 'total')
 				)
 				if training_loss is None:
@@ -92,13 +92,28 @@ class BinaryLogger(PersistentLogger):
 					if not has_summary:
 						self.epochs = len(training_loss)
 
-				_, _, validation_loss = self.load_statistic(
+				_, validation_time, validation_loss = self.load_statistic(
 					Statistic(Statistic.Type.VALIDATION, 'loss', 'total')
 				)
 				if validation_loss is None:
 					self.best_validation_loss = None
 				else:
 					self.best_validation_loss = validation_loss.min()
+
+				_, batch_time, _ = self.load_statistic(
+					Statistic(Statistic.Type.BATCH, 'loss', 'total')
+				)
+
+				if batch_time is not None:
+					self.latest_timestamp = batch_time[-1]
+				elif validation_time is not None:
+					self.latest_timestamp = validation_time[-1]
+				elif training_time is not None:
+					self.latest_timestamp = training_time[-1]
+				else:
+					self.latest_timestamp = 0
+
+				self.timestamper.duration = self.latest_timestamp
 
 			else:
 				raise ValueError('Binary logger stores its information in a '
@@ -123,6 +138,12 @@ class BinaryLogger(PersistentLogger):
 		""" Returns the best historical validation loss.
 		"""
 		return self.best_validation_loss
+
+	###########################################################################
+	def get_latest_timestamp(self):
+		""" Returns the latest timestamp.
+		"""
+		return self.latest_timestamp
 
 	###########################################################################
 	@staticmethod
@@ -202,7 +223,7 @@ class BinaryLogger(PersistentLogger):
 						'original file as a backup: %s', old_filename)
 					shutil.copy(old_filename, filename)
 
-			logger.debug('Adding data to binary column: %s', column)
+			logger.trace('Adding data to binary column: %s', column)
 			idx.save(filename, v, append=True)
 
 		self.update_summary()
@@ -211,7 +232,7 @@ class BinaryLogger(PersistentLogger):
 	def update_summary(self):
 		""" Updates the summary log file.
 		"""
-		logger.debug('Writing logger summary.')
+		logger.trace('Writing logger summary.')
 		path = os.path.expanduser(os.path.expandvars(self.path))
 		summary_path = os.path.join(path, self.SUMMARY)
 		with open(summary_path, 'w') as fh:
@@ -227,7 +248,7 @@ class BinaryLogger(PersistentLogger):
 
 	###########################################################################
 	def load_summary(self):
-		logger.debug('Reading logger summary.')
+		logger.trace('Reading logger summary.')
 		path = os.path.expanduser(os.path.expandvars(self.path))
 		summary_path = os.path.join(path, self.SUMMARY)
 		with open(summary_path) as fh:
@@ -254,15 +275,15 @@ class BinaryLogger(PersistentLogger):
 			`path`, then a numpy array containing the stored data is returned.
 			Otherwise, None is returned.
 		"""
-		logger.debug('Loading binary column: %s', column)
+		logger.trace('Loading binary column: %s', column)
 		path = os.path.expanduser(os.path.expandvars(path))
 		if not os.path.isdir(path):
-			logger.debug('No such log path exists: %s', path)
+			logger.trace('No such log path exists: %s', path)
 			return None
 
 		filename = os.path.join(path, column)
 		if not os.path.isfile(filename):
-			logger.debug('No such log column exists: %s', filename)
+			logger.trace('No such log column exists: %s', filename)
 			return None
 
 		return idx.load(filename)
