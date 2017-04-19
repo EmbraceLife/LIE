@@ -18,6 +18,13 @@ import json
 from . import Supplier
 from ..sources import JSONLSource
 
+import logging
+logger = logging.getLogger(__name__)
+
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule
 ###############################################################################
 class JSONLSupplier(Supplier):
     """ A supplier which parses out data from a JSON-Lines file (*.jsonl)
@@ -42,6 +49,9 @@ class JSONLSupplier(Supplier):
 
             source: str. Filename of JSONL file (*.jsonl) to load.
         """
+        logger.critical("(self, source, *args, **kwargs): \nCreate a new Jsonl dictionary supplier \n1. take source as self.source; \n2. open Jsonl file and read all the keys; \n3. count the number of entries and store in self.num_entries; \n4. create a large dict with all keys and each key has value on a JSONLSource\n\n")
+
+
         super().__init__(*args, **kwargs)
 
         self.source = source
@@ -56,6 +66,8 @@ class JSONLSupplier(Supplier):
             k: JSONLSource(self.source, k, self.num_entries)
             for k in keys
         }
+        logger.critical("\nThis Jsonl file has the following keys: \n%s \n\n", keys)
+
 
     ###########################################################################
     def get_sources(self, sources=None):

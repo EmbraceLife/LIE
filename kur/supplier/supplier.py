@@ -144,11 +144,11 @@ class Supplier:
 					pass
 				elif isinstance(result[k], StackSource):
 					# Add this to the stack.
-					logger.info('Stacking data source: %s', k)
+					logger.debug('Stacking data source: %s', k)
 					result[k].stack(v)
 				else:
 					# Create a stack.
-					logger.info('Stacking data source: %s', k)
+					logger.debug('Stacking data source: %s', k)
 					result[k] = StackSource(result[k], v)
 
 		logger.debug("(cls, suppliers): \nMerge all data sources into a single dictionary for instantiate a data provider \nInputs: \n1. cls: \n%s \n2. suppliers: \n%s \nReturn: \nA single dictionary: \n%s \n\n", cls, suppliers, result)

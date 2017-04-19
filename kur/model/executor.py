@@ -88,7 +88,8 @@ class Executor:
 
 			None
 		"""
-
+		logger.critical("(self, target=None, recompile=False, with_provider=None, **kwargs): \nCompile a model \n\n1. If section is not selected, given loss and optimizer are not None, select train section to build; \n2. make sure the model is built before compilation; \n3. compile model with backend using model, loss, optimizer objects using kur.backend.keras_backend \n\n")
+		# If section is not selected, given loss and optimizer are not None, select train section to build
 		if target is None:
 			if self.loss is None and self.optimizer is None:
 				target = 'evaluate'
@@ -102,6 +103,7 @@ class Executor:
 				and target in self.model.compiled:
 				return
 
+		# make sure the model is built before compilation
 		if not self.model.is_built():
 			logger.warning('This model has never been built before. We are '
 				'going to try to build it now. But the model should always be '
@@ -112,6 +114,7 @@ class Executor:
 			self.model.build()
 
 		logger.trace('Recompiling the model.')
+		# compile model with backend using model, loss, optimizer objects
 		self.model.backend.compile(
 			model=self.model,
 			loss=self.loss if target != 'evaluate' else None,

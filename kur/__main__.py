@@ -50,13 +50,13 @@ def parse_kurfile(filename, engine, parse=True):
 
 		Kurfile instance
 	"""
-	logger.info("(filename_str, engine_object, parse=True): start \n 1. create a Kurfile object, call it spec; \n 2. parse spec; \n 3. return spec; \n Inputs: \n1. filename: %s; \n2. engine: %s; \n3. parse: default is True, %s. \n\n", filename, engine, parse)
+	logger.debug("(filename_str, engine_object, parse=True): start \n 1. create a Kurfile object, call it spec; \n 2. parse spec; \n 3. return spec; \n Inputs: \n1. filename: %s; \n2. engine: %s; \n3. parse: default is True, %s. \n\n", filename, engine, parse)
 
 	spec = Kurfile(filename, engine)
 	if parse:
 		spec.parse()
 
-	logger.info("(filename_str, engine_object, parse=True): end \n1. create a Kurfile object, call it spec; \n2. parse spec; \n3. return spec; \nInputs: \n1. filename: %s; \n2. engine: %s; \n3. parse: default is True, %s. \n\nReturns: \n1. spec: type is %s \n2. spec keys are: \n%s \n\n", filename, engine, parse, type(spec), spec.__dict__.keys())
+	logger.debug("(filename_str, engine_object, parse=True): end \n1. create a Kurfile object, call it spec; \n2. parse spec; \n3. return spec; \nInputs: \n1. filename: %s; \n2. engine: %s; \n3. parse: default is True, %s. \n\nReturns: \n1. spec: type is %s \n2. spec keys are: \n%s \n\n", filename, engine, parse, type(spec), spec.__dict__.keys())
 
 	return spec
 
@@ -101,9 +101,23 @@ def build(args):
 	"""
 	logger.warning("(args): build a model: \n1. create a kurfile instance and fill in some of its properties; \n2. we select from three sections: train, test, evaluate to build model; \n3. if section is not available or args.compile as none, only do spec.get_model(provider=none) without Executor_trainer/evaluator, nor compile(); \n4. get one or more providers from spec, but only use the default or any provider; \n5. create a model object with spec.get_model(provider), build Executor as trainer or evaluator, and compile \n\n ")
 
+	logger.warning("step1: \nCreate a Kurfile object and parse it with detailed information \n\n")
 
 	spec = parse_kurfile(args.kurfile, args.engine)
 
+	logger.critical("\n The parsed kurfile object conatins the following dicts: \n\n")
+	for k in spec.__dict__:
+		print(k, "\n")
+		pprint(spec.__dict__[k])
+		print("\n\n")
+	logger.critical("\n spec.containers is a list of Container objects or layer object in Kur; \nIn fact, they are not like a dict for layer info storages\n\n")
+	for c_layer in spec.containers:
+		print(type(c_layer))
+		pprint(c_layer.__dict__)
+		print("\n\n")
+
+
+	logger.warning("step2: Select the first available section of ('train', 'validate', 'test', 'evaluate'); \n\nIf sections above are not available, then 'spec.get_model(provider=None)' and no compilation for Executor trainer; \n\n If section is available but data file is empty, then provider=None on get_model, and do compile. \n\n")
 	# By default, we select all three sections: train, test, evaluate
 	if args.compile == 'auto':
 		result = []
@@ -112,35 +126,71 @@ def build(args):
 				result.append((section, 'data' in spec.data[section]))
 		# if none of the three sections availabe in spec.data, then we don't compile model or just build a bare model; or a train section is available but has no data value, then just build a bare model
 		if not result:
-			logger.info('Trying to build a bare model.')
+			logger.critical('Trying to build a bare model.')
 			args.compile = 'none'
 		else:
 			args.compile, has_data = sorted(result, key=lambda x: not x[1])[0]
-			logger.info('Trying to build a "%s" model.', args.compile)
+			logger.critical('Trying to build a "%s" model.', args.compile)
 			if not has_data:
-				logger.warning('There is not data defined for this model, '
+				logger.critical('There is not data defined for this model, '
 					'so we will be running as if --bare was specified.')
 	# If args.compile set to 'none', build a bare model
 	elif args.compile == 'none':
-		logger.info('Trying to build a bare model.')
+		logger.critical('Trying to build a bare model.\n\n')
 	# or we can select any section of the three, and build a model
 	else:
-		logger.info('Trying to build a "%s" model.', args.compile)
+		logger.critical('Trying to build a "%s" model.\n\n', args.compile)
 
 	# if we are building a bare model, then no need for provider
 	if args.bare or args.compile == 'none':
 		provider = None
 	# otherwise, we create a BatchProvider instance with spec (accept many data sources only when testing)
 	else:
+
+
+		logger.warning("step3: How the dataset is sourced, preprocess, and loaded? \n\n")
+
 		providers = spec.get_provider(
 			args.compile,
 			accept_many=args.compile == 'test'
 		)
+
+		logger.critical("\nThe data providers contains: \n\n")
+		pprint(providers)
+		print("\n\n")
+		logger.critical("\nThe batch provider contains: \n\n")
+		pprint(providers['default'].__dict__)
+		print("\n\n")
+		logger.critical("\nCheck inside each data source of data provider: \n\n")
+		for source in providers['default'].__dict__['sources']:
+			print(source, ": has the following content \n")
+			# pprint(source.__dict__)
+			for k, v in source.__dict__.items():
+				if isinstance(v, list):
+					print("Key:", k, "; Value : is a list of", len(v), "num of ", type(v[0]))
+					print("print v[0:5]")
+					pprint(v[0:5])
+				elif isinstance(v, np.ndarray):
+					print("Key: ", k, "; Value : is array of shape ", v.shape)
+					if len(v.shape)>1:
+						print("print v[0:1]")
+						pprint(v[0:1])
+					else:
+						print("print v[0:5]")
+						pprint(v[0:5])
+				else:
+					print(k, ":", v)
+			print("\n\n")
+
 		# get default provider or any provider if many providers available
 		provider = Kurfile.find_default_provider(providers)
 
 	# create a model object and store inside spec.model:
 	spec.get_model(provider)
+
+	logger.warning("step4: spec.get_model(provider) \n1. spec.model is updated, not None any more: \n%s \n\n", spec.model)
+	pprint(spec.model.__dict__)
+	print("\n\n")
 
 	# if using data from train section, we build a trainer Executor and compile it; if data from test section, we build a trainer Executor without optimizer and compile it; if data from evaluate section, we build a Executor evaluator and compile it
 	if args.compile == 'none':
@@ -155,8 +205,18 @@ def build(args):
 		logger.error('Unhandled compilation target: %s. This is a bug.',
 			args.compile)
 		return 1
+
+	logger.warning("step5: Create Executor trainer using spec: \n1. to create a large dict with loss, model, optimizer \n%s \n\n", target)
+	pprint(target.__dict__)
+	print("\n\n")
+
+
 	# get a backend specific representation of model
 	target.compile()
+
+	logger.warning("step6: Compile Executor trainer above \n\n create a trainable keras model, extract weights from the model, save weights, test weights or model, restore weights, and now model is ready for training \n\nHowever, from what file or variables does kur use to do training exactly??? \n\n")
+	pprint(target.model.__dict__)
+
 
 ###############################################################################
 def prepare_data(args):
@@ -193,13 +253,16 @@ def prepare_data(args):
 	logger.critical("In this case, the selected section: {}\n\n".format(args.target))
 
 	logger.warning("step3: \nGet data provider for the section \n\n")
+	logger.critical("\nHow the dataset is sourced, preprocess, and loaded? \n\n")
 
 	providers = spec.get_provider(
 		args.target,
 		accept_many=args.target == 'test'
 	)
 
-	logger.critical("\nThe data provider contains: \n\n")
+
+
+	logger.critical("\nThe data providers contains: \n\n")
 	pprint(providers)
 	print("\n\n")
 	logger.critical("\nThe batch provider contains: \n\n")
@@ -226,7 +289,7 @@ def prepare_data(args):
 				print(k, ":", v)
 		print("\n\n")
 
-	logger.warning("step4: \nIf args.assemble == True, do the following: \n1. get default data provider; \n2. get a parsed model for spec.model; \n3. build trainer for train section is to initialize an Executor object with four properties: loss, model, optimizer objects... \n4. compile Executor is to add a compiled model using keras backend to Executor.model['compiled'], and also add real new additional_sources onto Executor.model['additional_sources']\n\n")
+	logger.warning("step4: \nIf args.assemble == True, do the following: \n1. get default data provider from providers the dict; \n2. get a parsed model for spec.model; \n3. build trainer for train section is to initialize an Executor object with four properties: loss, model, optimizer objects... \n4. compile Executor is to add a compiled model using keras backend to Executor.model['compiled'], and also add real new additional_sources onto Executor.model['additional_sources']\n\n")
 
 	if args.assemble:
 		default_provider = Kurfile.find_default_provider(providers)
@@ -256,9 +319,12 @@ def prepare_data(args):
 
 		target.compile(assemble_only=True)
 
-		logger.critical("\nCompile Executor trainer above \n%s  \nTo compile is to create  `target.model.compiled['raw'].__dict__` with a keras backend Model object \n\nThis keras-backend Model object is \n", target)
-		pprint(pprint(target.model.compiled['raw'].__dict__))
+		logger.critical("\nCompile Executor trainer above \n%s  \nTo compile is to create  `target.model.compiled['raw'].__dict__` with a keras backend Model object; \n\nThis keras-backend Model object is \n", target)
+		pprint(target.model.compiled['raw'].__dict__)
+		print("\nTarget.model.additional_sources is updated: \n")
+		pprint(target.model.additional_sources)
 		print("\n\n")
+
 
 	logger.warning("step5: \nPrint out data samples \n1. Get (every) data provider \n2. get just one batch from this provider; \n3. print the whole batch; \n4. print specific number of data samples using args.number \n\n")
 

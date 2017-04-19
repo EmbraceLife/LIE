@@ -18,6 +18,13 @@ import json
 from . import Supplier
 from ..sources import TextSource, TextLength, RawText
 
+import logging
+logger = logging.getLogger(__name__)
+
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule
 
 ###############################################################################
 class TextSupplier(Supplier):
@@ -44,7 +51,10 @@ class TextSupplier(Supplier):
             vocabs: dict. vocabs[key] = list of vocab items for this source
             padding: dict (optional0. padding[key] = 'left' or 'right' for 0 padding
         """
+        logger.warning("(self, path, seq_len, vocabs, padding=None, pad_with=None, *args, **kwargs): \nInstantiate TextSupplier object \n1. get args from super().__init__(*args, **kwargs), and get path of the jsonl file; \n2. open the file and read the keys of dict inside, make sure self.seq_len is a dict, all keys have the same seq_len as value; \n3. store vocabs inside self.vocabs; \n4. store padding in self.padding, or create a dict with all keys have value 'right'; \n5. ...; \n6. ... \n\n")
+		
         super().__init__(*args, **kwargs)
+
 
         self.path = path
 

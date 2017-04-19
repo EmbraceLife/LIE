@@ -105,7 +105,7 @@ class Engine:
 			if not isinstance(v, (list, tuple)):
 				v = [v]
 			self._templates[k] = v
-		logger.info("(self, templates): \n Store spec.data['templates'] as a dict to engine._templates \n \n The key(s) of templates dict stored in engine._templates are: %s \n \n", ', '.join(
+		logger.debug("(self, templates): \n Store spec.data['templates'] as a dict to engine._templates \n \n The key(s) of templates dict stored in engine._templates are: %s \n \n", ', '.join(
 			self._templates.keys()))
 
 	###########################################################################
@@ -205,7 +205,7 @@ class Engine:
 
 			The evaluated expression (some Python object/class).
 		"""
-		logger.info("(self, expression, recursive=False): start \n  Every expression in yml file or json file will be evaluated and returned as python object \n \n Inputs: \n 1. expression's type: %s) \n 2. expression is %s \n \n", type(expression), expression)
+		logger.debug("(self, expression, recursive=False): start \n  Every expression in yml file or json file will be evaluated and returned as python object \n \n Inputs: \n 1. expression's type: %s) \n 2. expression is %s \n \n", type(expression), expression)
 
 		if isinstance(expression, (str, bytes)):
 			# A string may need several runs through evaluation to get out of
@@ -243,7 +243,7 @@ class Engine:
 					type(expression),
 					expression
 				), UserWarning)
-		logger.info("(self, expression, recursive=False): end \nEvery expression in yml file or json file will be evaluated and return a python object: \n\n Returns: \n1. expression: %s \n\n", expression)
+		logger.debug("(self, expression, recursive=False): end \nEvery expression in yml file or json file will be evaluated and return a python object: \n\n Returns: \n1. expression: %s \n\n", expression)
 		return expression
 
 	###########################################################################

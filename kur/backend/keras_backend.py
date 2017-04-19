@@ -35,6 +35,11 @@ from ..providers import BatchProvider
 
 logger = logging.getLogger(__name__)
 
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule
+import numpy as np
 ###############################################################################
 class KerasBackend(Backend):
 	""" A Keras backend.
@@ -322,6 +327,8 @@ class KerasBackend(Backend):
 	def _save_keras(self, keras_model, filename):
 		""" Saves a native Keras model.
 		"""
+		logger.info("(self, keras_model, filename): \nSave weights arrays in temporal files \n\n")
+
 		path = os.path.expanduser(os.path.expandvars(filename))
 		if os.path.exists(path):
 			if not os.path.isdir(path):
@@ -337,23 +344,31 @@ class KerasBackend(Backend):
 		else:
 			os.makedirs(path, exist_ok=True)
 
+		# get layers from model.compiled['raw']
 		layers = keras_model.flattened_layers \
 			if hasattr(keras_model, 'flattened_layers') else keras_model.layers
-		for layer in layers:
-			layer_name = layer.name
 
+
+		# look into each layer
+		for layer in layers:
+			# get layer name
+			layer_name = layer.name
+			# get layer weights
 			symbolic_weights = layer.weights
+			# get weight_names, weight_values of this layer
 			weight_names, weight_values = \
 				self._get_weight_names_and_values_from_symbolic(
 					symbolic_weights
 				)
-
+			#
 			for name, val in zip(weight_names, weight_values):
 				name = name.replace('/', '_')
+				# add temperal folder name with weight_names
 				target = os.path.join(
 					path,
 					'{}+{}.kur'.format(layer_name, name)
 				)
+				# save weights arrays with file path in format of idx
 				idx.save(target, val)
 
 	###########################################################################
@@ -394,6 +409,8 @@ class KerasBackend(Backend):
 	def _restore_keras(self, keras_model, filename):
 		""" Loads a native Keras model.
 		"""
+		logger.info("(self, keras_model, filename): \nRestore weights of layers from saved weights files or idx files\n\n")
+
 		import keras.backend as K				# pylint: disable=import-error
 
 		path = os.path.expanduser(os.path.expandvars(filename))
@@ -407,6 +424,7 @@ class KerasBackend(Backend):
 			raise ValueError('Target weight directory does not exist: {}'
 				.format(path))
 
+		# get the same temporal path ready and get all keras layers ready
 		layers = keras_model.flattened_layers \
 			if hasattr(keras_model, 'flattened_layers') else keras_model.layers
 
@@ -424,6 +442,8 @@ class KerasBackend(Backend):
 		#	},
 		#	...
 		# }
+		# there are two groups of weights availabe in this model
+		# 1 hidden convol layer and 1 dense layer
 		tensors = self.enumerate_saved_tensors(path)
 
 		# We want to put (symbolic_weights, weight_values) tuples in this.
@@ -432,7 +452,7 @@ class KerasBackend(Backend):
 		# Loop over the available weights.
 		for layer_name, weights in tensors.items():
 
-			# Load the weights.
+			# Load the weights from saved idx files
 			# This maps weight names to numpy arrays.
 			weights = {k : idx.load(v) for k, v in weights.items()}
 
@@ -450,6 +470,7 @@ class KerasBackend(Backend):
 						symbolic_weights
 					)
 
+				# get weight names from saved weights
 				available = set(weights.keys())
 				needed = set(name.replace('/', '_') for name in weight_names)
 				if available ^ needed:
@@ -463,6 +484,8 @@ class KerasBackend(Backend):
 						'found {} on disk.'.format(layer_name,
 						len(needed), len(available)))
 
+				# tuple layer_weight_name with idx.weights under the same name
+				# same all weights and names as tuples into a list
 				for i, name in enumerate(weight_names):
 					name = name.replace('/', '_')
 					weight_value_tuples.append((symbolic_weights[i], weights[name]))
@@ -593,23 +616,32 @@ class KerasBackend(Backend):
 		assemble_only=False):
 		""" Returns the Keras model instance.
 		"""
+		logger.critical("(self, model, loss=None, optimizer=None, blocking=True,assemble_only=False): \nCreate a keras model instance \n\n1. set model.compiled from None to {}; \n2. If 'raw' is not a key to model.compiled, create a keras model object; \n3. print model with num of params nicely when -vv; \n4. if self.parallel>1, run make_parallel(...); \n5. import keras.backend as K, get loss_inputs, loss_outputs as 2 ordered dicts, total_loss as a mean value; \n6. get updates as list of tuples full of ops??? using args such as compiled.trainable_weights and total_loss; \n7. create a theano.compile.function_module.Func object; \n8. get input_shapes, input_names and output names; \n9. store func, input_names, output_names, input_shapes, optimizer into a dict named result; \n10. store result in model.compiled['train'] \n11. Compiling to build a model in Keras\n\n")
+
+		# set model.compiled from None to {}
 		if model.compiled is None:
 			model.compiled = {}
 
+		# If 'raw' is not a key to model.compiled,
 		if 'raw' not in model.compiled:
-			logger.trace('Instantiating a Keras model.')
+
+			logger.info("Using model.inputs and model.outpus to create a Keras model and save it in model.compiled['raw'].\n\n")
+
 			compiled = self.make_model(
 				inputs=[node.value for node in model.inputs.values()],
 				outputs=[node.value for node in model.outputs.values()]
 			)
 
-			if logger.isEnabledFor(logging.DEBUG):
-				x = io.StringIO()
-				with contextlib.redirect_stdout(x):
-					compiled.summary()
-				for line in x.getvalue().split('\n'):
-					logger.debug(line)
+			# print model with num of params nicely when -vv
+			# if logger.isEnabledFor(logging.INFO):
+			# 	x = io.StringIO()
+			# 	with contextlib.redirect_stdout(x):
+			# 		compiled.summary()
+			# 	for line in x.getvalue().split('\n'):
+			# 		# logger.info("\n%s",line)
+			# 		print(line, "\n")
 
+			# if self.parallel>1, run make_parallel(...)
 			if self.parallel > 1:
 				from ..utils.parallelism import make_parallel
 				compiled = make_parallel(compiled, self.parallel)
@@ -617,14 +649,21 @@ class KerasBackend(Backend):
 			model.compiled['raw'] = compiled
 
 		else:
-			logger.trace('Reusing an existing model.')
+			logger.info('Reusing an existing model.')
 			compiled = model.compiled['raw']
 
-		logger.debug('Constructing the underlying model.')
+		logger.info("This newly made keras model compled has following internals: \n")
+		pprint(model.compiled['raw'].__dict__)
+		print("\n\n")
+
+		logger.info('See the summary of this compiled/keras model:\n')
+		pprint(model.compiled['raw'].summary())
+		print("\n\n")
+
 
 		import keras.backend as K				# pylint: disable=import-error
 		if loss is None and optimizer is None:
-			logger.trace('Assembling an evaluation function from the model.')
+			logger.info('Assembling an evaluation function from the model.\n\n')
 
 			loss_inputs = loss_outputs = {}
 			if not assemble_only:
@@ -636,7 +675,7 @@ class KerasBackend(Backend):
 			key = 'evaluate'
 
 		elif optimizer is None:
-			logger.trace('Assembling a testing function from the model.')
+			logger.info('Assembling a testing function from the model.\n\n')
 
 			loss_inputs, loss_outputs, _ = \
 				self.process_loss(model, loss)
@@ -652,17 +691,29 @@ class KerasBackend(Backend):
 			key = 'test'
 
 		else:
-			logger.trace('Assembling a training function from the model.')
+			logger.info("Assembling a training function from the model.\n1. get loss_inputs, loss_outputs, total_loss ready; \n2. get optimizer from the compiled model and total_loss; \n3. use compiled.inputs, compiled.outputs, loss_inputs, loss_outputs, updates to create a Theano training function \n\n")
 
 			# Loss inputs: additional inputs needed by the loss function.
 			# Loss outputs: output of the loss function
+
+			# get loss_inputs, loss_outputs as 2 ordered dicts, total_loss as a mean value
 			loss_inputs, loss_outputs, total_loss = \
 				self.process_loss(model, loss)
+			print("loss_inputs: {}".format(loss_inputs))
+			print("loss_outputs: {}".format(loss_outputs))
+			print("total_loss: {}\n\n".format(total_loss))
 
+
+			# get update or the specific optimzier for training
 			updates = optimizer.get_optimizer(self)(
 				compiled.trainable_weights, total_loss
 			)
 
+			print("updates from optimizer.get_optimizer(self)(compiled.trainable_weights, total_loss): \n")
+			pprint(updates)
+			print("\n\n")
+
+			# create a theano.compile.function_module.Func object
 			if not assemble_only:
 				func = K.function(
 					compiled.inputs + \
@@ -673,15 +724,21 @@ class KerasBackend(Backend):
 					updates=updates
 				)
 			key = 'train'
+			print("create a theano func using keras: \n")
+			pprint(func.__dict__['function'])
+			print("\n\n")
 
-		logger.trace('Additional inputs for log functions: %s',
-			', '.join(loss_inputs.keys()))
+		# logger.trace('Additional inputs for log functions: %s\n\n',
+		# 	', '.join(loss_inputs.keys()))
 
+		logger.info("Create model.compiled['train'] for compiling a keras model ready for training in kur \n1. get input_names, output_names from compiled.input_names|output_names and loss_inputs|outputs \n2. get input_shapes from compiled.inputs and loss_inputs.values() \n3. store all the above and the theano function into a dict called result \n4. and then store result inside model.compiled['train'] \n\n")
+		# get input_names and output names
 		input_names = compiled.input_names + \
 			list(loss_inputs.keys())
 		output_names = compiled.output_names + \
 			list(loss_outputs.keys())
 
+		# get input_shapes
 		input_shapes = [
 			layer._keras_shape
 			for layer in compiled.inputs
@@ -689,15 +746,22 @@ class KerasBackend(Backend):
 			layer._keras_shape
 			for layer in loss_inputs.values()
 		]
-
-		logger.debug('Expected input shapes: %s',
-			', '.join('{}={}'.format(k, v) for k, v in \
-				zip(input_names, input_shapes)
-			))
+		print("create input_names out of compiled model: \n")
+		pprint(input_names)
+		print("\ncreate output_names out of compiled model: \n")
+		pprint(output_names)
+		print("\ncreate input_shapes out of compiled model: \n")
+		pprint(input_shapes)
+		print("\n\n")
+		# logger.trace('Expected input shapes: %s /n/n',
+			# ', '.join('{}={}'.format(k, v) for k, v in \
+			# 	zip(input_names, input_shapes)
+			# ))
 
 		if assemble_only:
 			func = None
 
+		# store compiled model into a dict named result
 		result = {
 			'func' : func,
 			'names' : {
@@ -710,13 +774,26 @@ class KerasBackend(Backend):
 			'kur_optimizer' : optimizer
 		}
 
-		if logger.isEnabledFor(logging.TRACE):
-			logger.trace('Compiled model: %s', result)
+		print("puts func, names, shapes, optimizer into a single dict: named result \n And save result inside model.compiled['train']: \n")
+		pprint(result)
+		print("\n\n")
+		# if logger.isEnabledFor(logging.INFO):
+		# 	logger.info('Compiled model: \n')
+		# 	pprint(result)
+		# 	print("\n\n")
 
+		# store result into model.compiled[key]
 		if not assemble_only:
 			model.compiled[key] = result
+
+			print("model.compiled[key]: \n")
+			pprint(model.compiled[key])
+			print("\n\n")
+
 			if blocking:
+				logger.info("Let's use the newly updated model to compile keras model for training \n\n")
 				self.wait_for_compile(model, key)
+
 
 		return result
 
@@ -724,11 +801,14 @@ class KerasBackend(Backend):
 	def wait_for_compile(self, model, key):
 		""" Waits for the model to finish compiling.
 		"""
+		logger.info("(self, model, key): \nCompiling to build a model in Keras \n1. get provider ready \n2. get temporal dir ready; \n3. save weights arrays of layers into temporal files; \n4. test weights and model by using 2 sample data and weights to make predictions and calc loss; \n5. finall restore the weights to the model using self._restore_keras(model.compiled['raw'], weight_path) \n\n")
+
 		if model.provider is None:
 			logger.warning('No data provider available, so we cannot reliably '
 				'wait for compiling to finish.')
 			return
 
+		# get batch provider for this section of data
 		with DisableLogging():
 			provider = BatchProvider(
 				sources=dict(zip(model.provider.keys, model.provider.sources)),
@@ -736,22 +816,37 @@ class KerasBackend(Backend):
 				num_batches=1,
 				randomize=False
 			)
+
+		# add more data sources to the provider above
 		model.supplement_provider(provider)
 
+		print("get provider ready, if available add additional sources to provider \n")
+		pprint(provider.__dict__)
+		print("\n\n")
+
+		# create an empty directory
 		weight_path = None
 		tempdir = tempfile.mkdtemp()
 		try:
+			# create a weights dir
 			weight_path = os.path.join(tempdir, 'weights')
+
+			# save weights of each layer in idx format in a temporal dir
 			self._save_keras(model.compiled['raw'], weight_path)
 
 			logger.info('Waiting for model to finish compiling...')
+
+			# Internal StopIteration will allow only one loop
+			# use 2 data samples to test out the working of model by produce predictions and a loss
 			for batch in provider:
 				self.run_batch(model, batch, key, False)
-			logger.info('Model is ready for use.')
+			logger.info('Model is tested by 2 data samples and ready for use.')
 
 		finally:
 			if weight_path and os.path.isdir(weight_path):
 				try:
+
+					# load a native keras model
 					self._restore_keras(model.compiled['raw'], weight_path)
 				except:
 					logger.error('We were waiting for the model to finish '
@@ -763,6 +858,9 @@ class KerasBackend(Backend):
 
 	###########################################################################
 	def run_batch(self, model, batch, key, is_train):
+		""" Test out the model with 2 data samples: make predictions and calc loss for them
+		"""
+
 		if model.compiled is None or key not in model.compiled:
 			raise ValueError('A model has not been compiled to: {}'
 				.format(key))
@@ -788,15 +886,18 @@ class KerasBackend(Backend):
 				compiled['names']['input']
 			)
 		] + [is_train]
-
+		# use Theano model function with a batch of input data to get outputs
 		outputs = compiled['func'](inputs)
+
 		num_outputs = len(raw.outputs)
+		# metrics is probably the first batch's loss
 		metrics = {
 			k : v for k, v in zip(
 				compiled['names']['output'][num_outputs:],
 				outputs[num_outputs:]
 			)
 		}
+		# this is 2 data samples predictions
 		predictions = {name : data for name, data in zip(model.outputs, outputs[:num_outputs])}
 		return predictions, metrics
 
