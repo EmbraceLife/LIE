@@ -99,25 +99,31 @@ def evaluate(args):
 def build(args):
 	""" Builds a model.
 	"""
-	logger.warning("(args): build a model: \n1. create a kurfile instance and fill in some of its properties; \n2. we select from three sections: train, test, evaluate to build model; \n3. if section is not available or args.compile as none, only do spec.get_model(provider=none) without Executor_trainer/evaluator, nor compile(); \n4. get one or more providers from spec, but only use the default or any provider; \n5. create a model object with spec.get_model(provider), build Executor as trainer or evaluator, and compile \n\n ")
+	logger.warning("(args): \n\nHow to build a model from a kurfile: \n\n1. Extract all details from a kurfile, as everything you want is stored in a kur-yaml file; \n2. to build a model, We only use details from the first available section, usually there are train, evaluate, test sections; \n3. If details of a section is not available, then just run spec.get_model(provider=none),no Executor_trainer/evaluator, nor compile(); \n4. Using the default or any data provider to build a model if more providers are available; \n5. create a model object with spec.get_model(provider), build Executor as trainer or evaluator, and compile \n\n ")
 
-	logger.warning("step1: \nCreate a Kurfile object and parse it with detailed information \n\n")
+	logger.warning("\n\nstep1: Read all the details from a kurfile for making a model \n\n")
 
 	spec = parse_kurfile(args.kurfile, args.engine)
 
-	logger.critical("\n The parsed kurfile object conatins the following dicts: \n\n")
-	for k in spec.__dict__:
-		print(k, "\n")
-		pprint(spec.__dict__[k])
-		print("\n\n")
-	logger.critical("\n spec.containers is a list of Container objects or layer object in Kur; \nIn fact, they are not like a dict for layer info storages\n\n")
-	for c_layer in spec.containers:
-		print(type(c_layer))
-		pprint(c_layer.__dict__)
-		print("\n\n")
+	logger.critical("\n\nThe parsed kurfile object conatins the following dicts: \n\n")
+	pprint(spec.__dict__)
+	print("\n\nSee all properties and methods of a Kurfile class \n")
+	pprint(getmembers(spec))
+	print("\n\n")
 
 
-	logger.warning("step2: Select the first available section of ('train', 'validate', 'test', 'evaluate'); \n\nIf sections above are not available, then 'spec.get_model(provider=None)' and no compilation for Executor trainer; \n\n If section is available but data file is empty, then provider=None on get_model, and do compile. \n\n")
+	logger.critical("\n\nCreate spec.containers from spec.data['model'] \n\n1. spec.containers is a list of Container object, contains detailed info on designing a layer \n\n")
+	for each_container in spec.containers:
+		print(type(each_container), "\n")
+		pprint(each_container.__dict__)
+		print("\n\n")
+	print("\n\nSee all properties and methods of a Container class using getmembers(spec.containers[0]) \n")
+	pprint(getmembers(spec.containers[0]))
+	print("\n\n")
+
+	logger.warning("\n\nStep2: focus on a section (train by default) details of a kurfile, and get data ready to use \n\n")
+
+
 	# By default, we select all three sections: train, test, evaluate
 	if args.compile == 'auto':
 		result = []
@@ -126,20 +132,20 @@ def build(args):
 				result.append((section, 'data' in spec.data[section]))
 		# if none of the three sections availabe in spec.data, then we don't compile model or just build a bare model; or a train section is available but has no data value, then just build a bare model
 		if not result:
-			logger.critical('Trying to build a bare model.')
+			logger.debug('Trying to build a bare model.')
 			args.compile = 'none'
 		else:
 			args.compile, has_data = sorted(result, key=lambda x: not x[1])[0]
-			logger.critical('Trying to build a "%s" model.', args.compile)
+			logger.debug('Trying to build a "%s" model.\n\n', args.compile)
 			if not has_data:
-				logger.critical('There is not data defined for this model, '
+				logger.debug('There is not data defined for this model, '
 					'so we will be running as if --bare was specified.')
 	# If args.compile set to 'none', build a bare model
 	elif args.compile == 'none':
 		logger.critical('Trying to build a bare model.\n\n')
 	# or we can select any section of the three, and build a model
 	else:
-		logger.critical('Trying to build a "%s" model.\n\n', args.compile)
+		logger.debug('Trying to build a "%s" model.\n\n', args.compile)
 
 	# if we are building a bare model, then no need for provider
 	if args.bare or args.compile == 'none':
@@ -147,21 +153,18 @@ def build(args):
 	# otherwise, we create a BatchProvider instance with spec (accept many data sources only when testing)
 	else:
 
-
-		logger.warning("step3: How the dataset is sourced, preprocess, and loaded? \n\n")
-
 		providers = spec.get_provider(
 			args.compile,
 			accept_many=args.compile == 'test'
 		)
 
-		logger.critical("\nThe data providers contains: \n\n")
+		logger.critical("\n\nThe data providers contains: \n\n")
 		pprint(providers)
 		print("\n\n")
-		logger.critical("\nThe batch provider contains: \n\n")
+		logger.critical("\n\nThe batch_provider contains: \n\n")
 		pprint(providers['default'].__dict__)
 		print("\n\n")
-		logger.critical("\nCheck inside each data source of data provider: \n\n")
+		logger.critical("\n\nCheck inside each data source of data provider: \n\n")
 		for source in providers['default'].__dict__['sources']:
 			print(source, ": has the following content \n")
 			# pprint(source.__dict__)
@@ -182,16 +185,23 @@ def build(args):
 					print(k, ":", v)
 			print("\n\n")
 
+
+
 		# get default provider or any provider if many providers available
 		provider = Kurfile.find_default_provider(providers)
+
+	logger.warning("\n\nstep3: Create, Parse, build a model out of spec using 'spec.get_model(provider)' \n\n")
 
 	# create a model object and store inside spec.model:
 	spec.get_model(provider)
 
-	logger.warning("step4: spec.get_model(provider) \n1. spec.model is updated, not None any more: \n%s \n\n", spec.model)
-	pprint(spec.model.__dict__)
+
+	logger.critical("\n\nspec is updated as the following \n\n")
+	pprint(spec.__dict__)
 	print("\n\n")
 
+
+	logger.warning("\n\nstep4: Create a Executor for running optimization on a model with a loss: \n\n1. get loss object from spec.data['loss']; \n2. get model object which we did previously; \n3. get optimizer object from spec.data['train']['optimizer']; \n4. see the created Executor.__dict__ look like: \n\n")
 	# if using data from train section, we build a trainer Executor and compile it; if data from test section, we build a trainer Executor without optimizer and compile it; if data from evaluate section, we build a Executor evaluator and compile it
 	if args.compile == 'none':
 		return
@@ -206,15 +216,21 @@ def build(args):
 			args.compile)
 		return 1
 
-	logger.warning("step5: Create Executor trainer using spec: \n1. to create a large dict with loss, model, optimizer \n%s \n\n", target)
+
 	pprint(target.__dict__)
+	print("\n\n")
+	print("All properties and methods of Executor are: \n")
+	pprint(getmembers(target))
 	print("\n\n")
 
 
+
+
+	logger.warning("\n\nstep5: Compile Executor trainer above ==  \n\n1. create a trainable keras model, \n2.extract weights from the model, save weights, \n3. test weights or model, \n4. restore weights, and now model is ready for training \n\nHowever, from what file or variables does kur use to do training exactly??? \n\n")
 	# get a backend specific representation of model
 	target.compile()
 
-	logger.warning("step6: Compile Executor trainer above \n\n create a trainable keras model, extract weights from the model, save weights, test weights or model, restore weights, and now model is ready for training \n\nHowever, from what file or variables does kur use to do training exactly??? \n\n")
+
 	pprint(target.model.__dict__)
 
 
@@ -556,7 +572,7 @@ def main():
 	logging.captureWarnings(True)
 
 	# print args at beginning of every run
-	logger.warning("console args: \n \t %s \n", args)
+	logger.warning("\n\nconsole arguments inputs: \n\n %s \n", args)
 
 	do_monitor(args)
 
@@ -571,7 +587,7 @@ def main():
 	engine = JinjaEngine()
 	setattr(args, 'engine', engine)
 
-	logger.warning("(): \n1. get console args into program; \n2. configurate logging display; \n3. monitor process when required by args; \n4. show version or do nothing when required by args; \n5. create an JinjaEngine object, and assign it to args.engine; \n6. run args.func(args) and then exit program. \n\nThere are many functions to try: !kur data | dump | build | train | test | evaluate \n\nRun %s(args) before exit program  \n\n", args.func)
+	logger.warning("(): \n\nmain() is the start of everything \n\n1. get console args into program; \n2. configurate logging display; \n3. monitor process when required by args; \n4. show version or do nothing when required by args; \n5. create an JinjaEngine object, and assign it to args.engine; \n6. run args.func(args) and then exit program. \n\nThere are many functions to try: !kur data | dump | build | train | test | evaluate \n\nRun %s(args) before exit program  \n\n", args.func)
 
 	sys.exit(args.func(args) or 0)
 

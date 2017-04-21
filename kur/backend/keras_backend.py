@@ -327,7 +327,7 @@ class KerasBackend(Backend):
 	def _save_keras(self, keras_model, filename):
 		""" Saves a native Keras model.
 		"""
-		logger.info("(self, keras_model, filename): \nSave weights arrays in temporal files \n\n")
+		logger.critical("(self, keras_model, filename): \n\nSave weights arrays in temporal files \n\n1. weights of layers can be found in spec.model.compiled['raw'].flattened_layers, \n2. save weights of each layer into separate files of temporal dir \n\n")
 
 		path = os.path.expanduser(os.path.expandvars(filename))
 		if os.path.exists(path):
@@ -409,7 +409,8 @@ class KerasBackend(Backend):
 	def _restore_keras(self, keras_model, filename):
 		""" Loads a native Keras model.
 		"""
-		logger.info("(self, keras_model, filename): \nRestore weights of layers from saved weights files or idx files\n\n")
+		logger.critical("(self, keras_model, filename): \n\nRestore weights of layers from saved weights files or idx files\n\n1. get the path name ready; \n2. map layer_weight_name with filename, then map layer_weight_name with numpy array loaded from idx files;\n3. find appropriate layer_weight_names; \n4. save weights arrays back to theano.tensor.sharedvar.TensorSharedVariables \n\n")
+
 
 		import keras.backend as K				# pylint: disable=import-error
 
@@ -424,26 +425,22 @@ class KerasBackend(Backend):
 			raise ValueError('Target weight directory does not exist: {}'
 				.format(path))
 
-		# get the same temporal path ready and get all keras layers ready
+
+		# get the same temporal path ready and get all keras layers objects ready
 		layers = keras_model.flattened_layers \
 			if hasattr(keras_model, 'flattened_layers') else keras_model.layers
 
-		# Get a map from "layer name" to "layer instance" in the current model.
+		# inside index:
+		# Get a map from "layer name" to "layer instance" in the current model, like {'..dense.0': [<keras.layers.core.Dense object at 0x1495a1208>], 'images': [<keras.engine.topology.InputLayer object at 0x117f5e908>], ...}
 		index = {}
 		for layer in layers:
 			if layer.name:
 				index.setdefault(layer.name, []).append(layer)
 
-		# Enumerate all of the saved tensors, organized like this:
-		# tensors = {
-		#	'layer_1_name' : {
-		#		'weight_1_name'  : '/path/to/file',
-		#		...,
-		#	},
-		#	...
-		# }
-		# there are two groups of weights availabe in this model
-		# 1 hidden convol layer and 1 dense layer
+
+		# inside tensors:
+		# build upon index, map names to idx weights files, like
+		# {'..dense.0': {'..dense.0_bias': '/var/folders/gz/ch3n2mp51m9386sytqf97s6w0000gn/T/tmpllhby5wa/weights/..dense.0+..dense.0_bias.kur', '..dense.0_kernel': '/var/folders/gz/ch3n2mp51m9386sytqf97s6w0000gn/T/tmpllhby5wa/weights/..dense.0+..dense.0_kernel.kur'}, '..convolution.1': {'..convolution.1_bias': '/var/folders/gz/ch3n2mp51m9386sytqf97s6w0000gn/T/tmpllhby5wa/weights/..convolution.1+..convolution.1_bias.kur', '..convolution.1_kernel': '/var/folders/gz/ch3n2mp51m9386sytqf97s6w0000gn/T/tmpllhby5wa/weights/..convolution.1+..convolution.1_kernel.kur'},...
 		tensors = self.enumerate_saved_tensors(path)
 
 		# We want to put (symbolic_weights, weight_values) tuples in this.
@@ -452,8 +449,24 @@ class KerasBackend(Backend):
 		# Loop over the available weights.
 		for layer_name, weights in tensors.items():
 
+
+			# layer by layer, for each layer,
 			# Load the weights from saved idx files
-			# This maps weight names to numpy arrays.
+			# This maps weight names to numpy arrays, like below
+			# (Pdb) weights
+			# {'..dense.0_bias': array([ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.], dtype=float32), '..dense.0_kernel': array([[ 0.00429164, -0.01248324, -0.0103093 , ...,  0.00017912,
+			#         -0.00616769,  0.00401405],
+			#        [ 0.01165415,  0.00312235, -0.00928085, ..., -0.00362225,
+			#         -0.001397  , -0.00422575],
+			#        [ 0.01059127,  0.00223762,  0.00044865, ..., -0.01010111,
+			#          0.00584908,  0.00210532],
+			#        ...,
+			#        [-0.00725042, -0.00071572,  0.01256828, ...,  0.00209043,
+			#          0.00866257,  0.00212232],
+			#        [-0.00259544,  0.00826614, -0.00888701, ...,  0.00044817,
+			#          0.0022627 , -0.00267635],
+			#        [-0.0025061 ,  0.00577335,  0.01267747, ..., -0.00301542,
+			#          0.00812706, -0.00881728]], dtype=float32)}
 			weights = {k : idx.load(v) for k, v in weights.items()}
 
 			# Now assign all of the weights to their corresponding symbolic
@@ -490,7 +503,7 @@ class KerasBackend(Backend):
 					name = name.replace('/', '_')
 					weight_value_tuples.append((symbolic_weights[i], weights[name]))
 
-		# Assign all the weights in one batch (for efficiency).
+		# Assign all the weights (arrays) to ..dense.0/kernel, which is theano.tensor.sharedvar.TensorSharedVariable
 		K.batch_set_value(weight_value_tuples)
 
 	###########################################################################
@@ -625,7 +638,7 @@ class KerasBackend(Backend):
 		# If 'raw' is not a key to model.compiled,
 		if 'raw' not in model.compiled:
 
-			logger.info("Using model.inputs and model.outpus to create a Keras model and save it in model.compiled['raw'].\n\n")
+			logger.info("Using model.inputs and model.outpus to create a Keras model and save it in model.compiled['raw'].\n\nThis is one big step toward a model with a specific backend, trainable and runnable \n\nLet's see model.compiled['raw'].__dict__")
 
 			compiled = self.make_model(
 				inputs=[node.value for node in model.inputs.values()],
@@ -652,7 +665,7 @@ class KerasBackend(Backend):
 			logger.info('Reusing an existing model.')
 			compiled = model.compiled['raw']
 
-		logger.info("This newly made keras model compled has following internals: \n")
+		# let's see model.compiled['raw'].__dict__
 		pprint(model.compiled['raw'].__dict__)
 		print("\n\n")
 
@@ -691,7 +704,7 @@ class KerasBackend(Backend):
 			key = 'test'
 
 		else:
-			logger.info("Assembling a training function from the model.\n1. get loss_inputs, loss_outputs, total_loss ready; \n2. get optimizer from the compiled model and total_loss; \n3. use compiled.inputs, compiled.outputs, loss_inputs, loss_outputs, updates to create a Theano training function \n\n")
+			logger.info("\n\nAssembling a training function from the model.\n\n1. get loss_inputs, loss_outputs, total_loss ready; \n2. get optimizer from the compiled model and total_loss; \n3. use compiled.inputs, compiled.outputs, loss_inputs, loss_outputs, updates to create a specific backend(Theano, TF, Pytorch?) training function \n\n")
 
 			# Loss inputs: additional inputs needed by the loss function.
 			# Loss outputs: output of the loss function
@@ -723,15 +736,16 @@ class KerasBackend(Backend):
 						list(loss_outputs.values()),
 					updates=updates
 				)
+				print("create a specific-backend func using keras: \n")
+				pprint(func.__dict__)
+				print("\n\n")
 			key = 'train'
-			print("create a theano func using keras: \n")
-			pprint(func.__dict__['function'])
-			print("\n\n")
+
 
 		# logger.trace('Additional inputs for log functions: %s\n\n',
 		# 	', '.join(loss_inputs.keys()))
 
-		logger.info("Create model.compiled['train'] for compiling a keras model ready for training in kur \n1. get input_names, output_names from compiled.input_names|output_names and loss_inputs|outputs \n2. get input_shapes from compiled.inputs and loss_inputs.values() \n3. store all the above and the theano function into a dict called result \n4. and then store result inside model.compiled['train'] \n\n")
+		logger.info("\n\nCreate model.compiled['train'] to get a keras model further ready for training in kur \n\n1. get input_names, output_names from compiled.input_names|output_names and loss_inputs|outputs \n2. get input_shapes from compiled.inputs and loss_inputs.values() \n3. store all the above and the specific-backend function into a dict called result \n4. and then store result inside model.compiled['train'] \n\n")
 		# get input_names and output names
 		input_names = compiled.input_names + \
 			list(loss_inputs.keys())
@@ -791,7 +805,7 @@ class KerasBackend(Backend):
 			print("\n\n")
 
 			if blocking:
-				logger.info("Let's use the newly updated model to compile keras model for training \n\n")
+				logger.info("\n\nWith spec.model.compiled['raw'] and spec.model.compiled[key] ready, Now use self.wait_for_compile(model, key) to save, test and restore the specific-backend model \n\n")
 				self.wait_for_compile(model, key)
 
 
@@ -801,7 +815,7 @@ class KerasBackend(Backend):
 	def wait_for_compile(self, model, key):
 		""" Waits for the model to finish compiling.
 		"""
-		logger.info("(self, model, key): \nCompiling to build a model in Keras \n1. get provider ready \n2. get temporal dir ready; \n3. save weights arrays of layers into temporal files; \n4. test weights and model by using 2 sample data and weights to make predictions and calc loss; \n5. finall restore the weights to the model using self._restore_keras(model.compiled['raw'], weight_path) \n\n")
+		logger.info("(self, model, key): \n\nCompiling to build a model in Keras \n\n1. get provider ready \n2. get temporal dir ready; \n3. save weights arrays of layers into temporal files; \n4. test weights and model by using 2 sample data and weights to make predictions and calc loss; \n5. finall restore the weights to the model using self._restore_keras(model.compiled['raw'], weight_path) \n\n")
 
 		if model.provider is None:
 			logger.warning('No data provider available, so we cannot reliably '
@@ -860,6 +874,7 @@ class KerasBackend(Backend):
 	def run_batch(self, model, batch, key, is_train):
 		""" Test out the model with 2 data samples: make predictions and calc loss for them
 		"""
+		logger.critical("(self, model, batch, key, is_train): \n\nTest the model by predict and calc loss out of 2 sample data \n\n1. use spec.model.compiled[key]['shape']|['names'] to get 2 data samples for testing; \n2. use spec.model.compiled[key]['func'](inputs) to get 2 arrays \n3. array1: 2 rows of predictions; \n4. array2: a single loss \n\n")
 
 		if model.compiled is None or key not in model.compiled:
 			raise ValueError('A model has not been compiled to: {}'
@@ -876,6 +891,11 @@ class KerasBackend(Backend):
 			else:
 				return data
 
+		# what inside this inputs?
+		# list of 3 items(2 arrays, 1 boolean):
+		# Array1: 2 samples of data source 1,
+		# Array2: 2 samples of data source 2,
+		# and false boolean
 		inputs = [
 			coerce_shape(
 				batch[model.get_data_name_by_layer_name(batch, name)],
@@ -886,7 +906,11 @@ class KerasBackend(Backend):
 				compiled['names']['input']
 			)
 		] + [is_train]
-		# use Theano model function with a batch of input data to get outputs
+
+
+		# spec.model.compiled[key]['func'](inputs) => a list of 2 arrays:
+		# array1: predictions
+		# array2: loss
 		outputs = compiled['func'](inputs)
 
 		num_outputs = len(raw.outputs)

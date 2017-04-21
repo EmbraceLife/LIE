@@ -62,7 +62,7 @@ class Kurfile:
 			engine: Engine instance. The templating engine to use in parsing.
 				If None, a Passthrough engine is instantiated.
 		"""
-		logger.critical("(self, source, engine=None): start \nCreates a new Kurfile with source and engine. \n1.get engine assigned JinjaEngine or PassthroughEngine(); \n2. get filenames stored in spec.filename; \n3. parse_source using filename and engine to provide details stored in spec.data; \n4. create empty storages in spec.containers, spec.model, spec.backend, spec.tempaltes, but store engine object inside spec.engine \n\n Inputs: \n1. source: %s; \n2. engine: %s; \n\n ", source, engine)
+		logger.critical("(self, source, engine=None): \n\nCreates a new Kurfile with source and engine: spec \n\n1. get engine assigned JinjaEngine or PassthroughEngine(); \n2. get filenames stored in spec.filename; \n3. Extract everything, all sections into spec.data = parse_source(filename, engine); \n4. create empty storages in spec.containers, spec.model, spec.backend, spec.tempaltes, spec.engine(filled) \n\n Inputs: \n1. source: %s; \n2. engine: %s; \n\n ", source, engine)
 
 		engine = engine or PassthroughEngine()
 		if isinstance(source, str):
@@ -95,7 +95,7 @@ class Kurfile:
 		""" Parses the Kurfile.
 		"""
 
-		logger.critical("(self): start \nafter initialize Kurfile object, we parse it: \n1. evaluate all section dicts in spec.data with scopes, and reassign them back to spec.data; \n2. as a result, spec.data added section aliases (like training, testing); \n3. other uses here to be answered ....; \n4. assign spec.data['templates'] to spec.templates; \n5. convert spec.data['model'] into model as containers, and assign the list of containers inside spec.contaienrs ; \n6. finally spec's properites are renewed or parsed, done. \n\n ")
+		logger.critical("(self): \n\nafter initialize Kurfile object, run spec.parse(): \n\n1. evaluate all section dicts in spec.data with scopes, and reassign them back to spec.data; \n2. section name aliases (like training, testing) are accepted (but I disallowed in my own version); \n3. Extract spec.data['templates'] to spec.templates; \n5. Convert dict spec.data['model'] into Container objects (each layer is a container), create spec.containers = [all the containers] ; \n\nTherefore, spec.data, spec.templates, spec.containers are renewed or filled. \n\n ")
 
 		logger.debug('Parsing Kurfile...')
 
@@ -159,7 +159,7 @@ class Kurfile:
 			else:
 				warnings.warn('Unexpected section in Kurfile: "{}". '
 					'This section will be ignored.'.format(key), SyntaxWarning)
-		logger.debug("(self): end \n after initialize Kurfile object, we parse it: \n 1. evaluate all section dicts in spec.data with scopes, and reassign them back to spec.data; \n 2. as a result, spec.data added section aliases (like training, testing); \n 3. other uses here to be answered ....; \n 4. assign spec.data['templates'] to spec.templates; \n 5. convert spec.data['model'] into model as containers, and assign the list of containers inside spec.contaienrs ; \n 6. finally spec's properites are renewed or parsed, done. \n \n Return: what is stored inside spec.__dict__")
+		# logger.debug("(self): end \n after initialize Kurfile object, we parse it: \n 1. evaluate all section dicts in spec.data with scopes, and reassign them back to spec.data; \n 2. as a result, spec.data added section aliases (like training, testing); \n 3. other uses here to be answered ....; \n 4. assign spec.data['templates'] to spec.templates; \n 5. convert spec.data['model'] into model as containers, and assign the list of containers inside spec.contaienrs ; \n 6. finally spec's properites are renewed or parsed, done. \n \n Return: what is stored inside spec.__dict__")
 		# for k, v in self.__dict__.items():
 		# 	print(k, ": \n\t", v)
 		# 	print("\n")
@@ -168,11 +168,12 @@ class Kurfile:
 	def get_model(self, provider=None):
 		""" Returns the parsed Model instance.
 		"""
-		logger.warning("(self, provider=None): \n Create a model object stored inside spec \n\n1. a parsed Kurfile object spec has model and backend as None, but parsed kurfile object has layer containers available; \n2. build a Model object using spec.backend (any available on system, if not specified) and spec.containers; \n3. create a kur.Model object, the core is a big dict which store backend object, container objects (all info on each layers), provider, .... \n4. parse() seems only set self.model._parsed to True; \n5. set a specific batch provider for model object; \n6. build(): to fill in inputs, input_aliases, outputs, output_aliases, network ??? they are real layers operations in the form of dict and names  \n\n")
+		logger.warning("(self, provider=None): \n\nCreate a model object using spec.backend and spec.contaienrs, then Parse the model, and finally Build the model \n\n1. current spec.contaienrs is ready \n2. fill spec.backend with spec.get_backend() \n3. build a model class from spec.containers and spec.backend using Model(backend, containers), which unlike a container, a model's layers are connected backend, and it has tracked input and output connections. But it is just empty at the moment \n4. spec.model.parse() set spec.model._parsed True, let engine = PassthroughEngine() if not available, run spec.model.root.parse(engine); \n5. set spec.model.provider = provider; \n6. build(): to fill in inputs, input_aliases, outputs, output_aliases, network ??? they are real layers operations in the form of dict and names  \n\n")
 
 		if self.model is None:
 			if self.containers is None:
 				raise ValueError('No such model available.')
+
 
 			# create a kur.Model object, the core is a big dict which store backend object, container objects (all info on each layers), provider, ....
 			self.model = Model(
@@ -182,13 +183,32 @@ class Kurfile:
 				containers=self.containers
 			)
 
+			logger.critical("\n\nspec.model = Model(backend, containers) contains, before parse(), spec.model as follows: \n")
+			pprint(self.model.__dict__)
+			print("\n\npprint(spec.model.root.__dict__): \n")
+			pprint(self.model.root.__dict__)
+			print("\n\npprint(spec.model.backend.__dict__): \n")
+			pprint(self.model.backend.__dict__)
+			print("\n\n")
+
 			# parse() seems only set self.model._parsed to True
 			self.model.parse(self.engine)
 			# set a specific batch provider
 			self.model.register_provider(provider)
-			# build(): to fill in inputs, input_aliases, outputs, output_aliases, network,
-			# ??? they are real layers operations in the form of dict and names
+
+			print("After self.model.parse(self.engine), \nand self.model.register_provider(provider), spec.model: \n")
+			pprint(self.model.__dict__)
+			print("\n\nCheck above, spec.model._parse is set True, spec.model.provider is filled with a provider, and spec.model.root.__dict__['_parsed'] is set True, see spec.model.root below: \n")
+			pprint(self.model.root.__dict__)
+			print("\n\n")
+
+			logger.critical("\n\nAfter parse the spec.model, let's build the model \n\n ")
 			self.model.build()
+
+			logger.critical("Now, self.model.build() fill more properties of spec.model \n\n")
+			pprint(self.model.__dict__)
+			print("\n\n")
+
 		return self.model
 
 	###########################################################################
@@ -258,7 +278,7 @@ class Kurfile:
 			section defined, then this returns a Provider instance. Otherwise,
 			returns None.
 		"""
-		logger.info("(self, section, accept_many=False): start \nGet data from spec.data[section]['data'] as a dict all the way to data provider object: \n1. get spec.data[section]; \n2. make sure it has a key as 'data' or 'provider'; \n3. store spec.data[section]['data'] in 'supplier_list'; \n4. set `accept_many` true if there are more than 1 data providers; \n5. get real data supplier objects using spec.data[section]['data'] the dict (e.g. speech dataset; \n6. instantiate data provider instances with data source supplier and provider_spec, if available merge all data sources into this provider; \n7. finally return this provider \n\nInputs: \n1. section: %s \n2. accept_many: %s \n\n", section, accept_many)
+		logger.info("(self, section, accept_many=False):  \n\nUsing detailed info from spec.data[section]['data'] to build data suppliers first, then buid a data provider : \n\n1. get spec.data[section]; \n2. make sure it has a key as 'data' or 'provider'; \n3. store spec.data[section]['data'] in 'supplier_list'; \n4. consider when there are more than one data sources; \n5. create data Supplier object from spec.data[section]['data']; \n6. create data provider from data supplier and provider detailed info from spec.data[section]['provider']; \n7. finally return this provider \n\nInputs: \n1. section: %s \n2. accept_many: %s \n\n", section, accept_many)
 
 		if section in self.data:
 			section = self.data[section]
@@ -277,6 +297,10 @@ class Kurfile:
 			raise ValueError('We only accept a single "data" entry for this '
 				'section, but found {}.'.format(len(supplier_list)))
 
+		logger.critical("\n\nspec.data[section]['data'] for building data suppliers are: \n")
+		pprint(supplier_list)
+		print("\n\n")
+
 		suppliers = {}
 		for k, v in supplier_list.items():
 			if not isinstance(v, (list, tuple)):
@@ -287,7 +311,13 @@ class Kurfile:
 				for entry in v
 			]
 
+
 		provider_spec = dict(section.get('provider') or {})
+
+		logger.critical("\n\nspec.data[section]['provider'] for building data provider are: \n")
+		pprint(provider_spec)
+		print("\n\n")
+
 		if 'name' in provider_spec:
 			provider = Provider.get_provider_by_name(provider_spec.pop('name'))
 		else:
@@ -300,9 +330,6 @@ class Kurfile:
 			)
 			for k, v in suppliers.items()
 		}
-
-
-		logger.info("(self, section, accept_many=False): end \nGet data from spec.data[section]['data'] as a dict all the way to data provider object: \n1. get spec.data[section]; \n2. make sure it has a key as 'data' or 'provider'; \n3. store spec.data[section]['data'] in 'supplier_list'; \n4. set `accept_many` true if there are more than 1 data providers; \n5. get real data supplier objects using spec.data[section]['data'] the dict (e.g. speech dataset: keep 8 data sources, extract 3 into {'data': 3 selected sources); \n6. instantiate data provider instances with data source supplier and provider_spec, if available merge all data sources into this provider; \n7. finally return this provider \n\nCheck-Return: \n1. section: \n%s \n2. supplier_list: \n%s \n2. suppliers: data source suppliers: \n%s \n3. provider_spec: %s \n4. provider: \n%s \n5. final_return: \n%s \n6. providers details: \n%s \n\n", section, supplier_list, suppliers, provider_spec, provider, final_providers, [{k:v.__dict__} for k, v in final_providers.items()])
 
 
 		return final_providers
@@ -780,7 +807,7 @@ class Kurfile:
 		""" Parses a source, and its includes (recursively), and returns the
 			merged sources.
 		"""
-		logger.debug("(engine, source=filename, context=None): start \n Extract kurfile.yml content into a large dict for spec.data : \n 1. read dictionary from a yml file, and its-includes files (recursively); \n 2. merge the dictionaries together; \n 3. returns the merged data. \n  \n Input args: \n \t 1. engine: %s \n \t 2. source: %s \n \n ", engine, source)
+		logger.critical("(engine, source=filename, context=None): \n\nExtract kurfile.yml content into a large dict for spec.data : \n\n1. read dictionary from a yml file, and its-includes files (recursively); \n2. merge the dictionaries together; \n3. returns the merged data. \n  \n Input args: \n\n1. engine: %s \n2. source: %s \n \n ", engine, source)
 
 		def get_id(filename):
 			""" Returns a tuple which uniquely identifies a file.
@@ -881,7 +908,7 @@ class Kurfile:
 			else:
 				data = load_source(new_source)
 
-		logger.debug("(engine, source=filename, context=None): end \n Extract kurfile.yml content into a large dict for spec.data : \n 1. read dictionary from a yml file, and its-includes files (recursively); \n 2. merge the dictionaries together; \n 3. returns the merged data. \n  \n Input args: \n \t 1. engine: %s \n \t 2. source: %s \n \n Return: \n \t data as %s, with following keys: %s \n \t The content: \n  ", engine, source, type(data), data.keys())
+		# logger.debug("(engine, source=filename, context=None): end \n Extract kurfile.yml content into a large dict for spec.data : \n 1. read dictionary from a yml file, and its-includes files (recursively); \n 2. merge the dictionaries together; \n 3. returns the merged data. \n  \n Input args: \n \t 1. engine: %s \n \t 2. source: %s \n \n Return: \n \t data as %s, with following keys: %s \n \t The content: \n  ", engine, source, type(data), data.keys())
 		# for k, v in data.items():
 		# 	print(k, ": \n \t", v)
 		# print("\n \n")

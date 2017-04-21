@@ -19,11 +19,9 @@ import re
 import os
 import logging
 import random
-
-import numpy
 import multiprocessing
 
-from multiprocessing import Pool
+import numpy
 
 from ..sources import DerivedSource, VanillaSource, ChunkSource
 from . import Supplier
@@ -51,7 +49,12 @@ def _load_single(args):
 	(feature_type, high_freq, on_error), paths = args
 	result = [None] * len(paths)
 	for i, path in enumerate(paths):
-		result[i] = get_audio_features(path, feature_type=feature_type, high_freq=high_freq, on_error=on_error)
+		result[i] = get_audio_features(
+			path,
+			feature_type=feature_type,
+			high_freq=high_freq,
+			on_error=on_error
+		)
 		if result[i] is None:
 			logger.error('Failed to load audio file at path: %s', path)
 	return result
@@ -191,7 +194,7 @@ class RawUtterance(ChunkSource):
 
 		assert isinstance(data_cpus, int)
 		self.data_cpus = max(1, data_cpus)
-		self.pool = Pool(data_cpus, _init_data_worker)
+		self.pool = multiprocessing.Pool(data_cpus, _init_data_worker)
 
 		self._init_normalizer(normalization)
 
@@ -237,7 +240,7 @@ class RawUtterance(ChunkSource):
 				if not os.path.isfile(path):
 					raise ValueError('Normalization data must be a regular '
 						'file. This is not: {}'.format(path))
-				logger.info('Restoring normalization statistics: %s', path)
+				logger.debug('Restoring normalization statistics: %s', path)
 				norm.restore(path)
 				self.features = norm.get_dimensionality()
 			else:
@@ -462,7 +465,7 @@ class RawTranscript(ChunkSource):
 				'"x" and "X" in your vocabulary. For reference, this is the '
 				'vocabulary we ended up with: {}'.format(data))
 
-		logger.info('Loaded a %d-word vocabulary.', len(data))
+		logger.debug('Loaded a %d-word vocabulary.', len(data))
 		return {x : i for i, x in enumerate(data)}
 
 	###########################################################################
@@ -573,12 +576,6 @@ class SpeechRecognitionSupplier(Supplier):
 			data_cpus=data_cpus
 		)
 		self.sources = {
-			'transcript_raw' : RawTranscript(
-				self.data['transcript'],
-				vocab=vocab
-			),
-			'transcript_length' : TranscriptLength('transcript_raw'),
-			'transcript' : Transcript('transcript_raw'),
 			'utterance_raw' : utterance_raw,
 			'utterance_length' : UtteranceLength('utterance_raw'),
 			'utterance' : Utterance(
@@ -590,6 +587,37 @@ class SpeechRecognitionSupplier(Supplier):
 			'duration' : VanillaSource(numpy.array(self.data['duration'])),
 			'audio_source' : VanillaSource(numpy.array(self.data['audio']))
 		}
+		for i, (k, v) in enumerate(self.data['transcript'].items()):
+			if len(self.data['transcript']) == 1:
+				prefix = ''
+			else:
+				prefix = '{}_'.format(k)
+
+			if isinstance(vocab, dict):
+				if k in vocab:
+					this_vocab = vocab[k]
+				else:
+					raise ValueError('If the vocabulary is a dictionary, then '
+						'it must have keys corresponding to the text keys.')
+			elif isinstance(vocab, (list, tuple)):
+				if all(isinstance(v, (list, tuple)) for v in vocab):
+					this_vocab = vocab[i]
+				else:
+					this_vocab = vocab
+			else:
+				this_vocab = vocab
+
+			raw_name = '{}transcript_raw'.format(prefix)
+			self.sources.update({
+				raw_name : RawTranscript(
+					v,
+					vocab=this_vocab
+				),
+				'{}transcript_length'.format(prefix) : TranscriptLength(
+					raw_name
+				),
+				'{}transcript'.format(prefix) : Transcript(raw_name)
+			})
 
 	###########################################################################
 	def downselect(self, samples):
@@ -698,7 +726,15 @@ class SpeechRecognitionSupplier(Supplier):
 
 		# Downselect
 		for k in self.data:
-			self.data[k] = [x for i, x in enumerate(self.data[k]) if mask[i]]
+			if isinstance(self.data[k], dict):
+				for inner in self.data[k]:
+					self.data[k][inner] = [
+						x for i, x in enumerate(self.data[k][inner]) if mask[i]
+					]
+			else:
+				self.data[k] = [
+					x for i, x in enumerate(self.data[k]) if mask[i]
+				]
 
 		self.metadata['entries'] = int(end - start)
 
@@ -747,7 +783,7 @@ class SpeechRecognitionSupplier(Supplier):
 		logger.trace('Looking for metadata file.')
 		metadata_file = None
 
-		text_key = text_key or 'text'
+		text_key = tuple(text_key or ['text'])
 
 		def look_in_list(filenames):
 			""" Searches a list of files for a JSONL file.
@@ -791,12 +827,12 @@ class SpeechRecognitionSupplier(Supplier):
 		logger.debug('Loading metadata.')
 		data = {
 			'audio' : [None]*lines,
-			'transcript' : [None]*lines,
+			'transcript' : {k : [None]*lines for k in text_key},
 			'duration' : [None]*lines
 		}
 
 		entries = 0
-		required_keys = (text_key, 'duration_s', 'uuid')
+		required_keys = text_key + ('duration_s', 'uuid')
 		with open(metadata_file, 'r') as fh:
 			for line_number, line in enumerate(fh, 1):
 				try:
@@ -817,14 +853,19 @@ class SpeechRecognitionSupplier(Supplier):
 					continue
 
 				data['duration'][entries] = entry['duration_s']
-				data['transcript'][entries] = entry[text_key]
+				for k in text_key:
+					data['transcript'][k][entries] = entry[k]
 				data['audio'][entries] = os.path.join(source, entry['uuid'])
 
 				entries += 1
 
 		logger.debug('Entries kept: %d', entries)
 		for k in data:
-			data[k] = data[k][:entries]
+			if isinstance(data[k], dict):
+				for inner in data[k]:
+					data[k][inner] = data[k][inner][:entries]
+			else:
+				data[k] = data[k][:entries]
 
 		metadata = {
 			'entries' : entries,

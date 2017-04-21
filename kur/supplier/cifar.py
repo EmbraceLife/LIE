@@ -52,7 +52,7 @@ class CifarSupplier(Supplier):
 			# Arguments
 
 		"""
-		logger.critical("(self, url=None, checksum=None, path=None, parts=None, *args, **kwargs): start \nCreate cifar data supplier object given relevant spec info \n1. inherit args from superclass.__init__; \n2. get file path (also download if necessary) stored locally; \n3. convert dataset from compressed file into numpy array; \n4. convert array(40000, 3072) to array(40000, 32,32,3); \n5. normalize and onehot the two arrays, and store numpy array inside VanillaSource object; \n6. store VanillaSource object into a dict under CifarSupplier.data. \n\n")
+		logger.critical("(self, url=None, checksum=None, path=None, parts=None, *args, **kwargs): \n\nCreate cifar data supplier object given relevant spec info \n\n1. inherit args from superclass.__init__; \n2. get file path (also download if necessary) stored locally; \n3. convert dataset from compressed file into numpy array; \n4. convert array(40000, 3072) to array(40000, 32,32,3); \n5. normalize and onehot the two arrays, and store numpy array inside VanillaSource object; \n6. store VanillaSource object into a dict under CifarSupplier.data. \n\n")
 
 		super().__init__(*args, **kwargs)
 
@@ -67,6 +67,13 @@ class CifarSupplier(Supplier):
 			'images' : VanillaSource(CifarSupplier._normalize(images)),
 			'labels' : VanillaSource(CifarSupplier._onehot(labels))
 		}
+
+		print("This CifarSupplier.__dict__ contains: \n")
+		pprint(self.__dict__)
+		print("\n\n")
+		print("All members of this CifarSupplier object contains: \n")
+		pprint(getmembers(self))
+		print("\n\n")
 
 	###########################################################################
 	@staticmethod

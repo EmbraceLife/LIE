@@ -24,6 +24,12 @@ from ..engine import PassthroughEngine
 
 logger = logging.getLogger(__name__)
 
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule
+import numpy as np
+
 # Convenience class for keeping track of high-level network nodes.
 ContainerNode = types.SimpleNamespace
 
@@ -251,6 +257,7 @@ class Model:
 	def build(self):
 		""" Builds the model.
 		"""
+		logger.critical("(self): Build the model \n\n1. create a list of namedtuples for each layer, using containers of spec.model.root; \n2. Create dependency of graph of model: meaning create a dict of long nested namespaces for input_nodes, output_nodes, and network from the list of namedtuples of each layer; \n3. builds and connects the model's underlying tensor operations using 'self.build_graph(input_nodes, output_nodes, network)' \n4. use the values above to fill in properites of spec.model \n\n")
 
 		if not self._parsed:
 			logger.warning('The model has not been parsed yet. We will try to '
@@ -260,11 +267,24 @@ class Model:
 
 		logger.debug('Enumerating the model containers.')
 
+
+		# CollapsedContainer is named tuple with inputs, container, names as keys
+		# it recursively work on all notes and children notes into CollapsedContainer
 		# Construct the high-level network nodes.
 		nodes = self.enumerate_nodes(self.root)
+		logger.critical("\n\nTake all containers inside spec.model.root, recursively make all containers into CollapsedContainers with three keys: inputs, container, names \n\nthis list is called nodes\n")
+		pprint(nodes)
+		print("\n\n")
 
 		logger.debug('Assembling the model dependency graph.')
 		input_nodes, output_nodes, network = self.assemble_graph(nodes)
+		print("Creates the dependency graph of containers in the model using the nodes above: is to build 3 nested namespaces, input_nodes, output_nodes, network \n\n")
+		print("input_nodes: a single dict, 'images': a very long nested namesapce, starting from input images placeholder to output activation labels, nest flow: container, inputs, names on the same level, from outputs down to the next level \n")
+		pprint(input_nodes)
+		print("\n\noutput_nodes: a single dict, 'labels': a very long nested namespace, starting with container, inputs (nested to next level, from dense layer back to image placeholder), then start from layer of image, we got names, outputs, and value on one level, and move layer by layer back to labels layer \n")
+		pprint(output_nodes)
+		print("\n\nnetwork: an ordered dict with each layer as a subdict with order, each subdict is a long nested namespaces like the ones above \n")
+		pprint(network)
 
 		if logger.isEnabledFor(logging.TRACE):
 			queue = deque(input_nodes.values())
@@ -282,6 +302,19 @@ class Model:
 		inputs, input_aliases, outputs, output_aliases = \
 			self.build_graph(input_nodes, output_nodes, network)
 
+		print("\n\nBuilds and connects the model's underlying tensor operations using 'self.build_graph(input_nodes, output_nodes, network)' \n\n")
+		print("inputs is very similar to input_nodes, but added tensor operations into namespaces: container, inputs, names, outputs and value (tensor operations)\n")
+		pprint(inputs)
+		print("outputs is very similar to output_nodes, but added tensor operations into namespaces: container, inputs, names, outputs and value (tensor operations)\n")
+		pprint(outputs)
+		print("\n\nCheckout input_aliases and output_aliases\n")
+		pprint(input_aliases)
+		pprint(output_aliases)
+		print("\n\n")
+
+
+
+
 		logger.debug('Model inputs:  %s', ', '.join(node for node in inputs))
 		logger.debug('Model outputs: %s', ', '.join(node for node in outputs))
 
@@ -293,6 +326,7 @@ class Model:
 		self.key_cache = {}
 
 		self.compiled = None
+
 
 	###########################################################################
 	def build_graph(self, input_nodes, output_nodes, network):
@@ -536,6 +570,7 @@ class Model:
 	def enumerate_nodes(self, root):
 		""" Enumerates all of the layers in the model.
 		"""
+
 		logger.trace('Enumerating nodes. Root: %s', str(root))
 		if root.terminal():
 			return [CollapsedContainer(
@@ -543,6 +578,7 @@ class Model:
 				container=root,
 				names=[root.name] if root.name else []
 			)]
+			# return [CollapsedContainer(inputs=[], container=ContainerGroup(name=None), names=[])]
 
 		result = []
 		for child in root.get_children(recursive=False):
