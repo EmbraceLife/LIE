@@ -73,7 +73,7 @@ def dump(args):
 def train(args):
 	""" Trains a model.
 	"""
-	logger.warning("(args): trains a model \n1. create a kurfile object and assign info to its properties; \n2. get training function for spec; \n3. run this training function with args.step \n\n")
+	logger.warning("(args): trains a model \n\n1. create a kurfile object and assign info to its properties; \n2. get training function for spec; \n3. run this training function with args.step \n\n")
 
 	spec = parse_kurfile(args.kurfile, args.engine)
 	func = spec.get_training_function()

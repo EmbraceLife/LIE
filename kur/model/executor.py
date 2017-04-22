@@ -289,6 +289,7 @@ class Executor:
 			This is the public entry point for training. It wraps the business
 			logic so that it can handle error conditions.
 		"""
+		logger.critical("A wrapper for training the Executor trainer\n\n")
 
 		reason = 'unknown'
 		try:
@@ -554,6 +555,8 @@ class Executor:
 		}
 
 		#######################################################################
+
+		# handles when checkpoint is dic, str, or else or None
 		# Process checkpoint requirements
 		if isinstance(checkpoint, dict):
 			if 'path' not in checkpoint:
@@ -582,7 +585,11 @@ class Executor:
 				.format(checkpoint))
 
 		#######################################################################
+
+
 		# Parse logs
+
+		# if log is not available or non-persistent type, there is no best_valid_loss nor best_train_loss
 		if log is None:
 			logger.info('No log specified, so no historical loss information '
 				'is available.')
@@ -591,6 +598,7 @@ class Executor:
 			logger.info('Log type is non-persistent, so no historical loss '
 				'information is available.')
 			best_train_loss = best_valid_loss = None
+		# If log is available, get best_train_loss and best_valid_loss using log.get_best_training_loss() and log.get_best_validation_loss(); get clocks using log.get_clocks() and print_times()
 		else:
 			best_train_loss = log.get_best_training_loss()
 			if best_train_loss is not None:
@@ -615,7 +623,10 @@ class Executor:
 				print_times()
 
 		#######################################################################
+
+
 		# Parse desired number of epochs
+		# get completed_num_epochs using log.get_number_of_epochs()
 		completed_epochs = log.get_number_of_epochs() if log else 0
 		if not completed_epochs:
 			logger.info('No previous epochs.')
@@ -623,16 +634,19 @@ class Executor:
 			logger.info('Restarting from epoch %d.', completed_epochs+1)
 
 		#######################################################################
+
+
 		# Parse the stopping criterion mode.
-
+		# provide two stop modes (additional or total)
 		valid_modes = ('additional', 'total')
+		# get mode from stop_when.get('mode', valid_modes[0]), if stop_when is not available, use valid_modes[0]
 		mode = stop_when.get('mode', valid_modes[0])
-
+		# make sure no other modes are allowed
 		if mode not in valid_modes:
 			raise ValueError('"mode" in "stop_when" must be one of: {}. '
 				'Instead, we received: {}.'.format(', '.join(valid_modes),
 				mode))
-
+		# if mode is set to 'total' but log is None, then set mode to additional
 		if mode == 'total' and log is None:
 			logger.warning('The epoch specification has "mode" set to "%s". '
 			'This mode requires a log to be used correctly. Kur will proceed '
@@ -640,24 +654,31 @@ class Executor:
 			mode = valid_modes[0]
 
 		#######################################################################
-		# Parse "epoch" stopping criterion.
 
+
+
+		# Parse "epoch" stopping criterion.
+		# set stop epochs: get epochs for stopping using stop_when.get('epochs')
 		epochs = stop_when.get('epochs')
+		# if epochs set by user as infinity alike, set epochs = None
 		if epochs in ('inf', 'all', 'infinite', 'infinity'):
 			epochs = None
-
+		# make sure epochs is either int or None
 		if not isinstance(epochs, (int, type(None))):
 			raise ValueError('Expected "epochs" to be a None or aninteger. '
 				'Instead, we received: {}.'.format(epochs))
-
+		# if epochs is available, and mode is additional, the add up epochs with completed_epochs
 		if epochs is not None:
 			if mode == 'additional':
 				epochs += completed_epochs
+			# stop training when completed_epochs >= epochs:
 			if completed_epochs >= epochs:
 				print('Epoch stopping-criterion met.')
 				return
 
 		#######################################################################
+
+		logger.critical("\n1. handles when checkpoint is dic, str, or else or None; \n2. If log is available, get best_train_loss and best_valid_loss using log.get_best_training_loss() and log.get_best_validation_loss(); get clocks using log.get_clocks() and print_times(); \n3. get completed_num_epochs using log.get_number_of_epochs(), if log is not available, then start from 0 epoch; \n4. set stop mode: provide two stop modes (additional or total); get mode = stop_when.get('mode', valid_modes[0]), if stop_when is not available, set mode to be valid_modes[0]; make sure no other modes are allowed; if mode is set to 'total' but log is None, then set mode to additional; \n5. set stop epochs: get epochs for stopping using stop_when.get('epochs'); if epochs set by user as infinity alike, set epochs = None; make sure epochs is either int or None; if epochs is available, and mode is additional, the add up epochs with completed_epochs; stop training when completed_epochs >= epochs; ")
 		# Parse "elapsed" stopping criterion.
 
 		default_time_keeper = 'all'

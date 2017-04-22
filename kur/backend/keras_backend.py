@@ -513,17 +513,21 @@ class KerasBackend(Backend):
 					name = name.replace('/', '_')
 					weight_value_tuples.append((symbolic_weights[i], weights[name]))
 
-		logger.info("weight_value_tuples (variable): 'weight_name : numpy.arrays' \n")
+		logger.info("weight_value_tuples (variable): 'weight_object : numpy.arrays' \n")
+		print("the weight object: {}\n".format(type(weight_value_tuples[0][0])))
 		pprint(weight_value_tuples)
 		print("\n\n")
 
-		logger.info("before K.batch_set_value(weight_value_tuples), weight_value_tuples[0][0]'s value is filled with previous arrays, the same as weight_value_tuples[0][0].container (array inside): '\n")
-		print("\n\npprint(weight_value_tuples[0][0].get_value()\n")
-		# pprint(weight_value_tuples[0][0].get_value())
+		logger.info("before K.batch_set_value(weight_value_tuples), weight_value_tuples[0][0]'s inner value is the same as weight_value_tuples[0][0].container (array inside): '\n")
+		pprint(weight_value_tuples[0][0].container)
+		print("\n\npprint(weight_value_tuples[0][0].get_value() is the same to weight_value_tuples[0][0].container\n")
+		pprint(weight_value_tuples[0][0].get_value())
 		# Assign all the weights (arrays) to ..dense.0/kernel, which is theano.tensor.sharedvar.TensorSharedVariable
 		K.batch_set_value(weight_value_tuples)
 		logger.info("\n\nAfter K.batch_set_value(weight_value_tuples), weight_value_tuples[0][0].get_value() has filled with new arrays: '\n")
-		# pprint(weight_value_tuples[0][0].get_value())
+		pprint(weight_value_tuples[0][0].get_value())
+		print("\n\nHow about pprint(weight_value_tuples[0][0].container? yes, it changed as above\n")
+		pprint(weight_value_tuples[0][0].container)
 
 		logger.critical("\n\nNow, all the weights tensors have been restored into the following objects: \n")
 		pprint([weight_tensor[0] for weight_tensor in weight_value_tuples])
@@ -763,6 +767,7 @@ class KerasBackend(Backend):
 
 			print("updates from optimizer.get_optimizer(self)(compiled.trainable_weights, total_loss): \n")
 			pprint(updates)
+
 			print("\n\npprint(updates[0][0]) is interesting object: {}\n".format(updates[0][0]))
 			pprint(updates[0][0].__dict__)
 			print("\n\npprint(updates[0][1].__dict__) is interesting too: {}\n".format(updates[0][1]))

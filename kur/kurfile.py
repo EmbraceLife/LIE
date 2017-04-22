@@ -340,78 +340,110 @@ class Kurfile:
 	def get_training_function(self):
 		""" Returns a function that will train the model.
 		"""
-		logger.debug("(self): \nreturn the training function: \n1. make sure the spec.data has a 'train' section; \n2. If log exist in train section, create a new hook based on it; \n3. get number of epochs assigned, get stop_when assigned or as {}, when both epochs and stop_when exist, stop_when has priority. stop_when has epoch_number and mode; \n4. get a provider out of providers; \n5. get training_hooks dict from train section (a list) and create training_hooks objects; \n6. If validate section is available, get all data providers in validate section, and get validate_weights, and set validat_weights to be best_valid weights; \n7. If validate section has hooks, get all hook objects into a list; \n8. get train_weights, if it is string, set train_weights to be initial weights; if it is a dict, train_weights has 3 elements: initial, best, and last weights; \n9. get file path for initial_weights, best_train weights, best_valid and last_weights;... continue ...")
 
-		logger.warning("\n10. build model object using data provider to spec, then build Executor trainer; \n11. create the actual training function: 1. if initial_weights is available, then restore the weights to model; 2. store all weights paths, data provider, hooks, checkpoint in a dict named defaults; 3. update this list with input arguments; 4. train the Executor trainer with defaults dict; \n12. return this actual training function.\n\n")
+		logger.warning("(self): \nreturn the training function: \n1. make sure spec.data['train'] avaliable; \n2. extract info on log from spec.data['train']['log']; \n3. extract info on epochs and stop_when from spec.data['train']['epochs|stop_when']; \n4. get default provider or any provider without a specific order from many available providers; \n5. creates a new training hook from a spec.data['train'].get('hooks'); \n6. get validation provider from spec.data['validate'], and best_valid weights from spec.data['validate']['weights'], and create validation_hooks from spec.data['validate']['hooks']; \n7. If spec.data['train']['weights'] is not available, then create initial_weights, best_train, last_weights, deprecated_checkpoint to be None;\n\n")
 
+		logger.critical("\n8. if spec.data['train']['weights'] is a string, set initial_weights = train_weights; if best_valid is None, we want initial_weights and best_train to be the same; if best_valid is available (not None), then we don't need best_train, so set best_train None; and create last_weights, initial_must_exist, deprecated_checkpoint to be None; \n9. if spec.data['train']['weights'] is a dict, find values or false for initial_weights, best_train, last_weights, initial_must_exist, deprecated_checkpoint; \n10. # get checkpoint from spec.data['train']['checkpoint']; if checkpoint is None, set checkpoint = deprecated_checkpoint; \n11. get file path stored within variables (initial_weights, best_train, best_valid, last_weights) otherwise None; \n12. create, parse, build a model in spec.model with provider; \n13. create an Executor trainer contains loss, optimizer, model; \n14. return training func ")
 
+		# Make sure 'train' section exist
 		if 'train' not in self.data:
 			raise ValueError('Cannot construct training function. There is a '
 				'missing "train" section.')
 
+		# if 'log' exist in 'train' section,
+		# log = create a new evaluation hook from a specification
+		# otherwise, log = None
 		if 'log' in self.data['train']:
 			log = Logger.from_specification(self.data['train']['log'])
 		else:
 			log = None
 
+		# extract num_epochs from spec.data['train']
 		epochs = self.data['train'].get('epochs')
+		# extract when to stop from spec.data['train']
+		# if stop_when not available, create an empty dict for it
 		stop_when = self.data['train'].get('stop_when', {})
+
+		# if both num_epochs and stop_when available, warn: stop_when has priority
 		if epochs:
 			if stop_when:
 				warnings.warn('"stop_when" has replaced "epochs" in the '
 					'"train" section. We will try to merge things together, '
 					'giving "stop_when" priority.', DeprecationWarning)
+
+			# if epochs is a dict
 			if isinstance(epochs, dict):
+				# epchs['number'] is available, and stop_when['epochs'] is not available, create one with stop_when['epochs'] = epochs['number']
 				if 'number' in epochs and 'epochs' not in stop_when:
 					stop_when['epochs'] = epochs['number']
+				# epchs['mode'] is available, and stop_when['mode'] is not available, create one with stop_when['mode'] = epochs['mode']
 				if 'mode' in epochs and 'mode' not in stop_when:
 					stop_when['mode'] = epochs['mode']
+			# if epochs is not a dict, and stop_when['epochs'] not available, then create stop_when['epochs'] = epochs
 			elif 'epochs' not in stop_when:
 				stop_when['epochs'] = epochs
 
+		# get default provider or any provider without a specific order from many available providers
 		provider = get_any_value(self.get_provider('train'))
 
 		training_hooks = self.data['train'].get('hooks') or []
 		if not isinstance(training_hooks, (list, tuple)):
 			raise ValueError('"hooks" (in the "train" section) should '
 				'be a list of hook specifications.')
+		# Creates a new training hook from a spec.data['train'].get('hooks')
 		training_hooks = [TrainingHook.from_specification(spec) \
 			for spec in training_hooks]
 
+
+		# If sepc.data['validate'] is available
 		if 'validate' in self.data:
+			# get provider(s) dict from spec.data['validate'], using self.get_provider('validate', accept_many=True)
 			validation = self.get_provider('validate', accept_many=True)
+			# get validation_weight from spec.data['validate']['weights']
 			validation_weights = self.data['validate'].get('weights')
+			# if validation_weights is None, then set best_valid = None
 			if validation_weights is None:
 				best_valid = None
+			# if validation_weights is string, set best_valid = validation_weights
 			elif isinstance(validation_weights, str):
 				best_valid = validation_weights
+			# if validation_weights is dict, set best_valid = validation_weights['best']
 			elif isinstance(validation_weights, dict):
 				best_valid = validation_weights.get('best')
 			else:
 				raise ValueError('Unknown type for validation weights: {}'
 					.format(validation_weights))
 
+			# get or create validation_hooks instances from sepc.data['validate']['hooks'] with EvaluationHook
 			validation_hooks = self.data['validate'].get('hooks', [])
 			if not isinstance(validation_hooks, (list, tuple)):
 				raise ValueError('"hooks" (in the "validate" section) should '
 					'be a list of hook specifications.')
 			validation_hooks = [EvaluationHook.from_specification(spec) \
 				for spec in validation_hooks]
+		# if spec.data['validate'] is not available, set provider dict, best_valid and validation_hooks to be None
 		else:
 			validation = None
 			best_valid = None
 			validation_hooks = None
 
+
+		# If spec.data['train']['weights'] is not available, then create initial_weights, best_train, last_weights, deprecated_checkpoint to be None
 		train_weights = self.data['train'].get('weights')
 		if train_weights is None:
 			initial_weights = best_train = last_weights = None
 			deprecated_checkpoint = None
+		# if spec.data['train']['weights'] is a string, set initial_weights = train_weights
 		elif isinstance(train_weights, str):
 			initial_weights = train_weights
+			# if best_valid is None, we want initial_weights and best_train to be the same
+			# if best_valid is available (not None), then we don't need best_train, so set best_train None
 			best_train = train_weights if best_valid is None else None
+			# create last_weights, initial_must_exist, deprecated_checkpoint to be None
 			last_weights = None
 			initial_must_exist = False
 			deprecated_checkpoint = None
+		# if spec.data['train']['weights'] is a dict, find values or false for initial_weights, best_train, last_weights, initial_must_exist, deprecated_checkpoint
 		elif isinstance(train_weights, dict):
 			initial_weights = train_weights.get('initial')
 			best_train = train_weights.get('best')
@@ -422,6 +454,9 @@ class Kurfile:
 			raise ValueError('Unknown weight specification for training: {}'
 				.format(train_weights))
 
+
+		# get checkpoint from spec.data['train']['checkpoint']
+		# if checkpoint is None, set checkpoint = deprecated_checkpoint
 		checkpoint = self.data['train'].get('checkpoint')
 
 		if deprecated_checkpoint is not None:
@@ -433,11 +468,14 @@ class Kurfile:
 				logger.warning('The currently-accepted "checkpoint" will be '
 					'used over the deprecated "checkpoint".')
 
+		# get file path stored within variables (initial_weights, best_train, best_valid, last_weights), otherwise None
 		expand = lambda x: os.path.expanduser(os.path.expandvars(x))
 		initial_weights, best_train, best_valid, last_weights = [
 			expand(x) if x is not None else x for x in
 				(initial_weights, best_train, best_valid, last_weights)
 		]
+
+
 
 		model = self.get_model(provider)
 		trainer = self.get_trainer()
@@ -445,7 +483,11 @@ class Kurfile:
 		def func(**kwargs):
 			""" Trains a model from a pre-packaged specification file.
 			"""
+			logger.warning("\n\nTrains a model from a pre-packaged specification file ???? \n\n1. if initial_weights is available, if initial_weights file path is available, then restore the weights from initial_weights; \n2. store all variables (train provider, validate provider dict, stop_when, log, best_train, best_valid, last_weights, training_hooks, validation_hooks, checkpoint) into dict defaults; \n3. add more dict members into dict defaults using defaults.update(kwargs); \n4. in build: we compile Executor trainer, in train: we train the Executor trainer using trainer.train(**default) \n\n")
+
+			# if initial_weights is available
 			if initial_weights is not None:
+				# if initial_weights file path is available, then restore the weights from initial_weights
 				if os.path.exists(initial_weights):
 					model.restore(initial_weights)
 				elif initial_must_exist:
@@ -468,6 +510,7 @@ class Kurfile:
 							'this is undesireable, set "must_exist" to "yes" '
 							'in the approriate "weights" section.',
 							initial_weights)
+			# store all variables (train provider, validate provider dict, stop_when, log, best_train, best_valid, last_weights, training_hooks, validation_hooks, checkpoint) into dict defaults
 			defaults = {
 				'provider' : provider,
 				'validation' : validation,
@@ -480,7 +523,12 @@ class Kurfile:
 				'validation_hooks' : validation_hooks,
 				'checkpoint' : checkpoint
 			}
+
+
+			# add more dict members into dict defaults
 			defaults.update(kwargs)
+
+			# in build: we compile Executor trainer, in train: we train the Executor trainer
 			return trainer.train(**defaults)
 
 		return func
