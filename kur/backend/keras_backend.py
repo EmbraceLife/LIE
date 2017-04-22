@@ -330,6 +330,7 @@ class KerasBackend(Backend):
 		logger.critical("(self, keras_model, filename): \n\nSave weights arrays in temporal files \n\n1. weights of layers can be found in spec.model.compiled['raw'].flattened_layers, \n2. save weights of each layer into separate files of temporal dir \n\n")
 
 		path = os.path.expanduser(os.path.expandvars(filename))
+		logger.info("The path for saving weights: %s \n\n", path)
 		if os.path.exists(path):
 			if not os.path.isdir(path):
 				raise ValueError('Target weight exists, but it is not a '
@@ -370,6 +371,9 @@ class KerasBackend(Backend):
 				)
 				# save weights arrays with file path in format of idx
 				idx.save(target, val)
+				logger.info("weights are saved inside idx file in the form of (name: values) see below: \n")
+				print(target, ": array's shape", val.shape, "\n\n")
+
 
 	###########################################################################
 	def _get_weight_names_and_values_from_symbolic(self, symbolic_weights):
@@ -409,7 +413,7 @@ class KerasBackend(Backend):
 	def _restore_keras(self, keras_model, filename):
 		""" Loads a native Keras model.
 		"""
-		logger.critical("(self, keras_model, filename): \n\nRestore weights of layers from saved weights files or idx files\n\n1. get the path name ready; \n2. map layer_weight_name with filename, then map layer_weight_name with numpy array loaded from idx files;\n3. find appropriate layer_weight_names; \n4. save weights arrays back to theano.tensor.sharedvar.TensorSharedVariables \n\n")
+		logger.critical("(self, keras_model, filename): \n\nRestore weights of layers from saved weights files or idx files\n\n1. get the path name ready; \n2. map layer_weight_name with layer objects, then map layer_weight_name with numpy array loaded from idx files;\n3. find appropriate layer_weight_names; \n4. save weights arrays back to theano.tensor.sharedvar.TensorSharedVariables \n\n")
 
 
 		import keras.backend as K				# pylint: disable=import-error
@@ -436,12 +440,18 @@ class KerasBackend(Backend):
 		for layer in layers:
 			if layer.name:
 				index.setdefault(layer.name, []).append(layer)
+		logger.info("index (variable): dict of `layer_name: layer_instance`\n")
+		pprint(index)
+		print("\n\n")
 
 
 		# inside tensors:
 		# build upon index, map names to idx weights files, like
 		# {'..dense.0': {'..dense.0_bias': '/var/folders/gz/ch3n2mp51m9386sytqf97s6w0000gn/T/tmpllhby5wa/weights/..dense.0+..dense.0_bias.kur', '..dense.0_kernel': '/var/folders/gz/ch3n2mp51m9386sytqf97s6w0000gn/T/tmpllhby5wa/weights/..dense.0+..dense.0_kernel.kur'}, '..convolution.1': {'..convolution.1_bias': '/var/folders/gz/ch3n2mp51m9386sytqf97s6w0000gn/T/tmpllhby5wa/weights/..convolution.1+..convolution.1_bias.kur', '..convolution.1_kernel': '/var/folders/gz/ch3n2mp51m9386sytqf97s6w0000gn/T/tmpllhby5wa/weights/..convolution.1+..convolution.1_kernel.kur'},...
 		tensors = self.enumerate_saved_tensors(path)
+		logger.info("tensors (variable): dict 'weight_name: weights_kur_file' \n")
+		pprint(tensors)
+		print("\n\n")
 
 		# We want to put (symbolic_weights, weight_values) tuples in this.
 		weight_value_tuples = []
@@ -503,8 +513,23 @@ class KerasBackend(Backend):
 					name = name.replace('/', '_')
 					weight_value_tuples.append((symbolic_weights[i], weights[name]))
 
+		logger.info("weight_value_tuples (variable): 'weight_name : numpy.arrays' \n")
+		pprint(weight_value_tuples)
+		print("\n\n")
+
+		logger.info("before K.batch_set_value(weight_value_tuples), weight_value_tuples[0][0]'s value is filled with previous arrays, the same as weight_value_tuples[0][0].container (array inside): '\n")
+		print("\n\npprint(weight_value_tuples[0][0].get_value()\n")
+		# pprint(weight_value_tuples[0][0].get_value())
 		# Assign all the weights (arrays) to ..dense.0/kernel, which is theano.tensor.sharedvar.TensorSharedVariable
 		K.batch_set_value(weight_value_tuples)
+		logger.info("\n\nAfter K.batch_set_value(weight_value_tuples), weight_value_tuples[0][0].get_value() has filled with new arrays: '\n")
+		# pprint(weight_value_tuples[0][0].get_value())
+
+		logger.critical("\n\nNow, all the weights tensors have been restored into the following objects: \n")
+		pprint([weight_tensor[0] for weight_tensor in weight_value_tuples])
+
+		print("\n\n")
+
 
 	###########################################################################
 	def enumerate_saved_tensors(self, path):
@@ -668,6 +693,14 @@ class KerasBackend(Backend):
 		# let's see model.compiled['raw'].__dict__
 		pprint(model.compiled['raw'].__dict__)
 		print("\n\n")
+		print("model.compiled['raw'].inputs[0].__dict__: == /images.__dict__ as below")
+		pprint(model.compiled['raw'].inputs[0].__dict__)
+		print('\n\n')
+		print("model.compiled['raw'].input_layers[0].__dict__: ")
+		pprint(model.compiled['raw'].input_layers[0].__dict__)
+		print("\n\nmodel.compiled['raw'].input_layers[0].inbound_nodes[0].__dict__: ")
+		pprint(model.compiled['raw'].input_layers[0].inbound_nodes[0].__dict__)
+		print("\n\n")
 
 		logger.info('See the summary of this compiled/keras model:\n')
 		pprint(model.compiled['raw'].summary())
@@ -704,7 +737,7 @@ class KerasBackend(Backend):
 			key = 'test'
 
 		else:
-			logger.info("\n\nAssembling a training function from the model.\n\n1. get loss_inputs, loss_outputs, total_loss ready; \n2. get optimizer from the compiled model and total_loss; \n3. use compiled.inputs, compiled.outputs, loss_inputs, loss_outputs, updates to create a specific backend(Theano, TF, Pytorch?) training function \n\n")
+			logger.critical("\n\nAssembling a training function from the model.\n\n1. get loss_inputs, loss_outputs, total_loss ready using `loss_inputs, loss_outputs, total_loss = self.process_loss(model, loss)`; \n2. get updates in terms of flow of operations using optimizer from Executor_trainer.optimizer and optimizer.get_optimizer(self)(compiled.trainable_weights, total_loss); \n3. use compiled.inputs, compiled.outputs, loss_inputs, loss_outputs, updates to create a specific backend(Theano, TF, Pytorch?) training function \n\n")
 
 			# Loss inputs: additional inputs needed by the loss function.
 			# Loss outputs: output of the loss function
@@ -712,9 +745,15 @@ class KerasBackend(Backend):
 			# get loss_inputs, loss_outputs as 2 ordered dicts, total_loss as a mean value
 			loss_inputs, loss_outputs, total_loss = \
 				self.process_loss(model, loss)
-			print("loss_inputs: {}".format(loss_inputs))
-			print("loss_outputs: {}".format(loss_outputs))
-			print("total_loss: {}\n\n".format(total_loss))
+			print("loss_inputs: {}\n".format(loss_inputs))
+			for k, v in loss_inputs.items():
+				pprint(v.__dict__)
+			print("\n\nloss_outputs: {} \n".format(loss_outputs))
+			for k, v in loss_outputs.items():
+				pprint(v.__dict__)
+			print("\n\ntotal_loss: has interesting object inside {}\n".format(total_loss))
+			pprint(total_loss.__dict__)
+			print("\n\n")
 
 
 			# get update or the specific optimzier for training
@@ -724,7 +763,12 @@ class KerasBackend(Backend):
 
 			print("updates from optimizer.get_optimizer(self)(compiled.trainable_weights, total_loss): \n")
 			pprint(updates)
+			print("\n\npprint(updates[0][0]) is interesting object: {}\n".format(updates[0][0]))
+			pprint(updates[0][0].__dict__)
+			print("\n\npprint(updates[0][1].__dict__) is interesting too: {}\n".format(updates[0][1]))
+			pprint(updates[0][1].__dict__)
 			print("\n\n")
+
 
 			# create a theano.compile.function_module.Func object
 			if not assemble_only:
@@ -736,7 +780,7 @@ class KerasBackend(Backend):
 						list(loss_outputs.values()),
 					updates=updates
 				)
-				print("create a specific-backend func using keras: \n")
+				print("create a specific-backend func using keras: \nHowever, I can't pprint(getsourcelines(func)), is there a way to print out the source code of such a func?\n")
 				pprint(func.__dict__)
 				print("\n\n")
 			key = 'train'
@@ -745,16 +789,18 @@ class KerasBackend(Backend):
 		# logger.trace('Additional inputs for log functions: %s\n\n',
 		# 	', '.join(loss_inputs.keys()))
 
-		logger.info("\n\nCreate model.compiled['train'] to get a keras model further ready for training in kur \n\n1. get input_names, output_names from compiled.input_names|output_names and loss_inputs|outputs \n2. get input_shapes from compiled.inputs and loss_inputs.values() \n3. store all the above and the specific-backend function into a dict called result \n4. and then store result inside model.compiled['train'] \n\n")
+		logger.critical("\n\nCreate model.compiled['train'] to store input_names, output_names, input_shapes, optimizer (Executor_trainer.optimizer), backend-specific-func\n\n1. get input_names, output_names from spec.model.compiled['raw'].input_names|output_names and loss_inputs|outputs (from immediate above)\n2. get input_shapes from spec.model.compiled['raw']['inputs'] and loss_inputs.values() \n3. store all above, Executor.optimizer, and the specific-backend function into a dict called result \n4. and then store result inside model.compiled['train'] \n\n")
 		# get input_names and output names
 		input_names = compiled.input_names + \
 			list(loss_inputs.keys())
 		output_names = compiled.output_names + \
 			list(loss_outputs.keys())
 
+
 		# get input_shapes
 		input_shapes = [
 			layer._keras_shape
+			# layer is a theano or backend-specific tensor
 			for layer in compiled.inputs
 		] + [
 			layer._keras_shape
@@ -815,7 +861,7 @@ class KerasBackend(Backend):
 	def wait_for_compile(self, model, key):
 		""" Waits for the model to finish compiling.
 		"""
-		logger.info("(self, model, key): \n\nCompiling to build a model in Keras \n\n1. get provider ready \n2. get temporal dir ready; \n3. save weights arrays of layers into temporal files; \n4. test weights and model by using 2 sample data and weights to make predictions and calc loss; \n5. finall restore the weights to the model using self._restore_keras(model.compiled['raw'], weight_path) \n\n")
+		logger.critical("(self, model, key): \n\nCompiling to build a model in Keras \n\n1. get provider ready \n2. get temporal dir ready; \n3. save weights arrays of layers into temporal files; \n4. test weights and model by using 2 sample data and weights to make predictions and calc loss; \n5. finall restore the weights to the model using self._restore_keras(model.compiled['raw'], weight_path) \n\n")
 
 		if model.provider is None:
 			logger.warning('No data provider available, so we cannot reliably '
@@ -834,7 +880,7 @@ class KerasBackend(Backend):
 		# add more data sources to the provider above
 		model.supplement_provider(provider)
 
-		print("get provider ready, if available add additional sources to provider \n")
+		logger.info("get provider ready, if available add additional sources to provider \n")
 		pprint(provider.__dict__)
 		print("\n\n")
 
@@ -848,7 +894,7 @@ class KerasBackend(Backend):
 			# save weights of each layer in idx format in a temporal dir
 			self._save_keras(model.compiled['raw'], weight_path)
 
-			logger.info('Waiting for model to finish compiling...')
+			logger.info('Waiting for model to finish compiling.../n/n')
 
 			# Internal StopIteration will allow only one loop
 			# use 2 data samples to test out the working of model by produce predictions and a loss
@@ -874,7 +920,7 @@ class KerasBackend(Backend):
 	def run_batch(self, model, batch, key, is_train):
 		""" Test out the model with 2 data samples: make predictions and calc loss for them
 		"""
-		logger.critical("(self, model, batch, key, is_train): \n\nTest the model by predict and calc loss out of 2 sample data \n\n1. use spec.model.compiled[key]['shape']|['names'] to get 2 data samples for testing; \n2. use spec.model.compiled[key]['func'](inputs) to get 2 arrays \n3. array1: 2 rows of predictions; \n4. array2: a single loss \n\n")
+		logger.critical("(self, model, batch, key, is_train): \n\nTest the model by predict and calc loss out of 2 sample data \n\n1. use spec.model.compiled[key]['shape']|['names'] to get 2 data samples for testing; \n2. use spec.model.compiled[key]['func'](inputs) to get 2 arrays \n3. array1: 2 arrays of predictions; \n4. array2: a single loss \n\n")
 
 		if model.compiled is None or key not in model.compiled:
 			raise ValueError('A model has not been compiled to: {}'

@@ -58,7 +58,7 @@ class Executor:
 			loss: Loss instance. The loss function to use in training/testing.
 			optimizer: Optimizer instance. The optimizer to use in training.
 		"""
-		logger.debug("(self, model, loss=None, optimizer=None, auto_retry=None): \nCreates a new executor object: \n1. add model object as its attr; \n2. add loss object as its attr; \n3. add optimizer object as its attr; \n4. set its attr auto_retry as True \n\n")
+		logger.critical("(self, model, loss=None, optimizer=None, auto_retry=None): \n\nCreates a new executor object: \n1. add model object as its attr; \n2. add loss object as its attr; \n3. add optimizer object as its attr; \n4. set its attr auto_retry as True \n\n")
 
 		self.model = model
 		self.loss = loss

@@ -168,7 +168,8 @@ class Kurfile:
 	def get_model(self, provider=None):
 		""" Returns the parsed Model instance.
 		"""
-		logger.warning("(self, provider=None): \n\nCreate a model object using spec.backend and spec.contaienrs, then Parse the model, and finally Build the model \n\n1. current spec.contaienrs is ready \n2. fill spec.backend with spec.get_backend() \n3. build a model class from spec.containers and spec.backend using Model(backend, containers), which unlike a container, a model's layers are connected backend, and it has tracked input and output connections. But it is just empty at the moment \n4. spec.model.parse() set spec.model._parsed True, let engine = PassthroughEngine() if not available, run spec.model.root.parse(engine); \n5. set spec.model.provider = provider; \n6. build(): to fill in inputs, input_aliases, outputs, output_aliases, network ??? they are real layers operations in the form of dict and names  \n\n")
+		if provider is not None:
+			logger.warning("(self, provider=None): \n\nCreate a model object using spec.backend and spec.contaienrs, then Parse the model, and finally Build the model \n\n1. current spec.contaienrs is ready \n2. fill spec.backend with spec.get_backend() \n3. From None, create a model class from spec.containers and spec.backend using Model(backend, containers); \n\n unlike a container, a model's layers are connected backend, and it has tracked input and output connections. But it is just empty at the moment \n\n4. spec.model.parse() set spec.model._parsed True, let engine = PassthroughEngine() if not available, run spec.model.root.parse(engine); \n5. set spec.model.provider = provider; \n6. build(): to fill real objects or values in spec.model.inputs, spec.model.input_aliases, spec.model.outputs, spec.model.output_aliases, spec.model.network; \n\n model is tranformed from dict to a backend-specific layers network  \n\n")
 
 		if self.model is None:
 			if self.containers is None:
@@ -184,6 +185,7 @@ class Kurfile:
 			)
 
 			logger.critical("\n\nspec.model = Model(backend, containers) contains, before parse(), spec.model as follows: \n")
+			print("The type of spec.model: \n{}\n\n".format(type(self.model)))
 			pprint(self.model.__dict__)
 			print("\n\npprint(spec.model.root.__dict__): \n")
 			pprint(self.model.root.__dict__)
@@ -278,7 +280,7 @@ class Kurfile:
 			section defined, then this returns a Provider instance. Otherwise,
 			returns None.
 		"""
-		logger.info("(self, section, accept_many=False):  \n\nUsing detailed info from spec.data[section]['data'] to build data suppliers first, then buid a data provider : \n\n1. get spec.data[section]; \n2. make sure it has a key as 'data' or 'provider'; \n3. store spec.data[section]['data'] in 'supplier_list'; \n4. consider when there are more than one data sources; \n5. create data Supplier object from spec.data[section]['data']; \n6. create data provider from data supplier and provider detailed info from spec.data[section]['provider']; \n7. finally return this provider \n\nInputs: \n1. section: %s \n2. accept_many: %s \n\n", section, accept_many)
+		logger.info("(self, section, accept_many=False):  \n\nUsing detailed info from spec.data[section]['data'] to build data suppliers first, then buid a data provider : \n\n1. get spec.data[section]; \n2. make sure it has a key as 'data' or 'provider'; \n3. store spec.data[section]['data'] in 'supplier_list'; \n4. consider when there are more than one data sources; \n5. create data Supplier object from spec.data[section]['data']; \n6. create data provider using data supplier and provider_detailed_info from spec.data[section]['provider']; \n7. finally return this provider \n\nInputs: \n1. section: %s \n2. accept_many: %s \n\n", section, accept_many)
 
 		if section in self.data:
 			section = self.data[section]

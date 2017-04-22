@@ -265,25 +265,25 @@ class Model:
 				'sure Model.parse() is called before Model.build().')
 			self.parse(None)
 
-		logger.debug('Enumerating the model containers.')
+		logger.critical('Enumerating the model containers.')
 
 
 		# CollapsedContainer is named tuple with inputs, container, names as keys
 		# it recursively work on all notes and children notes into CollapsedContainer
 		# Construct the high-level network nodes.
 		nodes = self.enumerate_nodes(self.root)
-		logger.critical("\n\nTake all containers inside spec.model.root, recursively make all containers into CollapsedContainers with three keys: inputs, container, names \n\nthis list is called nodes\n")
+		logger.critical("\n\nTake all containers inside spec.model.root, recursively make all containers into CollapsedContainers with three keys: inputs, container, names \n\nnodes = self.enumerate_nodes(self.root) \n\nthis list is called nodes\n")
 		pprint(nodes)
 		print("\n\n")
 
-		logger.debug('Assembling the model dependency graph.')
+		logger.critical('Assembling the model dependency graph.')
 		input_nodes, output_nodes, network = self.assemble_graph(nodes)
-		print("Creates the dependency graph of containers in the model using the nodes above: is to build 3 nested namespaces, input_nodes, output_nodes, network \n\n")
-		print("input_nodes: a single dict, 'images': a very long nested namesapce, starting from input images placeholder to output activation labels, nest flow: container, inputs, names on the same level, from outputs down to the next level \n")
+		print("Creates the dependency graph of containers in the model using the nodes above: is to build 3 nested namespaces, input_nodes, output_nodes, network \n\ninput_nodes, output_nodes, network = self.assemble_graph(nodes) \n\n")
+		print("input_nodes: a nested namespace (container, inputs, outputs, names, value): \nvalue is always None, \ninputs=[namespace(...)] \n\n")
 		pprint(input_nodes)
-		print("\n\noutput_nodes: a single dict, 'labels': a very long nested namespace, starting with container, inputs (nested to next level, from dense layer back to image placeholder), then start from layer of image, we got names, outputs, and value on one level, and move layer by layer back to labels layer \n")
+		print("\n\noutput_nodes: a nested namespace (container, inputs, outputs, names, value): \nvalue is always None, \noutputs=[namespace(...)] \n\n")
 		pprint(output_nodes)
-		print("\n\nnetwork: an ordered dict with each layer as a subdict with order, each subdict is a long nested namespaces like the ones above \n")
+		print("\n\nnetwork: contains a named tuple for each layer, each namedtuple is a nested namespace (container, inputs, outputs, names, value): \nvalue is always None, \neither inputs | outputs=[namespace(...)] depend on the layer\n\n")
 		pprint(network)
 
 		if logger.isEnabledFor(logging.TRACE):
@@ -298,19 +298,20 @@ class Model:
 				logger.trace('  Aliases: %s', ', '.join(node.names))
 				queue.extend(node.outputs)
 
-		logger.debug('Connecting the model graph.')
+		logger.critical('Connecting the model graph.')
 		inputs, input_aliases, outputs, output_aliases = \
 			self.build_graph(input_nodes, output_nodes, network)
 
-		print("\n\nBuilds and connects the model's underlying tensor operations using 'self.build_graph(input_nodes, output_nodes, network)' \n\n")
-		print("inputs is very similar to input_nodes, but added tensor operations into namespaces: container, inputs, names, outputs and value (tensor operations)\n")
+		print("\n\nBuilds and connects the model's underlying tensor operations using 'inputs, input_aliases, outputs, output_aliases = self.build_graph(input_nodes, output_nodes, network)' \n\n")
+		print("inputs is the same to input_nodes, except having value filled with tensor operations\n")
 		pprint(inputs)
-		print("outputs is very similar to output_nodes, but added tensor operations into namespaces: container, inputs, names, outputs and value (tensor operations)\n")
+		print("\n\noutputs is the same to input_nodes, except having value filled with tensor operations\n")
 		pprint(outputs)
 		print("\n\nCheckout input_aliases and output_aliases\n")
 		pprint(input_aliases)
 		pprint(output_aliases)
 		print("\n\n")
+		print("Network is renewed with value (tensor operations) too\n\n")
 
 
 

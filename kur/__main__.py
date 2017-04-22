@@ -105,12 +105,6 @@ def build(args):
 
 	spec = parse_kurfile(args.kurfile, args.engine)
 
-	logger.critical("\n\nThe parsed kurfile object conatins the following dicts: \n\n")
-	pprint(spec.__dict__)
-	print("\n\nSee all properties and methods of a Kurfile class \n")
-	pprint(getmembers(spec))
-	print("\n\n")
-
 
 	logger.critical("\n\nCreate spec.containers from spec.data['model'] \n\n1. spec.containers is a list of Container object, contains detailed info on designing a layer \n\n")
 	for each_container in spec.containers:
@@ -120,6 +114,15 @@ def build(args):
 	print("\n\nSee all properties and methods of a Container class using getmembers(spec.containers[0]) \n")
 	pprint(getmembers(spec.containers[0]))
 	print("\n\n")
+
+	logger.critical("\n\nThe parsed kurfile object conatins the following dicts: \n\n")
+	print("Type of spec: \n{}\n\n".format(type(spec)))
+	pprint(spec.__dict__)
+	print("\n\nSee all properties and methods of a Kurfile class \n")
+	pprint(getmembers(spec))
+	print("\n\n")
+
+
 
 	logger.warning("\n\nStep2: focus on a section (train by default) details of a kurfile, and get data ready to use \n\n")
 
@@ -170,17 +173,11 @@ def build(args):
 			# pprint(source.__dict__)
 			for k, v in source.__dict__.items():
 				if isinstance(v, list):
-					print("Key:", k, "; Value : is a list of", len(v), "num of ", type(v[0]))
-					print("print v[0:5]")
-					pprint(v[0:5])
+					print(k, ": is a list of", len(v), "num of ", type(v[0]))
+
 				elif isinstance(v, np.ndarray):
-					print("Key: ", k, "; Value : is array of shape ", v.shape)
-					if len(v.shape)>1:
-						print("print v[0:1]")
-						pprint(v[0:1])
-					else:
-						print("print v[0:5]")
-						pprint(v[0:5])
+					print(k, ": array with shape ", v.shape)
+
 				else:
 					print(k, ":", v)
 			print("\n\n")
@@ -190,7 +187,7 @@ def build(args):
 		# get default provider or any provider if many providers available
 		provider = Kurfile.find_default_provider(providers)
 
-	logger.warning("\n\nstep3: Create, Parse, build a model out of spec using 'spec.get_model(provider)' \n\n")
+	logger.warning("\n\nstep3: Create, Parse, build a model using spec.containers and spec.backend with 'spec.get_model(provider)' \n\n")
 
 	# create a model object and store inside spec.model:
 	spec.get_model(provider)
@@ -201,7 +198,7 @@ def build(args):
 	print("\n\n")
 
 
-	logger.warning("\n\nstep4: Create a Executor for running optimization on a model with a loss: \n\n1. get loss object from spec.data['loss']; \n2. get model object which we did previously; \n3. get optimizer object from spec.data['train']['optimizer']; \n4. see the created Executor.__dict__ look like: \n\n")
+	logger.warning("\n\nstep4: Create a Executor for running optimization on a model with a loss: \n\n1. get loss object from spec.data['loss']; \n2. get model object with `provider=None`; \n3. get optimizer object from spec.data['train']['optimizer']; \n4. see the created Executor.__dict__ look like: \n\n")
 	# if using data from train section, we build a trainer Executor and compile it; if data from test section, we build a trainer Executor without optimizer and compile it; if data from evaluate section, we build a Executor evaluator and compile it
 	if args.compile == 'none':
 		return
@@ -226,11 +223,12 @@ def build(args):
 
 
 
-	logger.warning("\n\nstep5: Compile Executor trainer above ==  \n\n1. create a trainable keras model, \n2.extract weights from the model, save weights, \n3. test weights or model, \n4. restore weights, and now model is ready for training \n\nHowever, from what file or variables does kur use to do training exactly??? \n\n")
+	logger.warning("\n\nstep5: Compile Executor trainer above ==  \n\n1. create a trainable keras model, \n2. extract weights from the model, save weights, \n3. test weights or model, \n4. restore weights, and now model is ready for training \n\nHowever, from what file or variables does kur use to do training exactly??? \n\n")
 	# get a backend specific representation of model
 	target.compile()
 
 
+	logger.warning("step6: check out spec.model inside after compilation: \n")
 	pprint(target.model.__dict__)
 
 
