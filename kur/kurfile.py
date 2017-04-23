@@ -62,7 +62,17 @@ class Kurfile:
 			engine: Engine instance. The templating engine to use in parsing.
 				If None, a Passthrough engine is instantiated.
 		"""
-		logger.critical("(self, source, engine=None): \n\nCreates a new Kurfile with source and engine: spec \n\n1. get engine assigned JinjaEngine or PassthroughEngine(); \n2. get filenames stored in spec.filename; \n3. Extract everything, all sections into spec.data = parse_source(filename, engine); \n4. create empty storages in spec.containers, spec.model, spec.backend, spec.tempaltes, spec.engine(filled) \n\n Inputs: \n1. source: %s; \n2. engine: %s; \n\n ", source, engine)
+		logger.critical("(self, source, engine=None): \n\nCreates a new Kurfile with source and engine: spec \n\n1. get engine as attr using `engine = engine or PassthroughEngine()`; \n\n2. get filenames as attr using `filename = os.path.expanduser(os.path.expandvars(source))`; \n\n3. Extract everything from yml file, using `self.data = self.parse_source(engine,source=filename,context=None)`; \n\n4. add more attr: `self.containers = None, self.model = None, self.backend = None, self.engine = engine, self.templates = None` \n\n ")
+
+		logger.warning("\nInputs: source\n")
+		pprint(source)
+		print("\n\n")
+		logger.warning("\nInputs: engine, see outside and inside\n")
+		pprint(engine)
+		print("\n")
+		pprint(engine.__dict__)
+		print("\n\n")
+
 
 		engine = engine or PassthroughEngine()
 		if isinstance(source, str):
@@ -86,16 +96,18 @@ class Kurfile:
 		self.engine = engine
 		self.templates = None
 
-		# logger.debug("(self, source, engine=None): end \n Creates a new Kurfile with source and engine. \n1.get engine assigned JinjaEngine or PassthroughEngine(); \n2. get filenames stored in spec.filename; \n3. parse_source using filename and engine to provide details stored in spec.data; \n4. create empty storages in spec.containers, spec.model, spec.backend, spec.tempaltes, but store engine object inside spec.engine \n\nInputs: \n1. source: %s; \n2. engine: %s; \n\nReturn: what initialized spec.__dict__ contains \n\n ", source, engine)
-		# pprint(self.__dict__)
-		# print("\n \n")
+		logger.warning("\nSee inside this kurfile object: \n")
+		pprint(self)
+		print("\n")
+		pprint(self.__dict__)
+		print("\n\n")
 
 	###########################################################################
 	def parse(self):
 		""" Parses the Kurfile.
 		"""
 
-		logger.critical("(self): \n\nafter initialize Kurfile object, run spec.parse(): \n\n1. evaluate all section dicts in spec.data with scopes, and reassign them back to spec.data; \n2. section name aliases (like training, testing) are accepted (but I disallowed in my own version); \n3. Extract spec.data['templates'] to spec.templates; \n5. Convert dict spec.data['model'] into Container objects (each layer is a container), create spec.containers = [all the containers] ; \n\nTherefore, spec.data, spec.templates, spec.containers are renewed or filled. \n\n ")
+		logger.critical("(self): \n\nafter initialize Kurfile object, run spec.parse(): \n\n1. evaluate all section dicts in spec.data with scopes, and reassign them back to spec.data, using `self._parse_section(self.engine, builtin['settings'], stack, include_key=False, auto_scope=True)`; \n\n2. section name aliases (like training, testing) are accepted (but I disallowed in my own version); \n\n3. Extract spec.data['templates'] to spec.templates, using `self.templates = self._parse_templates(self.engine, builtin['templates'], stack)`; \n\n4. Convert dict spec.data['model'] into Container objects (each layer is a container), create spec.containers = [all the containers], using `self.containers = self._parse_model(self.engine, builtin['model'], stack, required=True)` ; \n\nTherefore, spec.data, spec.templates, spec.containers are renewed or filled. \n\n ")
 
 		logger.debug('Parsing Kurfile...')
 
@@ -159,17 +171,16 @@ class Kurfile:
 			else:
 				warnings.warn('Unexpected section in Kurfile: "{}". '
 					'This section will be ignored.'.format(key), SyntaxWarning)
-		# logger.debug("(self): end \n after initialize Kurfile object, we parse it: \n 1. evaluate all section dicts in spec.data with scopes, and reassign them back to spec.data; \n 2. as a result, spec.data added section aliases (like training, testing); \n 3. other uses here to be answered ....; \n 4. assign spec.data['templates'] to spec.templates; \n 5. convert spec.data['model'] into model as containers, and assign the list of containers inside spec.contaienrs ; \n 6. finally spec's properites are renewed or parsed, done. \n \n Return: what is stored inside spec.__dict__")
-		# for k, v in self.__dict__.items():
-		# 	print(k, ": \n\t", v)
-		# 	print("\n")
+
+		logger.warning("\nThe parsed kurfile object, spec, now looks like: \n")
+		pprint(self.__dict__)
 
 	###########################################################################
 	def get_model(self, provider=None):
 		""" Returns the parsed Model instance.
 		"""
 		if provider is not None:
-			logger.warning("(self, provider=None): \n\nCreate a model object using spec.backend and spec.contaienrs, then Parse the model, and finally Build the model \n\n1. current spec.contaienrs is ready \n2. fill spec.backend with spec.get_backend() \n3. From None, create a model class from spec.containers and spec.backend using Model(backend, containers); \n\n unlike a container, a model's layers are connected backend, and it has tracked input and output connections. But it is just empty at the moment \n\n4. spec.model.parse() set spec.model._parsed True, let engine = PassthroughEngine() if not available, run spec.model.root.parse(engine); \n5. set spec.model.provider = provider; \n6. build(): to fill real objects or values in spec.model.inputs, spec.model.input_aliases, spec.model.outputs, spec.model.output_aliases, spec.model.network; \n\n model is tranformed from dict to a backend-specific layers network  \n\n")
+			logger.critical("(self, provider=None): \n\nCreate a model object using spec.backend and spec.contaienrs, then Parse the model, and finally Build the model \n\n1. current spec.contaienrs is ready \n2. fill spec.backend with spec.get_backend() \n3. From None, create a model class from spec.containers and spec.backend using Model(backend, containers); \n\n unlike a container, a model's layers are connected backend, and it has tracked input and output connections. But it is just empty at the moment \n\n4. spec.model.parse() set spec.model._parsed True, let engine = PassthroughEngine() if not available, run spec.model.root.parse(engine); \n5. set spec.model.provider = provider; \n6. build(): to fill real objects or values in spec.model.inputs, spec.model.input_aliases, spec.model.outputs, spec.model.output_aliases, spec.model.network; \n\n model is tranformed from dict to a backend-specific layers network  \n\n")
 
 		if self.model is None:
 			if self.containers is None:
@@ -184,12 +195,12 @@ class Kurfile:
 				containers=self.containers
 			)
 
-			logger.critical("\n\nspec.model = Model(backend, containers) contains, before parse(), spec.model as follows: \n")
+			logger.critical("\n\nspec.model = Model(backend, containers) create the model object, before parse(), spec.model as follows: \n")
 			print("The type of spec.model: \n{}\n\n".format(type(self.model)))
 			pprint(self.model.__dict__)
-			print("\n\npprint(spec.model.root.__dict__): \n")
+			print("\n\nsee inside spec.model.root: pprint(spec.model.root.__dict__): \n")
 			pprint(self.model.root.__dict__)
-			print("\n\npprint(spec.model.backend.__dict__): \n")
+			print("\n\nsee inside spec.model.backend: pprint(spec.model.backend.__dict__): \n")
 			pprint(self.model.backend.__dict__)
 			print("\n\n")
 
@@ -341,15 +352,19 @@ class Kurfile:
 		""" Returns a function that will train the model.
 		"""
 
-		logger.warning("(self): \nreturn the training function: \n1. make sure spec.data['train'] avaliable; \n2. extract info on log from spec.data['train']['log']; \n3. extract info on epochs and stop_when from spec.data['train']['epochs|stop_when']; \n4. get default provider or any provider without a specific order from many available providers; \n5. creates a new training hook from a spec.data['train'].get('hooks'); \n6. get validation provider from spec.data['validate'], and best_valid weights from spec.data['validate']['weights'], and create validation_hooks from spec.data['validate']['hooks']; \n7. If spec.data['train']['weights'] is not available, then create initial_weights, best_train, last_weights, deprecated_checkpoint to be None;\n\n")
+		logger.critical("(self): \n\nreturn the training function")
 
-		logger.critical("\n8. if spec.data['train']['weights'] is a string, set initial_weights = train_weights; if best_valid is None, we want initial_weights and best_train to be the same; if best_valid is available (not None), then we don't need best_train, so set best_train None; and create last_weights, initial_must_exist, deprecated_checkpoint to be None; \n9. if spec.data['train']['weights'] is a dict, find values or false for initial_weights, best_train, last_weights, initial_must_exist, deprecated_checkpoint; \n10. # get checkpoint from spec.data['train']['checkpoint']; if checkpoint is None, set checkpoint = deprecated_checkpoint; \n11. get file path stored within variables (initial_weights, best_train, best_valid, last_weights) otherwise None; \n12. create, parse, build a model in spec.model with provider; \n13. create an Executor trainer contains loss, optimizer, model; \n14. return training func ")
 
-		# Make sure 'train' section exist
+		# logger.critical(" \n1. make sure spec.data['train'] avaliable; \n2. extract info on log from spec.data['train']['log']; \n3. extract info on epochs and stop_when from spec.data['train']['epochs|stop_when']; \n4. get default provider or any provider without a specific order from many available providers; \n5. creates a new training hook from a spec.data['train'].get('hooks'); \n6. get validation provider from spec.data['validate'], and best_valid weights from spec.data['validate']['weights'], and create validation_hooks from spec.data['validate']['hooks']; \n7. If spec.data['train']['weights'] is not available, then create initial_weights, best_train, last_weights, deprecated_checkpoint to be None;\n\n")
+
+		# logger.critical("\n8. if spec.data['train']['weights'] is a string, set initial_weights = train_weights; if best_valid is None, we want initial_weights and best_train to be the same; if best_valid is available (not None), then we don't need best_train, so set best_train None; and create last_weights, initial_must_exist, deprecated_checkpoint to be None; \n9. if spec.data['train']['weights'] is a dict, find values or false for initial_weights, best_train, last_weights, initial_must_exist, deprecated_checkpoint; \n10. # get checkpoint from spec.data['train']['checkpoint']; if checkpoint is None, set checkpoint = deprecated_checkpoint; \n11. get file path stored within variables (initial_weights, best_train, best_valid, last_weights) otherwise None; \n12. create, parse, build a model in spec.model with provider; \n13. create an Executor trainer contains loss, optimizer, model; \n14. return training func ")
+
+		logger.critical("\n\nMake sure 'train' section exist\n\n")
 		if 'train' not in self.data:
 			raise ValueError('Cannot construct training function. There is a '
 				'missing "train" section.')
 
+		logger.critical("\n\nIf log is available, extract log details from spec.data['train']['log'], \n\nusing `log = Logger.from_specification(self.data['train']['log'])`\n\n")
 		# if 'log' exist in 'train' section,
 		# log = create a new evaluation hook from a specification
 		# otherwise, log = None
@@ -358,12 +373,19 @@ class Kurfile:
 		else:
 			log = None
 
+		logger.warning("\n\n see log.__dict__ : \n")
+		pprint(log.__dict__)
+		print("\n\n")
+
+		logger.critical("\n\nExtract epochs and stop_when from spec.data['train']['epochs'|'stop_when']\n\n")
 		# extract num_epochs from spec.data['train']
 		epochs = self.data['train'].get('epochs')
 		# extract when to stop from spec.data['train']
 		# if stop_when not available, create an empty dict for it
 		stop_when = self.data['train'].get('stop_when', {})
 
+
+		logger.critical("\n\nstop_when has priority over epochs; \nUse epochs['number'] to fill stop_when['epochs'], and epochs['mode'] to fill stop_when['mode'] when stop_when has no such values\n\n")
 		# if both num_epochs and stop_when available, warn: stop_when has priority
 		if epochs:
 			if stop_when:
@@ -383,8 +405,31 @@ class Kurfile:
 			elif 'epochs' not in stop_when:
 				stop_when['epochs'] = epochs
 
+		print("\n\nsee epochs from spec.data['train']['epochs']\n")
+		pprint(epochs)
+		print("\n\nsee stop_when from spec.data['train']['stop_when']\n")
+		pprint(stop_when)
+		print("\n\n")
+
+
+		logger.critical("\n\nGet and see a provider for training: \n\n")
 		# get default provider or any provider without a specific order from many available providers
 		provider = get_any_value(self.get_provider('train'))
+
+
+
+		logger.critical("\n\nAll hooks available to train section: \n")
+		for cls in TrainingHook.get_all_hooks():
+			print(cls, "\n")
+			pprint(cls.__dict__)
+			print("\n\n")
+
+		for cls in EvaluationHook.get_all_hooks():
+			print(cls, "\n")
+			pprint(cls.__dict__)
+			print("\n\n")
+
+		logger.critical("\n\nExtract training hooks from spec.data['train']['hooks']\n\nusing training_hooks = [TrainingHook.from_specification(spec) for spec in training_hooks]\n\n")
 
 		training_hooks = self.data['train'].get('hooks') or []
 		if not isinstance(training_hooks, (list, tuple)):
@@ -393,12 +438,18 @@ class Kurfile:
 		# Creates a new training hook from a spec.data['train'].get('hooks')
 		training_hooks = [TrainingHook.from_specification(spec) \
 			for spec in training_hooks]
+		print("type of training_hooks: {}\n".format(type(training_hooks[0])))
+		pprint(training_hooks[0].__dict__)
+		print("\n\n")
 
 
+		logger.critical("\n\nIf validate section available, get its provider \n\nusing `validation = self.get_provider('validate', accept_many=True)` \n\n")
 		# If sepc.data['validate'] is available
 		if 'validate' in self.data:
 			# get provider(s) dict from spec.data['validate'], using self.get_provider('validate', accept_many=True)
 			validation = self.get_provider('validate', accept_many=True)
+
+			logger.critical("\n\nExtract validation_weights from spec.data['validate']['weights']\n\n")
 			# get validation_weight from spec.data['validate']['weights']
 			validation_weights = self.data['validate'].get('weights')
 			# if validation_weights is None, then set best_valid = None
@@ -413,7 +464,10 @@ class Kurfile:
 			else:
 				raise ValueError('Unknown type for validation weights: {}'
 					.format(validation_weights))
+			pprint(validation_weights)
+			print("\n\n")
 
+			logger.critical("\n\nExtract validation hooks from spec.data['validate']['hooks']\n\n")
 			# get or create validation_hooks instances from sepc.data['validate']['hooks'] with EvaluationHook
 			validation_hooks = self.data['validate'].get('hooks', [])
 			if not isinstance(validation_hooks, (list, tuple)):
@@ -421,13 +475,17 @@ class Kurfile:
 					'be a list of hook specifications.')
 			validation_hooks = [EvaluationHook.from_specification(spec) \
 				for spec in validation_hooks]
+			print("type of validation_hooks: {}\n".format(type(validation_hooks[0])))
+			pprint(validation_hooks[0].__dict__)
+			print("\n\n")
+
 		# if spec.data['validate'] is not available, set provider dict, best_valid and validation_hooks to be None
 		else:
 			validation = None
 			best_valid = None
 			validation_hooks = None
 
-
+		logger.critical("\n\nExtract train_weights from spec.data['train']['weights'] \n\n")
 		# If spec.data['train']['weights'] is not available, then create initial_weights, best_train, last_weights, deprecated_checkpoint to be None
 		train_weights = self.data['train'].get('weights')
 		if train_weights is None:
@@ -453,8 +511,10 @@ class Kurfile:
 		else:
 			raise ValueError('Unknown weight specification for training: {}'
 				.format(train_weights))
+		pprint(train_weights)
+		print("\n\n")
 
-
+		logger.critical("\n\nExtract checkpoint using `checkpoint = self.data['train'].get('checkpoint')`\n\n")
 		# get checkpoint from spec.data['train']['checkpoint']
 		# if checkpoint is None, set checkpoint = deprecated_checkpoint
 		checkpoint = self.data['train'].get('checkpoint')
@@ -468,17 +528,21 @@ class Kurfile:
 				logger.warning('The currently-accepted "checkpoint" will be '
 					'used over the deprecated "checkpoint".')
 
+		logger.critical("\n\nCreate folder names for initial_weights, best_train, best_valid, last_weights\n\n")
 		# get file path stored within variables (initial_weights, best_train, best_valid, last_weights), otherwise None
 		expand = lambda x: os.path.expanduser(os.path.expandvars(x))
 		initial_weights, best_train, best_valid, last_weights = [
 			expand(x) if x is not None else x for x in
 				(initial_weights, best_train, best_valid, last_weights)
 		]
+		print(initial_weights, "\n", best_train, "\n", best_valid, "\n", last_weights, "\n\n")
 
 
-
+		logger.critical("\n\nCreate a model and build a trainer\n\n")
 		model = self.get_model(provider)
 		trainer = self.get_trainer()
+
+		set_trace()
 
 		def func(**kwargs):
 			""" Trains a model from a pre-packaged specification file.
@@ -857,7 +921,7 @@ class Kurfile:
 		""" Parses a source, and its includes (recursively), and returns the
 			merged sources.
 		"""
-		logger.critical("(engine, source=filename, context=None): \n\nExtract kurfile.yml content into a large dict for spec.data : \n\n1. read dictionary from a yml file, and its-includes files (recursively); \n2. merge the dictionaries together; \n3. returns the merged data. \n  \n Input args: \n\n1. engine: %s \n2. source: %s \n \n ", engine, source)
+		logger.critical("(engine, source=filename, context=None): \n\nExtract kurfile.yml content into a large dict for spec.data : \n\n1. read dictionary from a yml file, and its-includes files (recursively), using \n\n2. `data = Reader.read_file(expanded)`, \n\n3. and `def load_source(source):return mergetools.deep_merge(self.parse_source(engine,source=source, context=expanded,loaded=loaded),data,strategy=strategy)`, \n\n4. and `data = load_source(dict(new_sources))`; \n\n5. returns the merged data. \n  \n")
 
 		def get_id(filename):
 			""" Returns a tuple which uniquely identifies a file.

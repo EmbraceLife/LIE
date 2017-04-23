@@ -21,6 +21,11 @@ from ..utils import get_subclasses, Timer, CriticalSection
 
 logger = logging.getLogger(__name__)
 
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule
+import numpy as np
 ###############################################################################
 class Logger:
 	""" Base class for loggers.
@@ -266,11 +271,16 @@ class Logger:
 	###########################################################################
 	def log_training(self, data, tag=None, *, clocks=None):
 		""" Log training statistics after an epoch.
+			add self.data['training']
 		"""
+
 		if clocks is not None:
+			# Take a snapshot of any timer values that should be logged.
 			self.record_clocks(clocks)
 		self.epochs += 1
+		# add self.data['training'], see pprint(self.__dict__)
 		self._push('training', tag, data)
+		# Hook for asking the logger to process log information in its queue
 		self.flush()
 
 	###########################################################################

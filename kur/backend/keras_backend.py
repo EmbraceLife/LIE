@@ -980,7 +980,10 @@ class KerasBackend(Backend):
 	def train(self, model, data):
 		""" Fits the given model on a batch of data.
 		"""
+
+		# get optimizer
 		kur_optimizer = model.compiled['train']['kur_optimizer']
+
 		if kur_optimizer.scale_rate:
 			if kur_optimizer.scale_rate in data:
 				import keras.backend as K		# pylint: disable=import-error

@@ -29,4 +29,4 @@ How to create checksum for a dataset file?
 - done 
 
 ### Explore `kur -vv train mnist.yml`
-- commit1: walk through logic of `kur train mnist.yml`
+- [commit1](https://github.com/EmbraceLife/LIE/commit/a0b95951cab0dc98f5653f612589c8c2c9791e59): walk through logic of `kur train mnist.yml`

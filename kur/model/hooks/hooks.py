@@ -15,6 +15,13 @@ limitations under the License.
 """
 
 from kur.utils import get_subclasses
+import logging
+logger = logging.getLogger(__name__)
+
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule
 
 ###############################################################################
 class EvaluationHook:					# pylint: disable=too-few-public-methods
@@ -37,6 +44,7 @@ class EvaluationHook:					# pylint: disable=too-few-public-methods
 
 			New EvaluationHook instance.
 		"""
+		# set_trace()
 		if isinstance(spec, str):
 			name = spec
 			target = EvaluationHook.get_hook_by_name(spec)

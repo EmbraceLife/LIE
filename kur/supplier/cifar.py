@@ -71,9 +71,9 @@ class CifarSupplier(Supplier):
 		print("This CifarSupplier.__dict__ contains: \n")
 		pprint(self.__dict__)
 		print("\n\n")
-		print("All members of this CifarSupplier object contains: \n")
-		pprint(getmembers(self))
-		print("\n\n")
+		# print("All members of this CifarSupplier object contains: \n")
+		# pprint(getmembers(self))
+		# print("\n\n")
 
 	###########################################################################
 	@staticmethod

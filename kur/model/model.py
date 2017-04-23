@@ -257,7 +257,8 @@ class Model:
 	def build(self):
 		""" Builds the model.
 		"""
-		logger.critical("(self): Build the model \n\n1. create a list of namedtuples for each layer, using containers of spec.model.root; \n2. Create dependency of graph of model: meaning create a dict of long nested namespaces for input_nodes, output_nodes, and network from the list of namedtuples of each layer; \n3. builds and connects the model's underlying tensor operations using 'self.build_graph(input_nodes, output_nodes, network)' \n4. use the values above to fill in properites of spec.model \n\n")
+		logger.critical("(self): Build the model\n\n")
+		#  \n\n1. create a list of namedtuples for each layer, using containers of spec.model.root; \n\n2. Create dependency of graph of model: meaning create a dict of long nested namespaces for input_nodes, output_nodes, and network from the list of namedtuples of each layer; \n\n3. builds and connects the model's underlying tensor operations using 'self.build_graph(input_nodes, output_nodes, network)' \n\n4. use the values above to fill in properites of spec.model \n\n")
 
 		if not self._parsed:
 			logger.warning('The model has not been parsed yet. We will try to '
@@ -272,7 +273,7 @@ class Model:
 		# it recursively work on all notes and children notes into CollapsedContainer
 		# Construct the high-level network nodes.
 		nodes = self.enumerate_nodes(self.root)
-		logger.critical("\n\nTake all containers inside spec.model.root, recursively make all containers into CollapsedContainers with three keys: inputs, container, names \n\nnodes = self.enumerate_nodes(self.root) \n\nthis list is called nodes\n")
+		logger.critical("\n\nTake all containers from spec.model.root, recursively make all containers into CollapsedContainers with three keys: inputs, container, names \n\nnodes = self.enumerate_nodes(self.root) \n\nthis list is called nodes\n")
 		pprint(nodes)
 		print("\n\n")
 

@@ -50,13 +50,13 @@ def parse_kurfile(filename, engine, parse=True):
 
 		Kurfile instance
 	"""
-	logger.debug("(filename_str, engine_object, parse=True): start \n 1. create a Kurfile object, call it spec; \n 2. parse spec; \n 3. return spec; \n Inputs: \n1. filename: %s; \n2. engine: %s; \n3. parse: default is True, %s. \n\n", filename, engine, parse)
+	logger.critical("(filename_str, engine_object, parse=True):  \n\nCreate a Kurfile object and then parse it \n\n1. create a Kurfile object, using spec = Kurfile(filename, engine); \n\n2. parse spec using spec.parse(); \n\n3. return spec; \n\n")
 
 	spec = Kurfile(filename, engine)
 	if parse:
 		spec.parse()
 
-	logger.debug("(filename_str, engine_object, parse=True): end \n1. create a Kurfile object, call it spec; \n2. parse spec; \n3. return spec; \nInputs: \n1. filename: %s; \n2. engine: %s; \n3. parse: default is True, %s. \n\nReturns: \n1. spec: type is %s \n2. spec keys are: \n%s \n\n", filename, engine, parse, type(spec), spec.__dict__.keys())
+
 
 	return spec
 
@@ -73,7 +73,7 @@ def dump(args):
 def train(args):
 	""" Trains a model.
 	"""
-	logger.warning("(args): trains a model \n\n1. create a kurfile object and assign info to its properties; \n2. get training function for spec; \n3. run this training function with args.step \n\n")
+	logger.critical("(args): \n\ntrains a model \n\n1. create a parsed kurfile object using `parse_kurfile(args.kurfile, args.engine)`; \n\n2. get training function for spec, using `func = spec.get_training_function()`; \n\n3. run this training function with args.step, using `func(step=args.step)` \n\n")
 
 	spec = parse_kurfile(args.kurfile, args.engine)
 	func = spec.get_training_function()
@@ -552,8 +552,8 @@ def main():
 	args = parse_args()
 
 	loglevel = {
-		0 : logging.WARNING,
-		1 : logging.CRITICAL,
+		1 : logging.WARNING,
+		0 : logging.CRITICAL,
 		2 : logging.INFO,
 		3 : logging.DEBUG,
 		4 : logging.TRACE
@@ -570,7 +570,7 @@ def main():
 	logging.captureWarnings(True)
 
 	# print args at beginning of every run
-	logger.warning("\n\nconsole arguments inputs: \n\n %s \n", args)
+	logger.critical("\n\nconsole arguments inputs: \n\n %s \n", args)
 
 	do_monitor(args)
 
@@ -585,7 +585,7 @@ def main():
 	engine = JinjaEngine()
 	setattr(args, 'engine', engine)
 
-	logger.warning("(): \n\nmain() is the start of everything \n\n1. get console args into program; \n2. configurate logging display; \n3. monitor process when required by args; \n4. show version or do nothing when required by args; \n5. create an JinjaEngine object, and assign it to args.engine; \n6. run args.func(args) and then exit program. \n\nThere are many functions to try: !kur data | dump | build | train | test | evaluate \n\nRun %s(args) before exit program  \n\n", args.func)
+	logger.critical("(): \n\nmain() is the start of everything \n\n1. get console args into program; \n2. configurate logging display; \n3. monitor process when required by args; \n4. show version or do nothing when required by args; \n5. create an JinjaEngine object, and assign it to args.engine; \n6. run args.func(args) and then exit program. \n\nThere are many functions to try: !kur data | dump | build | train | test | evaluate \n\nRun %s(args) before exit program  \n\n", args.func)
 
 	sys.exit(args.func(args) or 0)
 

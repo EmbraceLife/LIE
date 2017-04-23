@@ -1,0 +1,109 @@
+---
+
+settings:
+
+  # Where to get the data
+  cifar: &cifar
+    url: "https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz"
+    checksum: "6d958be074577803d12ecdefd02955f39262c83c16fe9348329d7fe0b5c001ce"
+    path: "~/kur"
+
+  # Backend to use
+  backend:
+    name: keras
+
+  # Hyperparameters
+  cnn:
+    kernels: [64, 32]
+    size: [2, 2]
+    strides: [1, 1]
+
+# The model itself.
+# This is parsed immediately after the "parameters" block.
+model:
+  - input: images
+  - for:
+      range: "{{ cnn.kernels|length }}"
+      iterate:
+        - convolution:
+            kernels: "{{ cnn.kernels[index] }}"
+            size: "{{ cnn.size }}"
+            strides: "{{ cnn.strides }}"
+        - activation: relu
+  - flatten:
+  - dense: 10
+  - activation: softmax
+    name: labels
+
+train:
+  data:
+    - cifar:
+        <<: *cifar
+        parts: [1, 2, 3, 4]
+  provider:
+    batch_size: 32
+    num_batches: 2
+  log: cifar-log
+  epochs:
+    number: 2
+    mode: additional
+  stop_when:
+    epochs: 3 # null or infinite : to train forever
+    elapsed:
+      minutes: 5
+      hours: 1
+      days: 0
+      clock: all # (time spend on all things) or all | train | validate | batch
+    mode: additional # additional | total
+  hooks:
+    - plot:
+        loss_per_batch: cifar-plot/plot1.png
+        loss_per_time: cifar-plot/plot2.png
+        throughput_per_time: cifar-plot/plot3.png
+  weights:
+    initial: cifar.best.valid.w
+    best: cifar.best.train.w
+    last: cifar.last.w
+  checkpoint:
+    path: cifar-checkpoint/
+    batches: 10
+    samples: 1000
+  optimizer:
+    name: adam
+    learning_rate: 0.001
+
+validate:
+  data:
+    - cifar:
+       <<: *cifar
+       parts: 5
+  provider:
+    num_batches: 2
+  weights: cifar.best.valid.w
+  hooks:
+    - output:
+        path: cifar-output-validate/output.pkl
+        format: pickle
+
+
+test: &test
+  data:
+    - cifar:
+       <<: *cifar
+       parts: test
+  weights: cifar.best.valid.w
+  provider:
+    num_batches: 10
+
+evaluate:
+  <<: *test
+  destination: cifar.results.pkl
+  hooks:
+    - output:
+        path: cifar-output-hook/output.pkl
+        format: pickle
+
+loss:
+  - target: labels
+    name: categorical_crossentropy
+...
