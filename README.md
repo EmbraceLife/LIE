@@ -4,7 +4,7 @@ Do you believe this LIE?
 
 Step by step, this repo will testify this LIE by experimenting Kur for deep learning...
 
-## bits 
+## Get started 
 Other Kur questions are found in [my stackoverflow](http://stackoverflow.com/users/4333609/daniel?tab=questions) 
 
 How to use the cutting edge kur?
@@ -13,6 +13,20 @@ How to use the cutting edge kur?
 3. `source activate your-env` and run `pip install -e .`
 Now, you have the latest kur to use 
 
+How to run an example?
+1. cd kur/example
+2. kur -vv data|build mnist.yml
+
 How to create checksum for a dataset file?
 1. `cksum filename/file_path` [check out](http://www.computerhope.com/unix/ucksum.htm)
 2. to be serious, use `rhash`
+
+## Progress
+### Explore `kur -vv data -n 1 mnist.yml` 
+- done 
+
+### Explore `kur -vv build mnist.yml` 
+- done 
+
+### Explore `kur -vv train mnist.yml`
+- commit1: walk through logic of `kur train mnist.yml`
