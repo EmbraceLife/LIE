@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 # prepare examine tools
 from pdb import set_trace
 from pprint import pprint
-from inspect import getdoc, getmembers, getsourcelines, getmodule
+from inspect import getdoc, getmembers, getsourcelines, getmodule, getfullargspec, getargvalues
 ###############################################################################
 class RetryException(Exception):
 	""" Exception class for retrying an operation on a new batch of data.
@@ -289,8 +289,9 @@ class Executor:
 			This is the public entry point for training. It wraps the business
 			logic so that it can handle error conditions.
 		"""
-		logger.critical("A wrapper for training the Executor trainer\n\n")
+		logger.critical("\n\nNow a model's weights is restored, Training can start. \nDive into result = self.wrapped_train(*args, log=log, training_hooks=training_hooks, **kwargs)\n\nSee all inputs of wrapped_train() here ")
 
+		pprint(getfullargspec(self.wrapped_train))
 		reason = 'unknown'
 		try:
 			result = self.wrapped_train(
@@ -303,17 +304,23 @@ class Executor:
 			logger.exception('Exception raised during training.')
 			reason = traceback.format_exception_only(type(exc), exc)[0].strip()
 			raise
+
+		# except may be escaped, but else and finally must be run.
 		else:
 			reason = 'success'
 			return result
 		finally:
+			logger.warning("\n\nSave the last weights into the folder of last weights: \n{}\n\n".format(last_weights))
 			if last_weights is not None:
-				logger.info('Saving most recent weights: %s', last_weights)
+				logger.warning('Saving most recent weights: %s\nUsing with CriticalSection():self.model.save(last_weights)', last_weights)
 				with CriticalSection():
 					self.model.save(last_weights)
+
+			logger.warning("\n\nWhat does log.flush() do?\n\n")
 			if log is not None:
 				log.flush()
 
+			logger.warning("\n\nCreate plots\n\n")
 			if training_hooks:
 				for hook in training_hooks:
 					hook.notify(
@@ -342,6 +349,8 @@ class Executor:
 
 			None
 		"""
+		logger.critical("\n\nwrapped_train(self, provider, *, validation=None, stop_when=None,log=None, best_train=None, best_valid=None, training_hooks=None,validation_hooks=None, checkpoint=None, step=False)\n\nIt has included a lot of functions\n\nExecutes a validation run: \nrun_validation(num_batches=None)\n\nSaves the current model weights.\nsave_or_copy_weights(target)\n\nCalculates training loss and saves if necessary.\nrun_posttrain(n_entries, train_loss)\n\nExecutes the training hooks, if necessary.\nrun_training_hooks(cur_train_loss, validation_loss, status)\n\nPretty-prints a number of seconds.\nwrite_time(title, seconds)\n\nPrints the current timer values.\nprint_times()\n\nRuns the checkpoint triggers, if necessary.\nrun_checkpoint(*triggers, allow_validation=True)")
+		
 
 		#######################################################################
 		def run_validation(num_batches=None):
@@ -401,6 +410,7 @@ class Executor:
 			return validation_loss
 
 		#######################################################################
+
 		def save_or_copy_weights(target):
 			""" Saves the current model weights.
 			"""
@@ -427,6 +437,7 @@ class Executor:
 					shutil.copytree(saved_recent, target)
 
 		#######################################################################
+
 		def run_posttrain(n_entries, train_loss):
 			""" Calculates training loss and saves if necessary.
 
@@ -472,6 +483,8 @@ class Executor:
 			return cur_train_loss
 
 		#######################################################################
+
+
 		def run_training_hooks(cur_train_loss, validation_loss, status):
 			""" Executes the training hooks, if necessary.
 
@@ -495,6 +508,7 @@ class Executor:
 				)
 
 		#######################################################################
+
 		def write_time(title, seconds):
 			""" Pretty-prints a number of seconds.
 			"""
@@ -506,6 +520,8 @@ class Executor:
 			))
 
 		#######################################################################
+
+
 		def print_times():
 			""" Prints the current timer values.
 			"""
@@ -517,6 +533,8 @@ class Executor:
 			write_time('     Batch wall-clock time', timers['batch'].get())
 
 		#######################################################################
+
+
 		def run_checkpoint(*triggers, allow_validation=True):
 			""" Runs the checkpoint triggers, if necessary.
 			"""
@@ -560,7 +578,7 @@ class Executor:
 			return False
 
 		#######################################################################
-		# Create the timers
+		logger.warning("\n\nCreate 4 timers: batch, train, validate, all\n\n")
 
 		timers = {
 			'batch' : Timer(started=False),
@@ -571,6 +589,7 @@ class Executor:
 
 		#######################################################################
 
+		logger.critical("\n\nhandles when checkpoint is dic, str, or else or None\n\nMake sure the values inside checkpoint are expected\n\n")
 		# handles when checkpoint is dic, str, or else or None
 		# Process checkpoint requirements
 		if isinstance(checkpoint, dict):
@@ -603,7 +622,7 @@ class Executor:
 
 
 		# Parse logs
-
+		logger.critical("\n\nif log is not available or non-persistent type, there is no historical loss or best_valid_loss nor best_train_loss\n\n")
 		# if log is not available or non-persistent type, there is no best_valid_loss nor best_train_loss
 		if log is None:
 			logger.info('No log specified, so no historical loss information '
@@ -613,23 +632,25 @@ class Executor:
 			logger.info('Log type is non-persistent, so no historical loss '
 				'information is available.')
 			best_train_loss = best_valid_loss = None
-		# If log is available, get best_train_loss and best_valid_loss using log.get_best_training_loss() and log.get_best_validation_loss(); get clocks using log.get_clocks() and print_times()
+
+			logger.critical("\n\nIf log is available, load from files the historical `best_train_loss` and `best_valid_loss` using `log.get_best_training_loss()` and `log.get_best_validation_loss()`; \n\n")
 		else:
 			best_train_loss = log.get_best_training_loss()
 			if best_train_loss is not None:
-				logger.info('Best historical training loss: %.3f',
+				logger.warning('Best historical training loss: %.3f',
 					best_train_loss)
 			else:
-				logger.info('No historical training loss available from logs.')
+				logger.warning('No historical training loss available from logs.')
 
 			best_valid_loss = log.get_best_validation_loss()
 			if best_valid_loss is not None:
-				logger.info('Best historical validation loss: %.3f',
+				logger.warning('Best historical validation loss: %.3f',
 					best_valid_loss)
 			else:
-				logger.info(
+				logger.warning(
 					'No historical validation loss available from logs.')
 
+			logger.critical("\n\nget clocks using `log.get_clocks()` and `print_times()`\n\n")
 			clocks = log.get_clocks()
 			if clocks:
 				for k, v in clocks.items():
@@ -639,23 +660,23 @@ class Executor:
 
 		#######################################################################
 
-
 		# Parse desired number of epochs
-		# get completed_num_epochs using log.get_number_of_epochs()
+		logger.critical("\n\nget previous trained epochs `completed_num_epochs` using `log.get_number_of_epochs()`\n\n")
 		completed_epochs = log.get_number_of_epochs() if log else 0
 		if not completed_epochs:
-			logger.info('No previous epochs.')
+			logger.warning('No previous epochs.')
 		else:
-			logger.info('Restarting from epoch %d.', completed_epochs+1)
+			logger.warning('Restarting from epoch %d.', completed_epochs+1)
 
 		#######################################################################
 
-
+		logger.critical("\n\nprovide two stop modes (additional or total)\n\nget `mode` from `stop_when.get('mode', valid_modes[0])`\n\nif mode is set to 'total' but `log` is `None`, then set mode to `additional`\n\n")
 		# Parse the stopping criterion mode.
 		# provide two stop modes (additional or total)
 		valid_modes = ('additional', 'total')
 		# get mode from stop_when.get('mode', valid_modes[0]), if stop_when is not available, use valid_modes[0]
 		mode = stop_when.get('mode', valid_modes[0])
+		print("mode is set to {} inside stop_when['mode']".format(mode))
 		# make sure no other modes are allowed
 		if mode not in valid_modes:
 			raise ValueError('"mode" in "stop_when" must be one of: {}. '
@@ -670,38 +691,45 @@ class Executor:
 
 		#######################################################################
 
-
-
+		logger.critical("\n\nExtract epochs from `spec.data['train']['stop_when']['epochs']`\n\n")
 		# Parse "epoch" stopping criterion.
 		# set stop epochs: get epochs for stopping using stop_when.get('epochs')
 		epochs = stop_when.get('epochs')
+
+		logger.critical("\n\nIf epochs is a string from ('inf', 'all', 'infinite', 'infinity'), set it None\n\n")
 		# if epochs set by user as infinity alike, set epochs = None
 		if epochs in ('inf', 'all', 'infinite', 'infinity'):
 			epochs = None
+
+		logger.critical("\n\nmake sure epochs is either int or None\n\n")
 		# make sure epochs is either int or None
 		if not isinstance(epochs, (int, type(None))):
-			raise ValueError('Expected "epochs" to be a None or aninteger. '
+			raise ValueError('Expected "epochs" to be a None or an integer. '
 				'Instead, we received: {}.'.format(epochs))
+
+		logger.critical("\n\nIf mode is additional, epochs = epochs + completed_epochs\n\n(If mode is total, and) completed_epochs >= epochs, stopping criteria is met\n\n ")
 		# if epochs is available, and mode is additional, the add up epochs with completed_epochs
 		if epochs is not None:
 			if mode == 'additional':
 				epochs += completed_epochs
+				logger.warning("total epochs accumulated after training: {}\n\n".format(epochs))
 			# stop training when completed_epochs >= epochs:
 			if completed_epochs >= epochs:
-				print('Epoch stopping-criterion met.')
+				logger.warning("If previous trained epochs > epochs, then Epoch stopping-criterion met. This indicate total mode, so total epochs : {}\n\n".format(completed_epochs))
 				return
 
 		#######################################################################
-
-		logger.critical("\n1. handles when checkpoint is dic, str, or else or None; \n2. If log is available, get best_train_loss and best_valid_loss using log.get_best_training_loss() and log.get_best_validation_loss(); get clocks using log.get_clocks() and print_times(); \n3. get completed_num_epochs using log.get_number_of_epochs(), if log is not available, then start from 0 epoch; \n4. set stop mode: provide two stop modes (additional or total); get mode = stop_when.get('mode', valid_modes[0]), if stop_when is not available, set mode to be valid_modes[0]; make sure no other modes are allowed; if mode is set to 'total' but log is None, then set mode to additional; \n5. set stop epochs: get epochs for stopping using stop_when.get('epochs'); if epochs set by user as infinity alike, set epochs = None; make sure epochs is either int or None; if epochs is available, and mode is additional, the add up epochs with completed_epochs; stop training when completed_epochs >= epochs;\n\n")
-
-
+		logger.critical("\n\nExtract clock setting from stop_when, see pprint(clock)\n\n")
 		# Parse "elapsed" stopping criterion.
 		# Set clock for stop_when:
 		# There are 4 timer objects (all can be called), the default is 'all' object
 		default_time_keeper = 'all'
 		# get clock setting from 'clock = stop_when.get('elapsed')'
 		clock = stop_when.get('elapsed')
+		pprint(clock)
+		print("\n\n")
+
+		logger.critical("\n\nExtract the timer object, using `time_keeper = clock.get('clock', default_time_keeper)`\n\n")
 		# consider when clock is a dict:
 		if isinstance(clock, dict):
 			# get timer object using clock.get('clock', default_time_keeper)
@@ -710,6 +738,9 @@ class Executor:
 				raise ValueError('Invalid value for '
 					'"stop_when.elapsed.clock". Must be one of: {}. Received: '
 					'{}'.format(', '.join(timers), time_keeper))
+			print("time_keeper is {}\n\n".format(time_keeper))
+
+			logger.critical("get how long user want model to run in terms of minutes, using clock['mintes'|'hours'|'days']*multiplier(1|60|1440) to add up toward the total minutes of training time, save into variable clock_time\n\nHandle clock when it is dict, int, float, str(inf, all, infinite, infinity)\n\n")
 			# get how long user want model to run in terms of minutes, using clock['mintes'|'hours'|'days']*multiplier(1|60|1440) to add up toward the total minutes of training time, save into variable clock_time
 			clock_time = 0
 			for multiplier, value in (
@@ -734,6 +765,9 @@ class Executor:
 		elif clock:
 			raise ValueError('Invalid value for "stop_when.elapsed". Should '
 				'be a dictionary or numeric. Received: {}'.format(clock))
+
+		print("Total time for training: clock_time is {}\n\n".format(clock_time))
+
 		# clock_time can't be negative or 0
 		if clock:
 			if clock_time <= 0:
@@ -749,25 +783,24 @@ class Executor:
 				'mark' : 0
 			}
 
+
 			# set the starting time and store in clock['mark'], when mode == 'additional', set clock['mark'] += clock['timer']()
 			if mode == 'additional':
 				clock['mark'] += clock['timer']()
 
-			# when ending time - starting time > training time duration, Elapsed-time stopping criterion met.
+			logger.critical("\n\nIf (clock['timer']() - clock['mark']) > clock['seconds'] is true, then it indicates `mode = total` and stopping criteria is met\n\n")
+
 			if (clock['timer']() - clock['mark']) > clock['seconds']:
 				print('Elapsed-time stopping criterion met.')
 				return
 
-		logger.critical("\n6. set time for stop_when: \n6.1. There are 4 timer objects (all can be called), the default is 'all' object; \n6.2. get clock setting from 'clock = stop_when.get('elapsed')'; \n6.3. when clock is a dict: get timer object with time_keeper = clock.get('clock', default_time_keeper); \n6.4 set training time use  clock_time += clock['mintes'|'hours'|'days']*multiplier(1|60|1440); \n6.5 When clock is int or float, clock refer to num_minutes to run, timer object is 'all'; \n6.6 when clock is string and clock is about infinitiy; \n6.7 clock_time can't be negative or 0; \n6.8 set the starting time and store in clock['mark'], when mode == 'additional', set clock['mark'] += clock['timer'](); \n6.9 when ending time - starting time > training time duration, Elapsed-time stopping criterion met. \n\n")
-		#######################################################################
-		# Local variables
 
-		# The name of the most recently saved weight file. If the weights
-		# change, this should be reset to None. Otherwise, saving weights can
-		# be as simple as copying the previously saved file.
+		#######################################################################
+		logger.critical("\n\nsaved_recent is the latest saved weights file; \n\n create a session dict (epochs, batches, samples, minutes) and assign a copy to last_checkpoint; \n\n retry the training function for at most 3 times;\n\n")
 
 		saved_recent = None
 
+		# create a session and make it the last_checkpoint
 		session = {
 			'epochs' : 0,
 			'batches' : 0,
@@ -779,19 +812,20 @@ class Executor:
 		# ???
 		epoch = completed_epochs - 1
 
-		# retry training using keras_backend.train for at most 3 times
+		# create a function to retry training using keras_backend.train for at most 3 times
 		train_func = self.retry(
 			self.model.backend.train,
 			self.auto_retry
 		)
 
-		logger.critical("\n7.1 saved_recent is the latest saved weights file; \n7.2 create a session dict (epochs, batches, samples, minutes) and assign a copy to last_checkpoint; \n7.3 retry the training function for at most 3 times;\n\n")
+
 		#######################################################################
 		# Prepare to train
 
-		# compile Executor trainer: save weights, test 2 data samples, restore weights
+		logger.critical("\n\ncompile Executor trainer on train section: save weights, test 2 data samples, restore weights\n\n")
 		self.compile('train', with_provider=provider)
 
+		logger.critical("\n\noutput some log info on provider; \n\ncreate the plot; \n\n")
 		# Prints debug information about the sources in this provider
 		provider.source_shapes()
 
@@ -805,9 +839,9 @@ class Executor:
 
 		all_done = False
 
-		logger.critical("\n8.1 compile Executor trainer; \n8.2 output some log info on provider; \n8.3. notify the hook that the epoch has ended; \n\n")
+
 		#######################################################################
-		logger.critical("\n9. Main training loop: \n9.1 resume timer using timers['all'].resume(): Starts a previously paused timer, this has no effect if the timer was not paused; \n9.2 count epoch, and stop looping|training when total_num_epochs reached; ")
+		logger.critical("\n\n. Main training loop until all_done is set True or just return???: \n\n resume timer using timers['all'].resume(): Starts a previously paused timer, this has no effect if the timer was not paused; \n\n count epoch, and stop looping or training when total_num_epochs reached; \n\n")
 
 		# Main training loop.
 		timers['all'].resume()
@@ -822,9 +856,11 @@ class Executor:
 			###################################################################
 
 			# START: Train one epoch
+			logger.critical("\n\nResume timer for training\n\n")
 			timers['train'].resume()
 
 			# Create progress bar
+			logger.critical("\n\nCreate a progress bar to describe the displaying details\n\n")
 			train_loss = None
 			n_entries = 0
 			with tqdm.tqdm(
@@ -838,12 +874,13 @@ class Executor:
 				for num_batches, batch in parallelize(enumerate(provider)):
 
 					# The loss averaged over this batch.
-					logger.trace('Training on batch...')
+					logger.critical("\n\nTraining on a batch...\n\nUse step feature or not \n\nResume timer for a batch\n\nCalc prediction, and batch_loss of this batch, and then pause batch timer\n\n")
 					if step:
 						# Wait for user input before running a single batch of data.
 						self.do_step(
 							'Train, Epoch {}'.format(session['epochs']+1),
 							num_batches, batch)
+					print("Use step feature: {}\n\n".format(step))
 
 
 					# resume time for batch
@@ -852,11 +889,18 @@ class Executor:
 						# train on one batch to get prediction and batch_loss, using keras_backend.train, and inside using run_batch
 						prediction, batch_loss = train_func(
 							model=self.model, data=batch)
+
+						logger.warning("\n\nprediction.key: %s\n", prediction.keys())
+						for k, v in prediction.items():
+							print("prediction array shape: {}".format(v.shape))
+							print("the first row of the array: \n{}\n\n".format(v[0]))
+
 					except RetryException:
 						continue
 					finally:
 						# pause timer on training batches
 						timers['batch'].pause()
+
 
 					# if args.step is true, and logging.DEBUG mode is on, then print out prediction
 					if step and logger.isEnabledFor(logging.DEBUG):
@@ -865,8 +909,9 @@ class Executor:
 					# We just modified the weights. Invalidate the name of the last weight file.
 					saved_recent = None
 
-					logger.trace('Finished training on batch.')
+					logger.warning('\n\nFinished training on batch.\n\n')
 
+					logger.critical("\n\nUpdate log information for this batch \n\nCheck inside log before and after update log info\n\n")
 					# get the num_samples
 					batch_size = len(get_any_value(batch))
 
@@ -880,26 +925,26 @@ class Executor:
 						pprint(log.__dict__)
 						print("\n\n")
 
+					logger.critical("\n\nUpdate session for this batch\n\nCheck insider session before and after session update\n\n ")
 					# Update our session statistics.
-					print("Before training this batch, inside session we got: \n")
+					print("\Before training this batch, inside session we got: \n")
 					pprint(session)
 					session['batches'] += 1
 					session['samples'] += batch_size
 					session['minutes'] = time.perf_counter() / 60
-					print("After training this batch, inside session we got: \n")
+					print("\n\nAfter training this batch, inside session we got: \n")
 					pprint(session)
 					print("\n\n")
 
-					logger.critical("\n10. training an epoch: \n10.1 resume training time using `timers['train'].resume()`; \n11. create progress bar for training an epoch: \n11.1 initialize train_loss = None, n_entries = 0, create a progress_bar display (total num data samples, epoch/total_epochs); \n11.2 get a batch of provider one at a time, using `for num_batches, batch in parallelize(enumerate(provider))`; \n11.3 Wait for user input before running a single batch of data, using self.do_step(); \n11.4 resume timer for batch training, train on one batch to get prediction and batch_loss, using keras_backend.train, and inside using run_batch; then pause timers for batch training \n11.5 if args.step is true, and logging.DEBUG mode is on, then print out prediction; \n11.6 Log training information after a batch; \n11.7 Update our session statistics; \n11.8 run_checkpoint; \n11.9 get average loss per sample or per batch; \n11.10 stop training if clock setting is met; \n\n")
-
+					logger.critical("\n\nRun checkpoints for true or false, if true, print out wall time\n\n")
 					# If there is no checkpoint, just return False
-					if run_checkpoint('samples', 'batches', 'minutes',
-						allow_validation=True):
+					if run_checkpoint('samples', 'batches', 'minutes', allow_validation=True):
 						print_times()
 
 					# num_entries processed so far in this epoch
 					new_entries = n_entries + batch_size
 
+					logger.critical("\n\nGet average loss for a batch/a sample\n\n")
 					# Average the per-batch loss across training.
 					# This will give us our average "training loss".
 					if train_loss is None:
@@ -911,10 +956,11 @@ class Executor:
 								batch_loss[k] * (batch_size / new_entries)
 							for k, v in train_loss.items()
 						}
+					print("train_loss on average batch or sample: {}\n\n".format(train_loss))
 
 					n_entries = new_entries
 
-					# If clock for train is set and met, stop training
+					logger.critical("\n\nIf clock for train is set and met, stop training\n\n")
 					if clock and clock['seconds'] < \
 							(clock['timer'].get() - clock['mark']):
 						tqdm.tqdm.write('Timer expired. Finishing up '
@@ -923,15 +969,15 @@ class Executor:
 						break
 
 
-					# Update the progress bar with the current loss.
-					# Note that `batch_loss` is, in some sense, just the instantaneous training loss. `train_loss` is the average
-					# loss across the entire training set so far.
+					logger.critical("\n\nUpdate the progress bar with the current loss of an epoch\n\n")
+
 					pbar.set_description('Epoch {}/{}, loss={:.3f}'.format(
 						epoch+1, epochs or 'inf', sum(train_loss.values())
 					))
 					pbar.update(batch_size)
 
-					# make sure batch_loss values are not Nan, Inf
+					logger.critical("\n\nmake sure batch_loss values are not Nan, Inf\n\n")
+
 					for k, v in batch_loss.items():
 						if math.isnan(v):
 							logger.error('Received NaN loss value for '
@@ -951,14 +997,15 @@ class Executor:
 							if self.NAN_IS_FATAL:
 								raise ValueError('Model loss is infinite.')
 
-			logger.critical("\n12. update progress_bar on epoch and total loss of an epoch; \n13. make sure batch_loss values are not Nan, Inf; \n14. repeat for all batches of an epoch, then pause timer for training an epoch; \n15. ")
 
-			# pause timer for training (for epoch)
+
+			logger.critical("\n\npause timer for training (for epoch), end of an epoch training\n\n")
+
 			timers['train'].pause()
 			# END: Train one epoch
 			###################################################################
 
-			# Update our session statistics.
+			logger.critical("\n\nUpdate our session statistics.\n\nIncrement epochs by 1\n\nrun_checkpoint('epochs', allow_validation=False)\n\nCheck to see what our current training loss is.\n\nCalc validation_loss = run_validation()\n\nrun training hooks\n\nprint wall time\n\n")
 			session['epochs'] += 1
 
 			# Checkpoint if necessary
@@ -978,6 +1025,7 @@ class Executor:
 			)
 
 			print_times()
+
 
 	###########################################################################
 	def evaluate(self, provider, callback=None, step=False):

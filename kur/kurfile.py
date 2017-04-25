@@ -40,7 +40,7 @@ logger = logging.getLogger(__name__)
 # prepare examine tools
 from pdb import set_trace
 from pprint import pprint
-from inspect import getdoc, getmembers, getsourcelines, getmodule
+from inspect import getdoc, getmembers, getsourcelines, getmodule, getfullargspec, getargvalues
 
 ###############################################################################
 class Kurfile:
@@ -542,12 +542,16 @@ class Kurfile:
 		model = self.get_model(provider)
 		trainer = self.get_trainer()
 
-		set_trace()
 
 		def func(**kwargs):
 			""" Trains a model from a pre-packaged specification file.
 			"""
 			logger.warning("\n\nTrains a model from a pre-packaged specification file ???? \n\n1. if initial_weights is available, if initial_weights file path is available, then restore the weights from initial_weights; \n2. store all variables (train provider, validate provider dict, stop_when, log, best_train, best_valid, last_weights, training_hooks, validation_hooks, checkpoint) into dict defaults; \n3. add more dict members into dict defaults using defaults.update(kwargs); \n4. in build: we compile Executor trainer, in train: we train the Executor trainer using trainer.train(**default) \n\n")
+
+			logger.critical("\n\nif initial_weights is available, if initial_weights file path is available, then restore the weights from initial_weights\n\n")
+
+			# logger.critical("\n\nBefore restore initial weights, what are the weights like?\n\nLet's see weights of ..convolution.0\n")
+
 
 			# if initial_weights is available
 			if initial_weights is not None:
@@ -574,6 +578,8 @@ class Kurfile:
 							'this is undesireable, set "must_exist" to "yes" '
 							'in the approriate "weights" section.',
 							initial_weights)
+
+
 			# store all variables (train provider, validate provider dict, stop_when, log, best_train, best_valid, last_weights, training_hooks, validation_hooks, checkpoint) into dict defaults
 			defaults = {
 				'provider' : provider,
@@ -594,6 +600,7 @@ class Kurfile:
 
 			# in build: we compile Executor trainer, in train: we train the Executor trainer
 			return trainer.train(**defaults)
+
 
 		return func
 
@@ -684,6 +691,7 @@ class Kurfile:
 
 			Trainer instance.
 		"""
+		logger.critical("\n\nCreate an Executor with model, loss and optimizer of this spec\n\n")
 		return Executor(
 			model=self.get_model(),
 			loss=self.get_loss(),

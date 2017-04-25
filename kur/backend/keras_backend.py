@@ -413,7 +413,7 @@ class KerasBackend(Backend):
 	def _restore_keras(self, keras_model, filename):
 		""" Loads a native Keras model.
 		"""
-		logger.critical("(self, keras_model, filename): \n\nRestore weights of layers from saved weights files or idx files\n\n1. get the path name ready; \n2. map layer_weight_name with layer objects, then map layer_weight_name with numpy array loaded from idx files;\n3. find appropriate layer_weight_names; \n4. save weights arrays back to theano.tensor.sharedvar.TensorSharedVariables \n\n")
+		logger.critical("(self, keras_model, filename): \n\nRestore weights of layers from saved weights files or idx files\n\n1. get the path name ready; \n\n2. map layer_weight_name with layer objects, then map layer_weight_name with numpy array loaded from idx files;\n\n3. find appropriate layer_weight_names; \n\n4. save weights arrays back to theano.tensor.sharedvar.TensorSharedVariables \n\n")
 
 
 		import keras.backend as K				# pylint: disable=import-error
@@ -429,6 +429,8 @@ class KerasBackend(Backend):
 			raise ValueError('Target weight directory does not exist: {}'
 				.format(path))
 
+		print("input: filename or path: \n{}\n\n".format(path))
+		print("input: keras_model: \n{}\n\n".format(keras_model))
 
 		# get the same temporal path ready and get all keras layers objects ready
 		layers = keras_model.flattened_layers \
@@ -440,7 +442,7 @@ class KerasBackend(Backend):
 		for layer in layers:
 			if layer.name:
 				index.setdefault(layer.name, []).append(layer)
-		logger.info("index (variable): dict of `layer_name: layer_instance`\n")
+		logger.warning("index (variable): dict of `layer_name: layer_instance`\n")
 		pprint(index)
 		print("\n\n")
 
@@ -449,7 +451,7 @@ class KerasBackend(Backend):
 		# build upon index, map names to idx weights files, like
 		# {'..dense.0': {'..dense.0_bias': '/var/folders/gz/ch3n2mp51m9386sytqf97s6w0000gn/T/tmpllhby5wa/weights/..dense.0+..dense.0_bias.kur', '..dense.0_kernel': '/var/folders/gz/ch3n2mp51m9386sytqf97s6w0000gn/T/tmpllhby5wa/weights/..dense.0+..dense.0_kernel.kur'}, '..convolution.1': {'..convolution.1_bias': '/var/folders/gz/ch3n2mp51m9386sytqf97s6w0000gn/T/tmpllhby5wa/weights/..convolution.1+..convolution.1_bias.kur', '..convolution.1_kernel': '/var/folders/gz/ch3n2mp51m9386sytqf97s6w0000gn/T/tmpllhby5wa/weights/..convolution.1+..convolution.1_kernel.kur'},...
 		tensors = self.enumerate_saved_tensors(path)
-		logger.info("tensors (variable): dict 'weight_name: weights_kur_file' \n")
+		logger.warning("tensors (variable): dict 'weight_name: weights_kur_file' \n")
 		pprint(tensors)
 		print("\n\n")
 
@@ -513,23 +515,23 @@ class KerasBackend(Backend):
 					name = name.replace('/', '_')
 					weight_value_tuples.append((symbolic_weights[i], weights[name]))
 
-		logger.info("weight_value_tuples (variable): 'weight_object : numpy.arrays' \n")
+		logger.warning("weight_value_tuples (variable): 'weight_object : numpy.arrays' \n")
 		print("the weight object: {}\n".format(type(weight_value_tuples[0][0])))
 		pprint(weight_value_tuples)
 		print("\n\n")
 
-		logger.info("before K.batch_set_value(weight_value_tuples), weight_value_tuples[0][0]'s inner value is the same as weight_value_tuples[0][0].container (array inside): '\n")
+		logger.warning("before K.batch_set_value(weight_value_tuples), weight_value_tuples[0][0]'s inner value is the same to\n weight_value_tuples[0][0].container (array inside): '\n")
 		pprint(weight_value_tuples[0][0].container)
 		print("\n\npprint(weight_value_tuples[0][0].get_value() is the same to weight_value_tuples[0][0].container\n")
 		pprint(weight_value_tuples[0][0].get_value())
 		# Assign all the weights (arrays) to ..dense.0/kernel, which is theano.tensor.sharedvar.TensorSharedVariable
 		K.batch_set_value(weight_value_tuples)
-		logger.info("\n\nAfter K.batch_set_value(weight_value_tuples), weight_value_tuples[0][0].get_value() has filled with new arrays: '\n")
+		logger.warning("\n\nAfter K.batch_set_value(weight_value_tuples), weight_value_tuples[0][0].get_value() has filled with new arrays: '\n")
 		pprint(weight_value_tuples[0][0].get_value())
 		print("\n\nHow about pprint(weight_value_tuples[0][0].container? yes, it changed as above\n")
 		pprint(weight_value_tuples[0][0].container)
 
-		logger.critical("\n\nNow, all the weights tensors have been restored into the following objects: \n")
+		logger.warning("\n\nNow, all the weights tensors have been restored into the following objects: \n")
 		pprint([weight_tensor[0] for weight_tensor in weight_value_tuples])
 
 		print("\n\n")
@@ -694,7 +696,7 @@ class KerasBackend(Backend):
 			logger.info('Reusing an existing model.')
 			compiled = model.compiled['raw']
 
-		# let's see model.compiled['raw'].__dict__
+		logger.critical("\n\nlet's see model.compiled['raw'].__dict__\n")
 		pprint(model.compiled['raw'].__dict__)
 		print("\n\n")
 		print("model.compiled['raw'].inputs[0].__dict__: == /images.__dict__ as below")
@@ -885,7 +887,7 @@ class KerasBackend(Backend):
 		# add more data sources to the provider above
 		model.supplement_provider(provider)
 
-		logger.info("get provider ready, if available add additional sources to provider \n")
+		logger.warning("get provider ready, if available add additional sources to provider \n")
 		pprint(provider.__dict__)
 		print("\n\n")
 
@@ -925,7 +927,10 @@ class KerasBackend(Backend):
 	def run_batch(self, model, batch, key, is_train):
 		""" Test out the model with 2 data samples: make predictions and calc loss for them
 		"""
-		logger.critical("(self, model, batch, key, is_train): \n\nTest the model by predict and calc loss out of 2 sample data \n\n1. use spec.model.compiled[key]['shape']|['names'] to get 2 data samples for testing; \n2. use spec.model.compiled[key]['func'](inputs) to get 2 arrays \n3. array1: 2 arrays of predictions; \n4. array2: a single loss \n\n")
+		logger.critical("(self, model, batch, key, is_train): \n\nTest the model by predict and calc loss out of 2 sample data or a batch of data samples\n\n1. use spec.model.compiled[key]['shape']|['names'] to get 2 data samples for testing; \n2. use spec.model.compiled[key]['func'](inputs) to get 2 arrays \n3. array1: 2 arrays of predictions; \n4. array2: a single loss \n\n")
+		print("input model: \n{}\n".format(model))
+		print("input batch: \n{}\n".format(batch))
+		print("input key: \n{}\n\n".format(key))
 
 		if model.compiled is None or key not in model.compiled:
 			raise ValueError('A model has not been compiled to: {}'

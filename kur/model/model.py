@@ -277,33 +277,36 @@ class Model:
 		pprint(nodes)
 		print("\n\n")
 
-		logger.critical('Assembling the model dependency graph.')
+		logger.critical("\n\nCreates the dependency graph of containers in the model using the nodes above: is to build 3 nested namespaces, input_nodes, output_nodes, network \n\ninput_nodes, output_nodes, network = self.assemble_graph(nodes) \n\n")
+
 		input_nodes, output_nodes, network = self.assemble_graph(nodes)
-		print("Creates the dependency graph of containers in the model using the nodes above: is to build 3 nested namespaces, input_nodes, output_nodes, network \n\ninput_nodes, output_nodes, network = self.assemble_graph(nodes) \n\n")
+
 		print("input_nodes: a nested namespace (container, inputs, outputs, names, value): \nvalue is always None, \ninputs=[namespace(...)] \n\n")
 		pprint(input_nodes)
 		print("\n\noutput_nodes: a nested namespace (container, inputs, outputs, names, value): \nvalue is always None, \noutputs=[namespace(...)] \n\n")
 		pprint(output_nodes)
-		print("\n\nnetwork: contains a named tuple for each layer, each namedtuple is a nested namespace (container, inputs, outputs, names, value): \nvalue is always None, \neither inputs | outputs=[namespace(...)] depend on the layer\n\n")
+		print("\n\nnetwork: contains a named tuple for each layer, each namedtuple is a nested namespace (container, inputs, outputs, names, value): \n\nvalue is always None, \n\neither inputs | outputs=[namespace(...)] depend on the layer\n\n")
 		pprint(network)
 
-		if logger.isEnabledFor(logging.TRACE):
+		logger.critical("\n\nHow this graph is assembled one layer by another: \n\n")
+		if logger.isEnabledFor(logging.WARNING):
 			queue = deque(input_nodes.values())
 			while queue:
 				node = queue.popleft()
-				logger.trace('Assembled Node: %s', node.container.name)
-				logger.trace('  Uses: %s', ', '
+				logger.warning('Assembled Node: %s', node.container.name)
+				logger.warning('  Uses: %s', ', '
 					.join([x.container.name for x in node.inputs]))
-				logger.trace('  Used by: %s', ', '
+				logger.warning('  Used by: %s', ', '
 					.join([x.container.name for x in node.outputs]))
-				logger.trace('  Aliases: %s', ', '.join(node.names))
+				logger.warning('  Aliases: %s', ', '.join(node.names))
 				queue.extend(node.outputs)
 
-		logger.critical('Connecting the model graph.')
+
+		logger.critical("\n\nBuilds and connects the model through underlying tensor operations using 'inputs, input_aliases, outputs, output_aliases = self.build_graph(input_nodes, output_nodes, network)' \n\n")
+
 		inputs, input_aliases, outputs, output_aliases = \
 			self.build_graph(input_nodes, output_nodes, network)
 
-		print("\n\nBuilds and connects the model's underlying tensor operations using 'inputs, input_aliases, outputs, output_aliases = self.build_graph(input_nodes, output_nodes, network)' \n\n")
 		print("inputs is the same to input_nodes, except having value filled with tensor operations\n")
 		pprint(inputs)
 		print("\n\noutputs is the same to input_nodes, except having value filled with tensor operations\n")
@@ -315,10 +318,8 @@ class Model:
 		print("Network is renewed with value (tensor operations) too\n\n")
 
 
-
-
-		logger.debug('Model inputs:  %s', ', '.join(node for node in inputs))
-		logger.debug('Model outputs: %s', ', '.join(node for node in outputs))
+		logger.warning('Model inputs:  %s', ', '.join(node for node in inputs))
+		logger.warning('Model outputs: %s', ', '.join(node for node in outputs))
 
 		self.inputs = inputs
 		self.outputs = outputs

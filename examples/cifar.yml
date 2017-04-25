@@ -56,11 +56,11 @@ train:
       clock: all # (time spend on all things) or all | train | validate | batch
     mode: additional # additional | total
   hooks:
-    - plot:
+    - plot: # the folder must be prepared first
         loss_per_batch: cifar-plot/plot1.png
         loss_per_time: cifar-plot/plot2.png
         throughput_per_time: cifar-plot/plot3.png
-  weights:
+  weights: # the folders below are prepared automatically? 
     initial: cifar.best.valid.w
     best: cifar.best.train.w
     last: cifar.last.w
@@ -81,7 +81,7 @@ validate:
     num_batches: 2
   weights: cifar.best.valid.w
   hooks:
-    - output:
+    - output: # folder and file must be prepared first
         path: cifar-output-validate/output.pkl
         format: pickle
 
