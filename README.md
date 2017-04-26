@@ -19,7 +19,8 @@ How to run an example?
 
 How to create checksum for a dataset file?
 1. `cksum filename/file_path` [check out](http://www.computerhope.com/unix/ucksum.htm)
-2. to be serious, use `rhash`
+2. or `sha256sum FILE` for linux
+3. `shasum -a256 FILE` for macOS
 
 ## Progress
 ### Explore `kur -vv data -n 1 mnist.yml` 
