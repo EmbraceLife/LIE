@@ -71,7 +71,7 @@ def train(args):
 	logger.critical("\n\nfunc = spec.get_training_function()  \n\nDive into Kurfile.get_training_function()\n\n")
 	func = spec.get_training_function()
 
-	logger.critical("\n\nfunc(step=args.step) \n\nDive into func() inside get_training_function\n\n")
+	logger.critical("\n\nfunc(step=args.step)\n\nEOF \n\nDive into func() inside get_training_function\n\n")
 	func(step=args.step)
 
 ###############################################################################
@@ -209,7 +209,7 @@ def prepare_data(args):
 		if batch is None:
 			logger.error('No batches were produced.')
 			continue
-
+		
 		num_entries = None
 		keys = sorted(batch.keys())
 		num_entries = len(batch[keys[0]])
@@ -439,8 +439,8 @@ def main():
 	engine = JinjaEngine()
 	setattr(args, 'engine', engine)
 
-	logger.critical("\n\nsys.exit(args.func)(args) or 0)\n\n")
-	print("Dive into {}\n\n".format(args.func))
+	logger.critical("\n\nsys.exit(args.func)(args) or 0)\n\nEOF\n\n")
+	print("Dive into __main__.{}\n\n".format(args.func))
 
 
 	sys.exit(args.func(args) or 0)

@@ -883,7 +883,7 @@ class KerasBackend(Backend):
 				num_batches=1,
 				randomize=False
 			)
-
+		
 		# add more data sources to the provider above
 		model.supplement_provider(provider)
 

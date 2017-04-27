@@ -326,7 +326,7 @@ class Kurfile:
 			logger.critical("\n\nvalidation = self.get_provider('validate', accept_many=True) \n\n")
 			validation = self.get_provider('validate', accept_many=True)
 
-			logger.critical("\n\nvalidation_weights = self.data['validate'].get('weights') \n\nExtract best_valid folder info\n\n")
+			logger.critical("\n\nExtract dirname for best_valid weights: \n\nvalidation_weights = self.data['validate'].get('weights')\n\n")
 			print("""
 			if validation_weights is None:
 				best_valid = None
@@ -359,7 +359,7 @@ class Kurfile:
 			best_valid = None
 			validation_hooks = None
 
-		logger.critical("\n\ntrain_weights = self.data['train'].get('weights') \n\nextract initial_weights, best_train, best_valid, last_weights, initial_must_exist, deprecated_checkpoint\n\n")
+		logger.critical("\n\nExtract dict on train_weights: \n\ntrain_weights = self.data['train'].get('weights') \n\nextract initial_weights, best_train, best_valid, last_weights, initial_must_exist, deprecated_checkpoint from train_weights dict\n\n")
 		print("""
 		if train_weights is None:
 			initial_weights = best_train = last_weights = None
@@ -400,7 +400,7 @@ class Kurfile:
 			raise ValueError('Unknown weight specification for training: {}'
 				.format(train_weights))
 
-		logger.critical("\n\ncheckpoint = self.data['train'].get('checkpoint') \n\n")
+		logger.critical("\n\nExtract checkpoint = self.data['train'].get('checkpoint') \n\n")
 		checkpoint = self.data['train'].get('checkpoint')
 
 		logger.critical("\n\nNot sure the use of deprecated_checkpoint\n\n")
@@ -434,7 +434,7 @@ class Kurfile:
 		trainer = self.get_trainer()
 
 
-		logger.critical("\n\ndef func(**kwargs): \n\n")
+		logger.critical("\n\nPreviously, prepare with inputs for func\n\nNow def func(**kwargs): for training\n\n")
 		def func(**kwargs):
 			""" Trains a model from a pre-packaged specification file.
 			"""
@@ -499,11 +499,11 @@ class Kurfile:
 			logger.critical("\n\nadd more inputs into default \n\ndefaults.update(kwargs) \n\n")
 			defaults.update(kwargs)
 
-			logger.critical("\n\nreturn trainer.train(**defaults)\n\nDive into Executor.train() when this func() is executed\n\n")
+			logger.critical("\n\nreturn trainer.train(**defaults)\n\nEOF\n\nDive into Executor.train()\n\n")
 
 			return trainer.train(**defaults)
 
-		logger.critical("\n\nOut of Kurfile.get_training_function() back to __main__.train() \n\n")
+		logger.critical("\n\nreturn func\n\nEOF\n\nOut of Kurfile.get_training_function() back to __main__.train() \n\n")
 		return func
 
 	###########################################################################

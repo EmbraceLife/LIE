@@ -35,6 +35,14 @@ from ..providers import BatchProvider
 
 logger = logging.getLogger(__name__)
 
+
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule, getfullargspec, getargvalues
+# to write multiple lines inside pdb
+# !import code; code.interact(local=vars())
+
 ###############################################################################
 class KerasBackend(Backend):
 	""" A Keras backend.
@@ -736,6 +744,8 @@ class KerasBackend(Backend):
 				num_batches=1,
 				randomize=False
 			)
+			logger.critical("\n\nCreate a provider with just 1 batch, with batch_size of 2\n\n")
+
 		model.supplement_provider(provider)
 
 		weight_path = None
@@ -763,19 +773,31 @@ class KerasBackend(Backend):
 
 	###########################################################################
 	def run_batch(self, model, batch, key, is_train):
+		logger.critical("\n\noriginal Batch shape\n")
+		for k, v in batch.items():
+			print(k, ":", v.shape, "\n")
+
+
+		# logger.warning("\n\nA proper model.compiled[key]|['raw'] must be available\n\n")
 		if model.compiled is None or key not in model.compiled:
 			raise ValueError('A model has not been compiled to: {}'
 				.format(key))
+
 
 		compiled = model.compiled[key]
 		raw = model.compiled['raw']
 
 		assert isinstance(is_train, bool)
 
+
 		def coerce_shape(data, shape, name):
+			print("\n\ndata's name: {}\nIf data.ndim < len(shape): {} \nAdd one more dim to data, otherwise, remain same:\n".format(name, data.ndim < len(shape)))
 			if data.ndim < len(shape):
+				print("\nadd one dim to the end, make a new_data's shape: numpy.expand_dims(data, -1).shape\n{}".format(numpy.expand_dims(data, -1).shape))
 				return numpy.expand_dims(data, -1)
 			else:
+
+				print("return the original data's shape:{}".format(data.shape))
 				return data
 
 		inputs = [
@@ -789,6 +811,7 @@ class KerasBackend(Backend):
 			)
 		] + [is_train]
 
+
 		outputs = compiled['func'](inputs)
 		num_outputs = len(raw.outputs)
 		metrics = {
@@ -798,13 +821,45 @@ class KerasBackend(Backend):
 			)
 		}
 		predictions = {name : data for name, data in zip(model.outputs, outputs[:num_outputs])}
+		for k, v in predictions.items():
+			print("\n\nprediction:", k, "shape:", v.shape, "\n\n")
+		print("metrics or loss: {}\n\n".format(metrics))
+
+
 		return predictions, metrics
 
 	###########################################################################
 	def train(self, model, data):
 		""" Fits the given model on a batch of data.
 		"""
+		logger.critical("\n\nExtract optimizer\nkur_optimizer = model.compiled['train']['kur_optimizer'] \n\n")
 		kur_optimizer = model.compiled['train']['kur_optimizer']
+
+		logger.critical("\n\nIf kur_optimizer.scale_rate is available, do something??? before run a batch on the model\n\nOtherwise, just run a batch on the model\n\nDive into keras_backend.run_batch\n\n")
+		print("""
+if kur_optimizer.scale_rate:
+	if kur_optimizer.scale_rate in data:
+		import keras.backend as K		# pylint: disable=import-error
+		factor = data[kur_optimizer.scale_rate].mean()
+		keras_optimizer = kur_optimizer.optimizer
+		K.set_value(
+			keras_optimizer.lr,
+			K.get_value(keras_optimizer.lr) * factor
+		)
+		result = self.run_batch(model, data, 'train', True)
+		K.set_value(
+			keras_optimizer.lr,
+			K.get_value(keras_optimizer.lr) / factor
+		)
+		return result
+	else:
+		logger.warning('The optimizer "scale_rate" was specified, but '
+			'no such data column was found: %s. Ignoring this.',
+			kur_optimizer.scale_rate)
+return self.run_batch(model, data, 'train', True)
+		""")
+		print("\n\nEOF\n\n")
+
 		if kur_optimizer.scale_rate:
 			if kur_optimizer.scale_rate in data:
 				import keras.backend as K		# pylint: disable=import-error
