@@ -791,7 +791,7 @@ model.compiled[key] = result
 			for layer in loss_inputs.values()
 		]
 
-		logger.warning("\n\nExpected input shapes: %s\n\nThe output_names: %s",
+		logger.warning("\n\nExpected input names and shapes: %s\n\nThe output_names: %s",
 			', '.join('{}={}'.format(k, v) for k, v in \
 				zip(input_names, input_shapes)
 			), output_names)
@@ -826,7 +826,7 @@ model.compiled[key] = result
 	def wait_for_compile(self, model, key):
 		""" Waits for the model to finish compiling.
 		"""
-		logger.critical("(self, model, key): \n\nCompiling to build a model in Keras \n\n1. get provider ready \n\n2. get temporal dir ready; \n\n3. save weights arrays of layers into temporal files; \n\n4. test weights and model by using 2 sample data and weights to make predictions and calc loss; \n\n5. finall restore the weights to the model using self._restore_keras(model.compiled['raw'], weight_path) \n\n")
+		logger.critical("\n\nwait_for_compile(self, model, key): dive for details now????? \n\nCompile a model == save initial weights into files, test with 2 samples and restore weights from files into model object \n\n1. get provider ready \n\n2. get temporal dir ready; \n\n3. save weights arrays of layers into temporal files; \n\n4. test weights and model by using 2 sample data and weights to make predictions and calc loss; \n\n5. finall restore the weights to the model using self._restore_keras(model.compiled['raw'], weight_path) \n\n")
 
 		if model.provider is None:
 			logger.warning('No data provider available, so we cannot reliably '
