@@ -115,7 +115,7 @@ def build(args):
 			args.compile = 'none'
 		else:
 			args.compile, has_data = sorted(result, key=lambda x: not x[1])[0]
-			logger.info('Trying to build a "%s" model.', args.compile)
+			logger.debug('Trying to build a "%s" model.', args.compile)
 			if not has_data:
 				logger.warning('There is not data defined for this model, '
 					'so we will be running as if --bare was specified.')
@@ -133,28 +133,45 @@ def build(args):
 		)
 		provider = Kurfile.find_default_provider(providers)
 
-	logger.critical("\n\nspec.get_model(provider)\n\n")
+	logger.critical("\n\nspec.get_model(provider)\n\nDive into Kurfile.get_model() if needed\n\n")
+
 	spec.get_model(provider)
+
+	logger.critical("\n\nIf spec.model is avaliable, then just return spec.model;\n\nStep1: If spec.model is not available, then create it, using\nself.model = Model(backend=self.get_backend(),containers=self.containers)\n\nStep2: Then we parse spec.model with\nself.model.parse(self.engine)\n\nStep3: Then assign a provider to this model using\nself.model.register_provider(provider)\n\nStep4: Then, we build this model, with\nself.model.build()\n\nFinally return spec.model\n\nWe will dive into each step below\n\n")
+	pprint(spec.model.__dict__)
 
 
 	if args.compile == 'none':
 		logger.critical("\n\nargs.compile == 'none', then return with Nothing\n\n")
 		return
 	elif args.compile == 'train':
-		logger.critical("args.compile == 'train'\n\ntarget = spec.get_trainer(with_optimizer=True)\n\n")
+		func_str = """
+return Executor(
+	model=self.get_model(),
+	loss=self.get_loss(),
+	optimizer=self.get_optimizer() if with_optimizer else None
+		)
+		"""
+		logger.critical("\n\nMain purpose of Executor object is to put loss, optimizer, model together in one place for this model, using\n\ntarget = spec.get_trainer(with_optimizer=True)\n\n\n\nCreate an Executor with model, loss and optimizer of this spec, using\n\n%s\n\nLet's see inside the Executor object for %s\n\n", func_str, args.compile)
 		target = spec.get_trainer(with_optimizer=True)
+		pprint(target.__dict__)
+		print("\n\n")
 	elif args.compile == 'test':
-		logger.critical("args.compile == 'test'\n\ntarget = spec.get_trainer(with_optimizer=False)\n\n")
+		logger.critical("\n\nMain purpose of Executor object is to put loss, optimizer, model together in one place for this model, using\n\ntarget = spec.get_trainer(with_optimizer=False)\n\nCreate an Executor with model, loss and optimizer of this spec, using\n\n%s\n\nLet's see inside the Executor object for %s\n\n", func_str, args.compile)
 		target = spec.get_trainer(with_optimizer=False)
+		pprint(target.__dict__)
+		print("\n\n")
 	elif args.compile == 'evaluate':
-		logger.critical("args.compile == 'evaluate':\n\ntarget = spec.get_evaluator()\n\n")
+		logger.critical("\n\nMain purpose of Executor object is to put loss, optimizer, model together in one place for this model, using\n\ntarget = spec.get_evaluator()\n\nCreate an Executor with model, loss and optimizer of this spec, using\n\n%s\n\nLet's see inside the Executor object for %s\n\n", func_str, args.compile)
 		target = spec.get_evaluator()
+		pprint(target.__dict__)
+		print("\n\n")
 	else:
 		logger.error('Unhandled compilation target: %s. This is a bug.',
 			args.compile)
 		return 1
 
-	logger.critical("\n\ntarget.compile()\n\n")
+	logger.critical("\n\ntarget.compile()\n\nEOF\n\n")
 
 	target.compile()
 
@@ -209,7 +226,7 @@ def prepare_data(args):
 		if batch is None:
 			logger.error('No batches were produced.')
 			continue
-		
+
 		num_entries = None
 		keys = sorted(batch.keys())
 		num_entries = len(batch[keys[0]])

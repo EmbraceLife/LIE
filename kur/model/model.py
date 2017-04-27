@@ -24,6 +24,13 @@ from ..engine import PassthroughEngine
 
 logger = logging.getLogger(__name__)
 
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule, getfullargspec, getargvalues
+# to write multiple lines inside pdb
+# !import code; code.interact(local=vars())
+
 # Convenience class for keeping track of high-level network nodes.
 ContainerNode = types.SimpleNamespace
 
@@ -52,9 +59,37 @@ class Model:
 				important, since layers without explicit 'input' connections
 				will be connected to the previous layer.
 		"""
+		logger.debug("\n\nDive in Step1\nCreate a new model object\n\n")
+# 		print("""
+# if isinstance(containers, Container):
+# 	containers = [containers]
+# self.root = ContainerGroup(containers)
+#
+# self.backend = backend
+#
+# self.network = None
+# self.inputs = None
+# self.outputs = None
+# self.endpoints = None
+# self.container_nodes = None
+#
+# self._parsed = False
+#
+# self.input_aliases = {}
+# self.output_aliases = {}
+# self.key_cache = {}
+#
+# self.provider = None
+# self.additional_sources = {}
+#
+# self.compiled = None
+# self.data = self.backend.create_data(self)
+# 		""")
 		if isinstance(containers, Container):
 			containers = [containers]
 		self.root = ContainerGroup(containers)
+		logger.debug("\n\nExecutor.root contains\n\n")
+		# pprint(self.root.__dict__)
 
 		self.backend = backend
 
@@ -75,6 +110,11 @@ class Model:
 
 		self.compiled = None
 		self.data = self.backend.create_data(self)
+		logger.debug("\n\nExecutor.data is created with\nself.data = self.backend.create_data(self)\n")
+		# pprint(getdoc(self.backend.create_data))
+		# pprint(self.data)
+		print("\n\n")
+
 
 	###########################################################################
 	def has_data_source(self, name):
@@ -123,13 +163,13 @@ class Model:
 			sources, then the shape of that source is returned (as a tuple).
 			Otherwise, None is returned.
 		"""
-		logger.debug('Trying to infer shape for input "%s"', name)
+		logger.trace('Trying to infer shape for input "%s"', name)
 		if self.provider is None:
 			logger.debug(
 				'No provider has been registered to use for shape inference.')
 			return None
 		if self.provider.keys is None:
-			logger.debug(
+			logger.trace(
 				'The provider does not have data keys associated with it.')
 			return None
 
@@ -141,7 +181,7 @@ class Model:
 			return None
 
 		shape = self.provider.sources[index].shape()
-		logger.debug('Inferred shape for input "%s": %s', name, shape)
+		logger.trace('Inferred shape for input "%s": %s', name, shape)
 		return shape
 
 	###########################################################################
@@ -234,6 +274,7 @@ class Model:
 	def parse(self, engine):
 		""" Parses the model.
 		"""
+		logger.debug("\n\nDive in Step2\n\nIf model spec is not yet parsed\n\nIf engine is not available, create with engine = PassthroughEngine()\n\nparse spec.root with\nself.root.parse(engine)\n\nSet spec._parsed = True\n\n")
 		if not self._parsed:
 			if engine is None:
 				logger.trace('Creating a dummy engine for parsing the model.')
@@ -251,20 +292,32 @@ class Model:
 	def build(self):
 		""" Builds the model.
 		"""
-
+		logger.debug("\n\nDive in step4: Build the model\n\n")
 		if not self._parsed:
 			logger.warning('The model has not been parsed yet. We will try to '
 				'parse it without context, but this may easily fail. Make '
 				'sure Model.parse() is called before Model.build().')
 			self.parse(None)
 
-		logger.debug('Enumerating the model containers.')
+		logger.debug('Enumerating the model containers.\n\n')
 
 		# Construct the high-level network nodes.
 		nodes = self.enumerate_nodes(self.root)
+		logger.debug("\n\nTake all containers from spec.model.root, recursively make all containers into CollapsedContainers with three keys: inputs, container, names \n\nnodes = self.enumerate_nodes(self.root) \n\nthis list is called nodes\n")
+		# pprint(nodes)
+		# print("\n\n")
 
-		logger.debug('Assembling the model dependency graph.')
+		logger.debug("\n\nAssembling the dependency graph of containers in the model using the nodes above: is to build 3 nested namespaces, input_nodes, output_nodes, network \n\ninput_nodes, output_nodes, network = self.assemble_graph(nodes) \n\n")
+
 		input_nodes, output_nodes, network = self.assemble_graph(nodes)
+		# print("input_nodes: a nested namespace (container, inputs, outputs, names, value): \nvalue is always None, \ninputs=[namespace(...)] \n\n")
+		# pprint(input_nodes)
+		# print("\n\noutput_nodes: a nested namespace (container, inputs, outputs, names, value): \nvalue is always None, \noutputs=[namespace(...)] \n\n")
+		# pprint(output_nodes)
+		# print("\n\nnetwork: contains a named tuple for each layer, each namedtuple is a nested namespace (container, inputs, outputs, names, value): \n\nvalue is always None, \n\neither inputs | outputs=[namespace(...)] depend on the layer\n\n")
+		# pprint(network)
+
+		logger.debug("\n\nHow this graph is assembled one layer by another: \n\n")
 
 		if logger.isEnabledFor(logging.TRACE):
 			queue = deque(input_nodes.values())
@@ -278,9 +331,23 @@ class Model:
 				logger.trace('  Aliases: %s', ', '.join(node.names))
 				queue.extend(node.outputs)
 
-		logger.debug('Connecting the model graph.')
+		logger.debug("\n\nBuilds and connects the model through underlying tensor operations using \n'inputs, input_aliases, outputs, output_aliases = self.build_graph(input_nodes, output_nodes, network)' \n\n")
+
 		inputs, input_aliases, outputs, output_aliases = \
 			self.build_graph(input_nodes, output_nodes, network)
+
+		# print("inputs is the same to input_nodes, except having value filled with tensor operations\n")
+		# pprint(inputs)
+		# print("\n\noutputs is the same to input_nodes, except having value filled with tensor operations\n")
+		# pprint(outputs)
+		# print("\n\nCheckout input_aliases and output_aliases\n")
+		# pprint(input_aliases)
+		# pprint(output_aliases)
+		# print("\n\n")
+		# print("Network is renewed with value (tensor operations) too\n\n")
+		# pprint(network)
+		# print("\n\n")
+
 
 		logger.debug('Model inputs:  %s', ', '.join(node for node in inputs))
 		logger.debug('Model outputs: %s', ', '.join(node for node in outputs))

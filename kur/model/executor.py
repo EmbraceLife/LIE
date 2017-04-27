@@ -88,7 +88,7 @@ class Executor:
 
 			None
 		"""
-
+		logger.warning("\n\nSelect a section to do compile() when section is not specified;\n\nSelect it based on Executor.loss|optimizer availability\n\n")
 		if target is None:
 			if self.loss is None and self.optimizer is None:
 				target = 'evaluate'
@@ -97,11 +97,13 @@ class Executor:
 			else:
 				target = 'train'
 
+		logger.warning("\n\nDon't recompile if Executor.model.compiled is avaiable and the selected section is a key to Executor.model.compiled\n\n")
 		if not recompile:
 			if self.model.compiled is not None \
 				and target in self.model.compiled:
 				return
 
+		logger.warning("\n\nMake sure model is built before compilation\n\n")
 		if not self.model.is_built():
 			logger.warning('This model has never been built before. We are '
 				'going to try to build it now. But the model should always be '
@@ -111,7 +113,7 @@ class Executor:
 				self.model.register_provider(with_provider)
 			self.model.build()
 
-		logger.trace('Recompiling the model.')
+		logger.warning('Compiling the model.')
 		self.model.backend.compile(
 			model=self.model,
 			loss=self.loss if target != 'evaluate' else None,
@@ -586,7 +588,7 @@ class Executor:
 		}
 
 		#######################################################################
-		logger.critical("\n\nclean up Checkpoint to be ideal format\n\n")
+		logger.critical("\n\nMake sure Checkpoint's values in the right format\n\n")
 		print("""
 	  checkpoint:
 	    path: cifar-checkpoint/
@@ -826,7 +828,7 @@ class Executor:
 
 		#######################################################################
 		# Prepare to train
-		logger.critical("\n\nCompile the trainer (Executor)\n\nPrints debug information about the sources in this provider\n\nExecute training hooks\n\n")
+		logger.critical("\n\nCompile the trainer (Executor)\n\nPrints debug information about the sources in this provider\n\nExecute training hooks: does it actually do anything???\n\n")
 		print("""
 		self.compile('train', with_provider=provider)
 		provider.source_shapes()

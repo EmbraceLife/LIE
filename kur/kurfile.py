@@ -90,7 +90,7 @@ class Kurfile:
 		""" Parses the Kurfile.
 		"""
 
-		logger.info('Parsing Kurfile...')
+		logger.trace('Parsing Kurfile...')
 
 		# These are reserved section names.
 		# The first name in each tuple is the one that we should rely on
@@ -157,6 +157,7 @@ class Kurfile:
 	def get_model(self, provider=None):
 		""" Returns the parsed Model instance.
 		"""
+		
 		if self.model is None:
 			if self.containers is None:
 				raise ValueError('No such model available.')
@@ -167,6 +168,7 @@ class Kurfile:
 			self.model.parse(self.engine)
 			self.model.register_provider(provider)
 			self.model.build()
+
 		return self.model
 
 	###########################################################################
@@ -281,6 +283,7 @@ class Kurfile:
 	def get_training_function(self):
 		""" Returns a function that will train the model.
 		"""
+
 		logger.critical("\n\nif 'train' not in self.data: error \n\n")
 		if 'train' not in self.data:
 			raise ValueError('Cannot construct training function. There is a '
@@ -434,7 +437,7 @@ class Kurfile:
 		trainer = self.get_trainer()
 
 
-		logger.critical("\n\nPreviously, prepare with inputs for func\n\nNow def func(**kwargs): for training\n\n")
+		logger.critical("\n\nAbove are inputs for func\n\nNow def func(**kwargs): for training\n\n")
 		def func(**kwargs):
 			""" Trains a model from a pre-packaged specification file.
 			"""
@@ -463,7 +466,7 @@ class Kurfile:
 							'weight files are not supposed to be missing.',
 							initial_weights)
 					else:
-						logger.info('Ignoring missing initial weights: %s. If '
+						logger.trace('Ignoring missing initial weights: %s. If '
 							'this is undesireable, set "must_exist" to "yes" '
 							'in the approriate "weights" section.',
 							initial_weights)
@@ -514,7 +517,7 @@ class Kurfile:
 		if 'default' in providers:
 			return providers['default']
 		k = get_any_key(providers)
-		logger.info('Using multiple providers. Since there is no '
+		logger.trace('Using multiple providers. Since there is no '
 			'"default" provider, the default one we will use to construct '
 			'the model is: %s', k)
 		return providers[k]
@@ -854,7 +857,7 @@ class Kurfile:
 				'Expected each "include" to be a string or a dictionary. '
 				'Received: {}'.format(context or 'top-level', source))
 
-		logger.debug('Parsing source: %s, included by %s.', filename,
+		logger.trace('Parsing source: %s, included by %s.', filename,
 			context or 'top-level')
 
 		if context:

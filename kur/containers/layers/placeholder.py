@@ -59,7 +59,7 @@ class Placeholder(Layer):				# pylint: disable=too-few-public-methods
 						'placeholder: "%s" and "%s". Using: "%s".',
 						data, name, name)
 				else:
-					logger.debug('Using short-hand name for placeholder: %s',
+					logger.trace('Using short-hand name for placeholder: %s',
 						data)
 					self.name = data
 		else:
@@ -91,7 +91,7 @@ class Placeholder(Layer):				# pylint: disable=too-few-public-methods
 		""" Parse the placeholder.
 		"""
 		if 'shape' not in self.args:
-			logger.debug('Placeholder "%s" has a deferred shape.', self.name)
+			logger.trace('Placeholder "%s" has a deferred shape.', self.name)
 		else:
 			self.set_shape(engine.evaluate(self.args['shape'], recursive=True))
 
@@ -108,7 +108,7 @@ class Placeholder(Layer):				# pylint: disable=too-few-public-methods
 		else:
 			if self._shape is None:
 				self._shape = inferred_shape
-				logger.debug('Inferred shape: %s', self._shape)
+				logger.trace('Inferred shape: %s', self._shape)
 			else:
 				if len(self._shape) != len(inferred_shape):
 					raise ValueError('Placeholder "{}" does not have the '
@@ -136,13 +136,13 @@ class Placeholder(Layer):				# pylint: disable=too-few-public-methods
 						merged_shape += (data_shape, )
 
 				if merged_shape != self._shape:
-					logger.debug('Using inferred shape for data %s: %s '
+					logger.trace('Using inferred shape for data %s: %s '
 						'instead of %s', self.name, merged_shape,
 						self._shape)
 					self._shape = merged_shape
 
 		if self._shape == ():
-			logger.debug('Promoting an empty shape to a scalar.')
+			logger.trace('Promoting an empty shape to a scalar.')
 			self._shape = (1,)
 
 	###########################################################################
@@ -157,7 +157,7 @@ class Placeholder(Layer):				# pylint: disable=too-few-public-methods
 				dtype = K.floatx()
 			else:
 				dtype = self.type
-			logger.debug('Creating placeholder for "%s" with data type "%s".',
+			logger.trace('Creating placeholder for "%s" with data type "%s".',
 				self.name, dtype)
 
 			self._infer_shape(model)

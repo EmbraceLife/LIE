@@ -277,7 +277,7 @@ class Model:
 		pprint(nodes)
 		print("\n\n")
 
-		logger.critical("\n\nCreates the dependency graph of containers in the model using the nodes above: is to build 3 nested namespaces, input_nodes, output_nodes, network \n\ninput_nodes, output_nodes, network = self.assemble_graph(nodes) \n\n")
+		logger.critical("\n\nAssembling the dependency graph of containers in the model using the nodes above: is to build 3 nested namespaces, input_nodes, output_nodes, network \n\ninput_nodes, output_nodes, network = self.assemble_graph(nodes) \n\n")
 
 		input_nodes, output_nodes, network = self.assemble_graph(nodes)
 

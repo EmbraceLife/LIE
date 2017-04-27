@@ -45,7 +45,7 @@ class Backend:
 				requiring an entirely new backend.
 		"""
 		if not self.is_supported():
-			logger.warning('Backend claims to not be supported. We will try '
+			logger.trace('Backend claims to not be supported. We will try '
 				'to use it anyway.')
 
 		if variant is not None:
@@ -62,32 +62,32 @@ class Backend:
 				raise ValueError('If "parallel" is specified, it must be an '
 					'integer. We received: {}'.format(parallel))
 			if parallel <= 0:
-				logger.warning('"parallel" should be > 0, but we received '
+				logger.trace('"parallel" should be > 0, but we received '
 					'"%d". We are just ignoring "parallel".', parallel)
 				parallel = None
 
 		if device is None:
-			logger.debug('No execution device indicated to backend. Checking '
+			logger.trace('No execution device indicated to backend. Checking '
 				'available devices...')
 			try:
 				with CudaContext() as context:
 					n_devices = len(context)
 			except CudaError:
-				logger.debug('Failed to initialize CUDA. Falling back to '
+				logger.trace('Failed to initialize CUDA. Falling back to '
 					'CPU.')
 				device = 'cpu'
 			else:
 				if n_devices > 0:
-					logger.debug('GPU capabilities detected.')
+					logger.trace('GPU capabilities detected.')
 					device = 'gpu'
 				else:
-					logger.debug('No GPUs detected.')
+					logger.trace('No GPUs detected.')
 					device = 'cpu'
 
 		if device == 'cpu':
 			self.devices = []
 			if parallel:
-				logger.warning('"parallel" execution was requested, but we '
+				logger.trace('"parallel" execution was requested, but we '
 					'not using the GPU. "parallel" will be ignored.')
 
 		elif device.startswith('gpu'):
@@ -134,7 +134,7 @@ class Backend:
 
 			if parallel:
 				if parallel > len(preferred):
-					logger.warning('%d GPU devices were requested through '
+					logger.trace('%d GPU devices were requested through '
 						'"parallel", but only %d devices seem '
 						'available/unused. We are decreasing "parallel" to '
 						'match.', parallel, len(preferred))
@@ -152,8 +152,8 @@ class Backend:
 				'device is explicitly specified, it must be "cpu", "gpu" '
 				'or "gpuX" where "X" is an integer.'.format(device))
 
-		logger.info('Creating backend: %s', self.get_name())
-		logger.debug('Backend variants: %s',
+		logger.trace('Creating backend: %s', self.get_name())
+		logger.trace('Backend variants: %s',
 			'none' if not self.variant else ', '.join(
 				str(x) for x in sorted(self.variant)
 			)
@@ -268,7 +268,7 @@ class Backend:
 			raise ValueError(
 				'Unexpected backend specification: {}'.format(spec))
 
-		logger.debug('Using backend: %s', target.get_name())
+		logger.trace('Using backend: %s', target.get_name())
 		result = target(**params)
 		return result
 
