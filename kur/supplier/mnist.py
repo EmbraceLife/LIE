@@ -13,13 +13,24 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-
+import matplotlib.pyplot as plt
+import numpy as np
 import numpy
-
+import logging
 from ..utils import idx, package
 from . import Supplier
 from ..sources import VanillaSource
 
+logger = logging.getLogger(__name__)
+from ..utils import DisableLogging
+# with DisableLogging(): how to disable logging for a function
+# if logger.isEnabledFor(logging.WARNING): work for pprint(object.__dict__)
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule, getfullargspec, getargvalues
+# to write multiple lines inside pdb
+# !import code; code.interact(local=vars())
 ###############################################################################
 class MnistSupplier(Supplier):
 	""" A supplier which supplies MNIST image/label pairs. These are downloaded
@@ -53,6 +64,24 @@ class MnistSupplier(Supplier):
 			images: str or dict. Specifies where the MNIST images can be found.
 				Accepts the same values as `labels`.
 		"""
+
+		logger.critical("(self, images, labels, *args, **kwargs): \n\nInstantiate MnistSupplier object with spec.data[section]['data'] \n\n1. get args from super().__init__(*args, **kwargs); \n\n2. ensure data file exist locally and return the file path, (download them if not avaialbe locally); \n\n3. load the idx file into numpy arrays; \n\n4. make the VanillaSource object from numpy array; \n\n5. normalize & onehot (data processing) the data in the form of VanillaSource; \n\n6. save it as a dict element inside MnistSupplier.data dict \n\n")
+
+		if logger.isEnabledFor(logging.CRITICAL):
+			print("""
+super().__init__(*args, **kwargs)
+
+self.data = {
+	'images' : MnistSupplier._normalize(
+		VanillaSource(idx.load(MnistSupplier._get_filename(images)))
+	),
+	'labels' : MnistSupplier._onehot(
+		VanillaSource(idx.load(MnistSupplier._get_filename(labels)))
+	)
+}
+			""")
+
+
 		super().__init__(*args, **kwargs)
 
 		self.data = {
@@ -63,6 +92,41 @@ class MnistSupplier(Supplier):
 				VanillaSource(idx.load(MnistSupplier._get_filename(labels)))
 			)
 		}
+
+		# plot 9 images with labels
+		images_p = idx.load(MnistSupplier._get_filename(images))[0:9]
+		labels_p = idx.load(MnistSupplier._get_filename(labels))[0:9]
+		image_dim = images_p[0].shape
+
+		MnistSupplier.plot_images(images=images_p, image_dim = image_dim, cls_true=labels_p)
+
+
+	@staticmethod
+	def plot_images(images, image_dim, cls_true, cls_pred=None):
+
+		assert len(images) == len(cls_true) == 9
+
+		# Create figure with 3x3 sub-plots.
+		fig, axes = plt.subplots(3, 3)
+		fig.subplots_adjust(hspace=0.3, wspace=0.3)
+
+		for i, ax in enumerate(axes.flat):
+			# Plot image.
+			ax.imshow(images[i].reshape(image_dim), cmap='binary')
+
+
+			# Show true and predicted classes.
+			if cls_pred is None:
+				xlabel = "True: {0}".format(cls_true[i])
+			else:
+				xlabel = "True: {0}, Pred: {1}".format(cls_true[i], cls_pred[i])
+
+			ax.set_xlabel(xlabel)
+
+	        # Remove ticks from the plot.
+			ax.set_xticks([])
+			ax.set_yticks([])
+		plt.show()
 
 	###########################################################################
 	@staticmethod

@@ -21,6 +21,16 @@ from ..sources import StackSource
 
 logger = logging.getLogger(__name__)
 
+
+from ..utils import DisableLogging
+# with DisableLogging(): how to disable logging for a function
+# if logger.isEnabledFor(logging.WARNING): work for pprint(object.__dict__)
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule, getfullargspec, getargvalues
+# to write multiple lines inside pdb
+# !import code; code.interact(local=vars())
 ###############################################################################
 class Supplier:
 	""" Base class for all suppliers.
@@ -35,11 +45,18 @@ class Supplier:
 	def from_specification(spec, kurfile=None):
 		""" Creates a new Supplier from a specification.
 		"""
+		logger.critical("(spc, kurfile=None): start \n create data supplier object from kurfile dict \n1. make sure spec is a dict; \n2. get data supplier name from spec: supplier_name; \n3. get spec dict description for this data supplier: params; \n4. create the data supplier class by its name, and then instantiate the supplier object with kurfile object and params; \n5. return this data supplier \n\n")
 
 		if not isinstance(spec, dict):
 			raise ValueError('Each element of the "input" list must be a '
 				'dictionary.')
 
+		supplier_name_get = """
+candidates = set(
+	cls.get_name() for cls in Supplier.get_all_suppliers()
+) & set(spec.keys())
+		"""
+		logger.critical("\n\nFind the Supplier class name for the data specified in kurfile\n\n%s\n\n", supplier_name_get)
 		candidates = set(
 			cls.get_name() for cls in Supplier.get_all_suppliers()
 		) & set(spec.keys())
@@ -52,11 +69,34 @@ class Supplier:
 					for cls in Supplier.get_all_suppliers()
 				)
 			))
+
 		if len(candidates) > 1:
 			raise ValueError('Ambiguous supplier type in an element of the '
 				'"input" list. Exactly one of the following keys must be '
 				'present: {}'.format(', '.join(candidates)))
 
+		create_supplier_obj = """
+name = candidates.pop()
+params = spec[name]
+
+supplier_name = spec.get('name')
+
+# All other keys must be parsed out by this point.
+
+if isinstance(params, dict):
+	result = Supplier.get_supplier_by_name(name)(
+		name=supplier_name, kurfile=kurfile, **params)
+elif isinstance(params, str):
+	result = Supplier.get_supplier_by_name(name)(params,
+		name=supplier_name, kurfile=kurfile)
+elif isinstance(params, (list, tuple)):
+	result = Supplier.get_supplier_by_name(name)(*params,
+		name=supplier_name, kurfile=kurfile)
+
+#### Must dive into MnistSupplier(name=supplier_name, kurfile=kurfile, **params) ####
+		"""
+
+		logger.critical("\n\nGet detailed info on data provider in kurfile\n\nget the Supplier class with the same name in kurfile\n\nInstantiate the Supplier object with kurfile details on the data\n\n%s\n\nFinally, return the data supplier objects\n\n", create_supplier_obj)
 		name = candidates.pop()
 		params = spec[name]
 
@@ -78,6 +118,13 @@ class Supplier:
 				'list, tuple, or string for parameters. Instead, we received: '
 				'{}'.format(params))
 
+		logger.critical("\n\nFirst, see supplier class, specified params on data supplier; \n\nthen see inside data supplier object\n\n")
+		if logger.isEnabledFor(logging.CRITICAL):
+			print("Supplier class: {}\n".format(Supplier.get_supplier_by_name(name)))
+			pprint(params)
+			print("\n")
+			pprint(result.__dict__)
+			print("\n\n")
 		return result
 
 	###########################################################################

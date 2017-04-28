@@ -263,6 +263,9 @@ class Kurfile:
 			section defined, then this returns a Provider instance. Otherwise,
 			returns None.
 		"""
+		# logger.critical("(self, section, accept_many=False):  \n\nUsing detailed info from spec.data[section]['data'] to build data suppliers first, then build a data provider : \n\n1. get spec.data[section]; \n\n2. make sure spec.data[section] has a key as 'data' or 'provider'; \n\n3. store spec.data[section]['data'] in 'supplier_list'; \n\n4. consider when there are more than one data sources; \n\n5. create data Supplier object from spec.data[section]['data']; \n\n6. create data provider using data supplier and provider_detailed_info from spec.data[section]['provider']; \n\n7. finally return this provider \n\nInputs: \n\b1. section: %s \b\n2. accept_many: %s \n\n", section, accept_many)
+
+		logger.critical("\n\n1. get spec.data[section]; \n\n2. make sure spec.data[section] has a key as 'data' or 'provider'; \n\n")
 		if section in self.data:
 			section = self.data[section]
 			if not any(k in section for k in ('data', 'provider')):
@@ -270,15 +273,31 @@ class Kurfile:
 		else:
 			return None
 
+		logger.critical("\n\n3. store spec.data[section]['data'] in 'supplier_list';\n\n")
 		supplier_list = section.get('data') or {}
 		if isinstance(supplier_list, (list, tuple)):
 			supplier_list = {'default' : supplier_list}
 		elif not isinstance(supplier_list, dict):
 			raise ValueError('"data" section should be a list or dictionary.')
 
+		logger.critical("\n\n4. Only accept a single data entry here\n\n")
 		if not accept_many and len(supplier_list) > 1:
 			raise ValueError('We only accept a single "data" entry for this '
 				'section, but found {}.'.format(len(supplier_list)))
+
+
+		func_dict_2_suppliers = """
+suppliers = {}
+for k, v in supplier_list.items():
+	if not isinstance(v, (list, tuple)):
+		raise ValueError('Data suppliers must form a list of '
+			'suppliers.')
+	suppliers[k] = [
+		Supplier.from_specification(entry, kurfile=self)
+		for entry in v
+	]
+		"""
+		logger.critical("\n\n5. create data Supplier object from spec.data[section]['data'];A single data entry can have many data sources embedded\n\n%s\n\nDive deep into Suppiler instantiation\n\n", func_dict_2_suppliers)
 
 		suppliers = {}
 		for k, v in supplier_list.items():
@@ -290,6 +309,23 @@ class Kurfile:
 				for entry in v
 			]
 
+		func_supplier_2_provider = """
+provider_spec = dict(section.get('provider') or {})
+if 'name' in provider_spec:
+	provider = Provider.get_provider_by_name(provider_spec.pop('name'))
+else:
+	provider = Kurfile.DEFAULT_PROVIDER
+
+return {
+	k : provider(
+		sources=Supplier.merge_suppliers(v),
+		**provider_spec
+	)
+	for k, v in suppliers.items()
+}
+		"""
+
+		logger.critical("\n\n6. create data provider using data supplier and provider_detailed_info from spec.data[section]['provider'];\n\n%s\n\nFinally, Return the data provider\n\n", func_supplier_2_provider)
 		provider_spec = dict(section.get('provider') or {})
 		if 'name' in provider_spec:
 			provider = Provider.get_provider_by_name(provider_spec.pop('name'))
@@ -854,7 +890,7 @@ with ScopeStack(engine, stack):
 		entry = engine.evaluate(entry)
 		containers.append(
 			Container.create_container_from_data(entry)
-			
+
 			################
 			# the code above is to find a container for each layer in dict
 			################

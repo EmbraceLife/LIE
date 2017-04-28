@@ -188,8 +188,12 @@ return Executor(
 def prepare_data(args):
 	""" Prepares a model's data provider.
 	"""
+
+	logger.critical("\n\nCreate a Kurfile object and parse it with detailed information \n\n")
+
 	spec = parse_kurfile(args.kurfile, args.engine)
 
+	logger.critical("\n\nSelect a section to take its data provider\n\n")
 	if args.target == 'auto':
 		result = None
 		for section in ('train', 'validate', 'test', 'evaluate'):
@@ -200,12 +204,16 @@ def prepare_data(args):
 			raise ValueError('No data sections were found in the Kurfile.')
 		args.target = result
 
-	logger.info('Preparing data sources for: %s', args.target)
+	logger.critical('The section for data provider is: %s', args.target)
 
+	logger.critical("\n\nDive into how data is flowing from external fines into a data provider\n\ndata provider is ready to iterate out batches one by one\n\n")
 	providers = spec.get_provider(
 		args.target,
 		accept_many=args.target == 'test'
 	)
+
+	logger.critical("\n\nIf assemble is required, then \n\nspec.get_model(default_provider); \n\ntarget = spec.get_trainer(with_optimizer=True); \n\ntarget.compile(assemble_only=True)\n\n")
+
 
 	if args.assemble:
 
@@ -225,6 +233,7 @@ def prepare_data(args):
 
 		target.compile(assemble_only=True)
 
+	logger.critical("\n\nGet a batch out of the data provider, print it out\n\nOr just print out first or last few samples\n\n")
 	for k, provider in providers.items():
 		if len(providers) > 1:
 			print('Provider:', k)
@@ -236,6 +245,11 @@ def prepare_data(args):
 			logger.error('No batches were produced.')
 			continue
 
+		for k, v in batch.items():
+			print("See a batch's keys and shapes: \n")
+			print("key:", k)
+			print("shape:", v.shape)
+
 		num_entries = None
 		keys = sorted(batch.keys())
 		num_entries = len(batch[keys[0]])
@@ -246,10 +260,46 @@ def prepare_data(args):
 				for key in keys:
 					print('  {}: {}'.format(key, batch[key][entry]))
 
+		# plotting a few images
+		# images_p = batch['images'][0:9]
+		# import numpy as np
+		# labels_p = [np.argmax(label) for label in batch['labels'][0:9]]
+		# image_dim = images_p.shape[1:]
+		#
+		# plot_images(images=images_p, cls_true=labels_p, image_dim=image_dim)
+
 		if num_entries is None:
 			logger.error('No data sources was produced.')
 			continue
 
+#go with prepare_data()
+# import matplotlib.pyplot as plt
+# import numpy as np
+# def plot_images(images, cls_true, image_dim, cls_pred=None):
+#
+# 	assert len(images) == len(cls_true) == 9
+#
+# 	# Create figure with 3x3 sub-plots.
+# 	fig, axes = plt.subplots(3, 3)
+# 	fig.subplots_adjust(hspace=0.3, wspace=0.3)
+#
+# 	for i, ax in enumerate(axes.flat):
+# 		# Plot image.
+# 		ax.imshow(images[i].reshape(image_dim), cmap='binary')
+#
+#
+# 		# Show true and predicted classes.
+# 		if cls_pred is None:
+# 			xlabel = "True: {0}".format(cls_true[i])
+# 		else:
+# 			xlabel = "True: {0}, Pred: {1}".format(cls_true[i], cls_pred[i])
+#
+# 		ax.set_xlabel(xlabel)
+#
+#         # Remove ticks from the plot.
+# 		ax.set_xticks([])
+# 		ax.set_yticks([])
+# 	plt.show()
 ###############################################################################
 def version(args):							# pylint: disable=unused-argument
 	""" Prints the Kur version and exits.
