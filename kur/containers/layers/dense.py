@@ -13,7 +13,17 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-
+import logging
+logger = logging.getLogger(__name__)
+from ...utils import DisableLogging
+# with DisableLogging(): how to disable logging for a function
+# if logger.isEnabledFor(logging.WARNING): work for pprint(object.__dict__)
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule, getfullargspec, getargvalues
+# to write multiple lines inside pdb
+# !import code; code.interact(local=vars())
 from . import Layer, ParsingError
 
 ###############################################################################
@@ -27,6 +37,8 @@ class Dense(Layer):						# pylint: disable=too-few-public-methods
 	def __init__(self, *args, **kwargs):
 		""" Creates a new dense layer.
 		"""
+		# initialize a Layer object for (any layer, dense or other layers)
+		# only difference is the args are different from layer to layer
 		super().__init__(*args, **kwargs)
 		self.size = None
 		self.auto_flatten = None
@@ -35,6 +47,8 @@ class Dense(Layer):						# pylint: disable=too-few-public-methods
 	def _parse(self, engine):
 		""" Parse the layer.
 		"""
+		# parse values to layer's arguments
+
 		if isinstance(self.args, dict):
 			self.size = engine.evaluate(self.args['size'], recursive=True)
 			self.auto_flatten = engine.evaluate(
@@ -66,22 +80,30 @@ class Dense(Layer):						# pylint: disable=too-few-public-methods
 	def _build(self, model):
 		""" Create the backend-specific placeholder.
 		"""
+		# get the backend lib object, not specify theano or tensorflow
 		backend = model.get_backend()
+
+		# working with keras lib
 		if backend.get_name() == 'keras':
 
 			import keras.layers as L			# pylint: disable=import-error
 
 			if self.auto_flatten:
+				#
 				yield L.Flatten()
 
+			# control on the version of keras for the layer func
 			if backend.keras_version() == 1:
 				func = lambda x, **kwargs: L.Dense(output_dim=x, **kwargs)
 			else:
 				func = lambda x, **kwargs: L.Dense(units=x, **kwargs)
 
+			# control on how many of dense layers to be create
+			# and how many units or nodes for each layer
 			for v in self.size[:-1]:
 				yield func(v, trainable=not self.frozen)
 
+			# create the last dense layer if more than 1 dense layer is required to create
 			yield func(
 				self.size[-1],
 				name=self.name,

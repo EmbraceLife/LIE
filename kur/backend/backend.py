@@ -19,6 +19,15 @@ import logging
 from ..utils import get_subclasses, CudaContext, CudaError
 
 logger = logging.getLogger(__name__)
+from ..utils import DisableLogging
+# with DisableLogging(): how to disable logging for a function
+# if logger.isEnabledFor(logging.WARNING): work for pprint(object.__dict__)
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule, getfullargspec, getargvalues
+# to write multiple lines inside pdb
+# !import code; code.interact(local=vars())
 
 ###############################################################################
 class Backend:
@@ -289,6 +298,7 @@ class Backend:
 			otherwise, a ValueError is raised.
 		"""
 		name = name.lower()
+
 		for cls in Backend.get_all_backends(supported_only=False):
 			if cls.get_name() == name:
 				return cls
