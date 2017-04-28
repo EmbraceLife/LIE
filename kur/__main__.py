@@ -29,7 +29,9 @@ from . import Kurfile
 from .engine import JinjaEngine
 
 logger = logging.getLogger(__name__)
-
+from .utils import DisableLogging
+# with DisableLogging(): how to disable logging for a function
+# if logger.isEnabledFor(logging.WARNING): work for pprint(object.__dict__)
 # prepare examine tools
 from pdb import set_trace
 from pprint import pprint
@@ -97,14 +99,17 @@ def build(args):
 	logger.critical("\n\nspec = parse_kurfile(args.kurfile, args.engine)\n\n")
 	spec = parse_kurfile(args.kurfile, args.engine)
 
-	logger.critical("\n\nget data provider from a section(mostly train)\n\n")
-	print("""
+	func_provider = """
 	providers = spec.get_provider(
 		args.compile,
+		# args.compile = "auto", "train", "test", "evalute", "none"
 		accept_many=args.compile == 'test'
 	)
 	provider = Kurfile.find_default_provider(providers)
-	""")
+	"""
+
+	logger.critical("\n\nget data provider from a section(mostly train, or any specified section)\n\n%s\n\n", func_provider)
+
 	if args.compile == 'auto':
 		result = []
 		for section in ('train', 'test', 'evaluate'):
@@ -133,12 +138,11 @@ def build(args):
 		)
 		provider = Kurfile.find_default_provider(providers)
 
-	logger.critical("\n\nspec.get_model(provider)\n\nDive into Kurfile.get_model() if needed\n\n")
+	logger.critical("\n\nCreate, parse, build kur.Model object using \n\nspec.get_model(provider) \n\n")
 
 	spec.get_model(provider)
 
-	logger.critical("\n\nIf spec.model is avaliable, then just return spec.model;\n\nStep1: If spec.model is not available, then create it, using\nself.model = Model(backend=self.get_backend(),containers=self.containers)\n\nStep2: Then we parse spec.model with\nself.model.parse(self.engine)\n\nStep3: Then assign a provider to this model using\nself.model.register_provider(provider)\n\nStep4: Then, we build this model, with\nself.model.build()\n\nFinally return spec.model\n\nWe will dive into each step below\n\n")
-	pprint(spec.model.__dict__)
+
 
 
 	if args.compile == 'none':
@@ -152,10 +156,15 @@ return Executor(
 	optimizer=self.get_optimizer() if with_optimizer else None
 		)
 		"""
-		logger.critical("\n\nMain purpose of Executor object is to put loss, optimizer, model together in one place for this model, using\n\ntarget = spec.get_trainer(with_optimizer=True)\n\n\n\nCreate an Executor with model, loss and optimizer of this spec, using\n\n%s\n\nLet's see inside the Executor object for %s\n\n", func_str, args.compile)
+
 		target = spec.get_trainer(with_optimizer=True)
+
+		logger.critical("\n\nMain purpose of Executor object is to put loss, optimizer, model together in one place for this model, using\n\ntarget = spec.get_trainer(with_optimizer=True)\n\nCreate an Executor with model, loss and optimizer of this spec, using\n\n%s\n\n", func_str)
+
+		logger.warning("\n\nLet's see inside the Executor object for %s\n\n", args.compile)
 		pprint(target.__dict__)
 		print("\n\n")
+
 	elif args.compile == 'test':
 		logger.critical("\n\nMain purpose of Executor object is to put loss, optimizer, model together in one place for this model, using\n\ntarget = spec.get_trainer(with_optimizer=False)\n\nCreate an Executor with model, loss and optimizer of this spec, using\n\n%s\n\nLet's see inside the Executor object for %s\n\n", func_str, args.compile)
 		target = spec.get_trainer(with_optimizer=False)
@@ -171,7 +180,7 @@ return Executor(
 			args.compile)
 		return 1
 
-	logger.critical("\n\ntarget.compile()\n\nEOF\n\n")
+	logger.critical("\n\nUse target.compile() to compile model object\n\nTo create spec.model.compiled[key] and spec.model.compiled['raw']\n\nThen save initial weights from compiled['raw'] into external idx files, \ntest func from compiled[key] onto compiled['raw'], \nrestore initial weights back to variables in model\n\nEOF\n\n")
 
 	target.compile()
 

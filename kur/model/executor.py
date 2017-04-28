@@ -28,7 +28,9 @@ from ..loggers import PersistentLogger
 from .hooks import TrainingHook
 
 logger = logging.getLogger(__name__)
-
+from ..utils import DisableLogging
+# with DisableLogging(): how to disable logging for a function
+# if logger.isEnabledFor(logging.WARNING): work for pprint(object.__dict__)
 # prepare examine tools
 from pdb import set_trace
 from pprint import pprint

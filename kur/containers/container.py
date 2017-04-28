@@ -340,6 +340,7 @@ class Container:
 	def _parse_core(self, engine):
 		""" Parse the core components of the container.
 		"""
+
 		if 'tag' in self.data:
 			self.tags = engine.evaluate(self.data['tag'], recursive=True)
 			if not isinstance(self.tags, (list, tuple)):

@@ -35,8 +35,11 @@ from .supplier import Supplier
 from .utils import mergetools, get_any_value, get_any_key
 from .loggers import Logger
 
-logger = logging.getLogger(__name__)
 
+logger = logging.getLogger(__name__)
+from .utils import DisableLogging
+# with DisableLogging(): how to disable logging for a function
+# if logger.isEnabledFor(logging.WARNING): work for pprint(object.__dict__)
 # prepare examine tools
 from pdb import set_trace
 from pprint import pprint
@@ -89,6 +92,7 @@ class Kurfile:
 	def parse(self):
 		""" Parses the Kurfile.
 		"""
+		logger.warning("(self): \n\nafter initialize Kurfile object, run spec.parse(): \n\n1. evaluate all section dicts in spec.data with scopes, and reassign them back to spec.data, using `self._parse_section(self.engine, builtin['settings'], stack, include_key=False, auto_scope=True)`; \n\n2. section name aliases (like training, testing) are accepted (but I disallowed in my own version); \n\n3. Extract spec.data['templates'] to spec.templates, using `self.templates = self._parse_templates(self.engine, builtin['templates'], stack)`; \n\n4. Convert dict spec.data['model'] into Container objects (each layer is a container), create spec.containers = [all the containers], using `self.containers = self._parse_model(self.engine, builtin['model'], stack, required=True)` ; \n\nTherefore, spec.data, spec.templates, spec.containers are renewed or filled. \n\n ")
 
 		logger.trace('Parsing Kurfile...')
 
@@ -139,6 +143,16 @@ class Kurfile:
 		# Parse the model.
 		self.containers = self._parse_model(
 			self.engine, builtin['model'], stack, required=True)
+		logger.warning("\n\nCreate spec.containers == convert model in dict to model in kur_layer objects: \n\nSee inside spec.containers\n\n")
+		if logger.isEnabledFor(logging.WARNING):
+			pprint(self.containers)
+			print("\n")
+			pprint(self.containers[0].__class__)
+			print("\n")
+			pprint(self.containers[3].__class__)
+			print("\n")
+			pprint(self.containers[3].__dict__)
+			print("\n\n")
 
 		# Parse the loss function.
 		self._parse_section(
@@ -153,11 +167,18 @@ class Kurfile:
 				warnings.warn('Unexpected section in Kurfile: "{}". '
 					'This section will be ignored.'.format(key), SyntaxWarning)
 
+		if logger.isEnabledFor(logging.WARNING):
+			logger.warning("\n\nAt the end of parse(), look inside spec.__dict__\n\n")
+			pprint(self.__dict__)
+			print("\n\n")
 	###########################################################################
 	def get_model(self, provider=None):
 		""" Returns the parsed Model instance.
 		"""
-		
+
+		logger.warning("\n\nIf spec.model is avaliable, then just return spec.model;\n\nStep1: If spec.model is not available, then create it, using\nself.model = Model(backend=self.get_backend(),containers=self.containers)\n\nStep2: Then we parse spec.model with\nself.model.parse(self.engine)\n\nStep3: Then assign a provider to this model using\nself.model.register_provider(provider)\n\nStep4: Then, we build this model, with\nself.model.build()\n\nFinally return a model with inputs, outputs, network filled, but compiled None\n\n")
+
+
 		if self.model is None:
 			if self.containers is None:
 				raise ValueError('No such model available.')
@@ -169,6 +190,10 @@ class Kurfile:
 			self.model.register_provider(provider)
 			self.model.build()
 
+		if logger.isEnabledFor(logging.WARNING):
+			logger.warning("\n\nLet's see inside spec.model.__dict__\n\n")
+			pprint(self.model.__dict__)
+			print("\n\n")
 		return self.model
 
 	###########################################################################
@@ -403,7 +428,8 @@ class Kurfile:
 			raise ValueError('Unknown weight specification for training: {}'
 				.format(train_weights))
 
-		logger.critical("\n\nExtract checkpoint = self.data['train'].get('checkpoint') \n\n")
+		logger.critical("\n\nExtract checkpoint = self.data['train'].get('checkpoint') \n\nCheckpoint is a way to set conditions for save weights \n\n")
+
 		checkpoint = self.data['train'].get('checkpoint')
 
 		logger.critical("\n\nNot sure the use of deprecated_checkpoint\n\n")
@@ -596,11 +622,13 @@ class Kurfile:
 
 			Trainer instance.
 		"""
+		# with DisableLogging():
+		# 	model_1 = self.get_model()
 		return Executor(
-			model=self.get_model(),
-			loss=self.get_loss(),
-			optimizer=self.get_optimizer() if with_optimizer else None
-		)
+					model = self.get_model(),
+					loss=self.get_loss(),
+					optimizer=self.get_optimizer() if with_optimizer else None
+				)
 
 	###########################################################################
 	def get_optimizer(self):
@@ -817,7 +845,29 @@ class Kurfile:
 				)
 			for container in containers:
 				container.parse(engine)
+		func_kur_layers = """
+with ScopeStack(engine, stack):
+	queue = deque(self.data[key])
+	containers = []
+	while queue:
+		entry = queue.popleft()
+		entry = engine.evaluate(entry)
+		containers.append(
+			Container.create_container_from_data(entry)
+			
+			################
+			# the code above is to find a container for each layer in dict
+			################
+		)
+	for container in containers:
+		container.parse(engine)
 
+		################
+		# code above is to extract tags|name|input|sink|oldest ... from spec.data and assign them back into each Container object
+		################
+
+		"""
+		logger.warning("\n\nHow model in dict is converted into mode in kur layers\n\n%s\n\n", func_kur_layers)
 		return containers
 
 	###########################################################################

@@ -292,22 +292,21 @@ class Model:
 	def build(self):
 		""" Builds the model.
 		"""
-		logger.debug("\n\nDive in step4: Build the model\n\n")
+		logger.warning("\n\nDive in step4: Build the model\n\n")
 		if not self._parsed:
 			logger.warning('The model has not been parsed yet. We will try to '
 				'parse it without context, but this may easily fail. Make '
 				'sure Model.parse() is called before Model.build().')
 			self.parse(None)
 
-		logger.debug('Enumerating the model containers.\n\n')
 
 		# Construct the high-level network nodes.
 		nodes = self.enumerate_nodes(self.root)
-		logger.debug("\n\nTake all containers from spec.model.root, recursively make all containers into CollapsedContainers with three keys: inputs, container, names \n\nnodes = self.enumerate_nodes(self.root) \n\nthis list is called nodes\n")
+		logger.warning("\n\nCreate nodes\n\nTake all containers from spec.model.root, recursively make all containers into CollapsedContainers with three keys: inputs, container, names \n\nnodes = self.enumerate_nodes(self.root) \n\nthis list is called nodes\n")
 		# pprint(nodes)
 		# print("\n\n")
 
-		logger.debug("\n\nAssembling the dependency graph of containers in the model using the nodes above: is to build 3 nested namespaces, input_nodes, output_nodes, network \n\ninput_nodes, output_nodes, network = self.assemble_graph(nodes) \n\n")
+		logger.warning("\n\nAssembling the dependency graph\n\nBuild input_nodes, output_nodes, network \n\ninput_nodes, output_nodes, network = self.assemble_graph(nodes) \n\ninput_nodes: a nested namespace (container, inputs, outputs, names, value): \nvalue is always None, \ninputs=[namespace(...)] \n\noutput_nodes: a nested namespace (container, inputs, outputs, names, value): \nvalue is always None, \noutputs=[namespace(...)] \n\nnetwork: contains a named tuple for each layer, each namedtuple is a nested namespace (container, inputs, outputs, names, value): \n\nvalue is always None, \n\neither inputs | outputs=[namespace(...)] depend on the layer\n\n")
 
 		input_nodes, output_nodes, network = self.assemble_graph(nodes)
 		# print("input_nodes: a nested namespace (container, inputs, outputs, names, value): \nvalue is always None, \ninputs=[namespace(...)] \n\n")
@@ -331,7 +330,7 @@ class Model:
 				logger.trace('  Aliases: %s', ', '.join(node.names))
 				queue.extend(node.outputs)
 
-		logger.debug("\n\nBuilds and connects the model through underlying tensor operations using \n'inputs, input_aliases, outputs, output_aliases = self.build_graph(input_nodes, output_nodes, network)' \n\n")
+		logger.warning("\n\nBuilds and connects the model through underlying tensor operations using \n\n'inputs, input_aliases, outputs, output_aliases = self.build_graph(input_nodes, output_nodes, network)' \n\ninputs is the same to input_nodes, except having value filled with tensor operations\n\noutputs is the same to input_nodes, except having value filled with tensor operations\n\nNetwork is renewed with value (tensor operations) too\n\n")
 
 		inputs, input_aliases, outputs, output_aliases = \
 			self.build_graph(input_nodes, output_nodes, network)
@@ -472,7 +471,7 @@ class Model:
 	def assemble_graph(self, nodes):
 		""" Creates the dependency graph of containers in the model.
 		"""
-
+		# set_trace()
 		name_map = {name : node.container
 			for node in nodes for name in node.names}
 

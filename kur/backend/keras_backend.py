@@ -313,6 +313,7 @@ class KerasBackend(Backend):
 		import keras.models as M				# pylint: disable=import-error
 		if KerasBackend.keras_version() == 1:
 			return M.Model(input=inputs, output=outputs)
+
 		return M.Model(inputs=inputs, outputs=outputs)
 
 	###########################################################################
@@ -345,6 +346,20 @@ class KerasBackend(Backend):
 		else:
 			os.makedirs(path, exist_ok=True)
 
+
+		initial_weights_extracted = """
+layers = keras_model.flattened_layers if hasattr(keras_model, 'flattened_layers') else keras_model.layers
+for layer in layers:
+	layer_name = layer.name
+
+	symbolic_weights = layer.weights
+	weight_names, weight_values = self._get_weight_names_and_values_from_symbolic(
+			symbolic_weights
+		)
+
+		"""
+
+		logger.warning("\n\nInitial weights of model is stored inside keras_model or spec.model.compiled['raw']\n\n%s\n\n", initial_weights_extracted)
 		layers = keras_model.flattened_layers \
 			if hasattr(keras_model, 'flattened_layers') else keras_model.layers
 		for layer in layers:
@@ -613,7 +628,7 @@ compiled = self.make_model(
 )
 		"""
 		if 'raw' not in model.compiled:
-			logger.warning("\n\nInstantiating a Keras model.\n\nUsing model.inputs and model.outpus to create a Keras model and save it in model.compiled['raw'].\n\nThis is one big step toward a model with a specific backend, trainable and runnable, Using\n\n%s\n\nDive into this function above later \n\nLet's see model.compiled['raw'].__dict__: \n\n",func_raw)
+			logger.warning("\n\nInstantiating a Keras model == Translate the model in kur.layers to keras.layers\n\nUsing model.inputs and model.outpus to create a Keras model and save it in model.compiled['raw'].\n\nCreate a model using backend-lib like keras Using\n\n%s\n\nDive into this function above later for keras code???? \n\nLet's see model.compiled['raw'].__dict__: \n\n",func_raw)
 
 
 			compiled = self.make_model(
@@ -639,41 +654,37 @@ compiled = self.make_model(
 			logger.warning('Reusing an existing model.')
 			compiled = model.compiled['raw']
 
-		pprint(model.compiled['raw'].__dict__)
-		print("\n\n")
+		if logger.isEnabledFor(logging.WARNING):
+			logger.warning("\n\nLet's see inside spec.model.compiled['raw'].__dict__\n\n")
+			pprint(model.compiled['raw'].__dict__)
+			print("\n\n")
 
-		logger.warning("\n\nSee the summary of this compiled/keras model, using\n\npprint(model.compiled['raw'].summary())\n\n")
-		pprint(model.compiled['raw'].summary())
-		print("\n\n")
+			logger.warning("\n\nSee the summary of this compiled/keras model, using\n\npprint(model.compiled['raw'].summary())\n\n")
+			pprint(model.compiled['raw'].summary())
+			print("\n\n")
 
 
 		func_k = """
 loss_inputs = loss_outputs = {}
 if not assemble_only:
 	func = K.function(
-		compiled.inputs + \
-			[K.learning_phase()],
+		compiled.inputs + [K.learning_phase()],
 		compiled.outputs
 	)
 key = 'evaluate'
 
 ##########################
-loss_inputs, loss_outputs, _ = \
-	self.process_loss(model, loss)
+loss_inputs, loss_outputs, _ = self.process_loss(model, loss)
 
 if not assemble_only:
 	func = K.function(
-		compiled.inputs + \
-			list(loss_inputs.values()) + \
-			[K.learning_phase()],
-		compiled.outputs + \
-			list(loss_outputs.values())
+		compiled.inputs + list(loss_inputs.values()) + [K.learning_phase()],
+		compiled.outputs + list(loss_outputs.values())
 	)
 key = 'test'
 
 ###########################
-loss_inputs, loss_outputs, total_loss = \
-	self.process_loss(model, loss)
+loss_inputs, loss_outputs, total_loss = self.process_loss(model, loss)
 
 updates = optimizer.get_optimizer(self)(
 	compiled.trainable_weights, total_loss
@@ -681,17 +692,14 @@ updates = optimizer.get_optimizer(self)(
 
 if not assemble_only:
 	func = K.function(
-		compiled.inputs + \
-			list(loss_inputs.values()) + \
-			[K.learning_phase()],
-		compiled.outputs + \
-			list(loss_outputs.values()),
+		compiled.inputs + list(loss_inputs.values()) + [K.learning_phase()],
+		compiled.outputs + list(loss_outputs.values()),
 		updates=updates
 	)
 key = 'train'
 		"""
 
-		logger.warning("\n\nBuild a backend-specific function to help either train, evaluate, or test .\n\nIf loss and optimizer are not available, we build a func to evalute model; \n\nIf only optimizer is not available, we build a func to test model;\n\nIf both loss and optimizer are available, we build a func to help train model\n\nThis is how they differ in codes: \n\n%s\n\nDive into these func_k later\n\n", func_k)
+		logger.warning("\n\nBuild a backend-specific(keras or PyTorch) function to help either train, evaluate, or test the keras model or the spec.model.compiled['raw'] model.\n\nIf loss and optimizer are not available, we build a func to evalute model; \n\nIf only optimizer is not available, we build a func to test model;\n\nIf both loss and optimizer are available, we build a func to help train model\n\nThis is how they differ in codes: \n\n%s\n\nDive into these func_k later\n\n", func_k)
 
 		import keras.backend as K				# pylint: disable=import-error
 		if loss is None and optimizer is None:
@@ -773,9 +781,9 @@ result = {
 
 model.compiled[key] = result
 		"""
-		logger.warning("\n\nCreate model.compiled['train'] to store \ninput_names, \noutput_names, \ninput_shapes, \noptimizer (Executor_trainer.optimizer), \nbackend-specific-func\n\nHere are how they made: \n\n%s\n\nLet's see inside model.compiled['train']\n\n", compiled_key)
+		logger.warning("\n\nCreate model.compiled['train'] == create a dict to store inputs for the backend-specific-func to preform\n\n \ninput_names, \noutput_names, \ninput_shapes, \noptimizer (Executor_trainer.optimizer), \nbackend-specific-func\n\nHere are how they made: \n\n%s\n\nLet's see inside model.compiled['train']\n\n", compiled_key)
 		# get input_names and output names
-		logger.warning('Additional inputs for log functions: %s',
+		logger.warning('Additional inputs for loss functions: %s',
 			', '.join(loss_inputs.keys()))
 
 		input_names = compiled.input_names + \
@@ -791,7 +799,7 @@ model.compiled[key] = result
 			for layer in loss_inputs.values()
 		]
 
-		logger.warning("\n\nExpected input names and shapes: %s\n\nThe output_names: %s",
+		logger.warning("\n\nExpected input names and shapes: %s\n\nThe output_names: %s\n\n",
 			', '.join('{}={}'.format(k, v) for k, v in \
 				zip(input_names, input_shapes)
 			), output_names)
@@ -817,7 +825,8 @@ model.compiled[key] = result
 		if not assemble_only:
 			model.compiled[key] = result
 			if blocking:
-				logger.warning("\n\nWe save, test and restore the specific-backend model, using\n\nself.wait_for_compile(model, key)\n\nDive into keras_backend.wait_for_compile()\n\n")
+				logger.warning("\n\nNow we have a backend-specific mode, a backend-specific function to train, evaluate, test the model; \n\nWe need to make sure whether both the model and function work or not\n\nFirst, Save the initial weights of the model into external idx files;\n\nSecond, test the func on the model to calc predictions and loss; \n\nRestore weights from idx files to weights variables, using\n\nself.wait_for_compile(model, key)\n\nDive into keras_backend.wait_for_compile()\n\n")
+
 				self.wait_for_compile(model, key)
 
 		return result
@@ -826,12 +835,25 @@ model.compiled[key] = result
 	def wait_for_compile(self, model, key):
 		""" Waits for the model to finish compiling.
 		"""
-		logger.critical("\n\nwait_for_compile(self, model, key): dive for details now????? \n\nCompile a model == save initial weights into files, test with 2 samples and restore weights from files into model object \n\n1. get provider ready \n\n2. get temporal dir ready; \n\n3. save weights arrays of layers into temporal files; \n\n4. test weights and model by using 2 sample data and weights to make predictions and calc loss; \n\n5. finall restore the weights to the model using self._restore_keras(model.compiled['raw'], weight_path) \n\n")
+		logger.critical("\n\nwait_for_compile(self, model, key): dive for details now????? \n\nCompile a model == save initial weights into files, test with 2 samples and restore weights from files into model object \n\n1. get provider with a single batch of size 2 ready \n\n2. get temporal dir ready; \n\n3. save weights arrays of layers into temporal files; \n\n4. test weights and model by using 2 sample data and weights to make predictions and calc loss; \n\n5. finall restore the weights to the model using self._restore_keras(model.compiled['raw'], weight_path) \n\n")
 
 		if model.provider is None:
 			logger.warning('No data provider available, so we cannot reliably '
 				'wait for compiling to finish.')
 			return
+
+		provider_compile = """
+with DisableLogging():
+	provider = BatchProvider(
+		sources=dict(zip(model.provider.keys, model.provider.sources)),
+		batch_size=2*max(1, self.parallel),
+		num_batches=1,
+		randomize=False
+	)
+model.supplement_provider(provider)
+		"""
+
+		logger.critical("\n\nGet a tailed single batch size 2 provider, and add data sources into this provider\n\n%s\n\n",provider_compile)
 
 		with DisableLogging():
 			provider = BatchProvider(
@@ -840,22 +862,24 @@ model.compiled[key] = result
 				num_batches=1,
 				randomize=False
 			)
-			logger.critical("\n\nCreate a provider with just 1 batch, with batch_size of 2\n\n")
 
+		# add data sources into this provider
 		model.supplement_provider(provider)
 
 		weight_path = None
 		tempdir = tempfile.mkdtemp()
 		try:
+			logger.warning("\n\nCreate temporal dir/files and save initial weights inside the dir/files, \n\nso that later single batch model testing won't affect the weights\n\n")
 			weight_path = os.path.join(tempdir, 'weights')
 			self._save_keras(model.compiled['raw'], weight_path)
 
-			logger.warning('Waiting for model to finish compiling...')
+			logger.warning('\n\nUse tailed single batch to test the model...\n\n')
 			for batch in provider:
 				self.run_batch(model, batch, key, False)
-			logger.warning('Model is ready for use.')
+			logger.warning('\n\nModel is ok through test.\n\n')
 
 		finally:
+			logger.warning("\n\nRestore the saved weights back to backend-specific variables for training later\n\nThe single batch test won't affect the weights\n\n")
 			if weight_path and os.path.isdir(weight_path):
 				try:
 					self._restore_keras(model.compiled['raw'], weight_path)
@@ -864,7 +888,7 @@ model.compiled[key] = result
 						'compiling, but failed to restore the model weights. '
 						'The weights may be in a bad state.')
 					raise
-
+			# delete the temporal files or dir recursively
 			shutil.rmtree(tempdir, ignore_errors=True)
 
 	###########################################################################
@@ -907,7 +931,7 @@ model.compiled[key] = result
 			)
 		] + [is_train]
 
-
+		logger.critical("\n\nspec.model.compiled[train or key]['func'] is used to calc predictions and metrics\n\nAfter training each batch, the weights will be backproped or updated, but it is handled not in kur but in backend_specific_function\n\noutputs = compiled['func'](inputs)\n\nThe inputs this func use:\n\n \nspec.model.compiled['train'|key]['shapes']['input'],\nspec.model.compiled['train'|key]\nbatch being coerce_shaped\n\n")
 		outputs = compiled['func'](inputs)
 		num_outputs = len(raw.outputs)
 		metrics = {
@@ -918,7 +942,7 @@ model.compiled[key] = result
 		}
 		predictions = {name : data for name, data in zip(model.outputs, outputs[:num_outputs])}
 		for k, v in predictions.items():
-			print("\n\nprediction:", k, "shape:", v.shape, "\n\n")
+			print("prediction:", k, "shape:", v.shape, "\n")
 		print("metrics or loss: {}\n\n".format(metrics))
 
 
