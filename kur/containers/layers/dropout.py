@@ -14,11 +14,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import logging
+
 
 from . import Layer, ParsingError
 
+import logging
+import matplotlib.pyplot as plt
+import numpy as np
 logger = logging.getLogger(__name__)
+from ...utils import DisableLogging
+# with DisableLogging(): how to disable logging for a function
+# if logger.isEnabledFor(logging.WARNING): work for pprint(object.__dict__)
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule, getfullargspec, getargvalues
+# to write multiple lines inside pdb
+# !import code; code.interact(local=vars())
 
 ###############################################################################
 class Dropout(Layer):	# pylint: disable=too-few-public-methods
@@ -80,6 +92,7 @@ class Dropout(Layer):	# pylint: disable=too-few-public-methods
 					'dropout. Pretending that "independent" is True.')
 
 			import keras.layers as L			# pylint: disable=import-error
+
 			yield L.Dropout(
 				self.dropout,
 				name=self.name

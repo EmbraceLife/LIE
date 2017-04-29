@@ -16,6 +16,20 @@ limitations under the License.
 
 from . import Layer, ParsingError
 
+import logging
+import matplotlib.pyplot as plt
+import numpy as np
+logger = logging.getLogger(__name__)
+from ...utils import DisableLogging
+# with DisableLogging(): how to disable logging for a function
+# if logger.isEnabledFor(logging.WARNING): work for pprint(object.__dict__)
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule, getfullargspec, getargvalues
+# to write multiple lines inside pdb
+# !import code; code.interact(local=vars())
+
 ###############################################################################
 class Convolution(Layer):				# pylint: disable=too-few-public-methods
 	""" A vanilla convolution layer.
@@ -124,9 +138,13 @@ class Convolution(Layer):				# pylint: disable=too-few-public-methods
 	def _build(self, model):
 		""" Instantiates the layer with the given backend.
 		"""
+		# get kur's backend for this model
 		backend = model.get_backend()
+
+		# If the backend is set to use keras
 		if backend.get_name() == 'keras':
 
+			# if we are using keras v1
 			if backend.keras_version() == 1:
 				import keras.layers as L			# pylint: disable=import-error
 
@@ -165,10 +183,12 @@ class Convolution(Layer):				# pylint: disable=too-few-public-methods
 
 				yield func(**kwargs)
 
+			# if we are using keras v2:
 			else:
-
+				# import keras.layers.convolutional as L
 				import keras.layers.convolutional as L # pylint: disable=import-error
 
+				# store a lot of input args into dict kwargs
 				kwargs = {
 					'filters' : self.kernels,
 					'activation' : self.activation or 'linear',
@@ -176,9 +196,11 @@ class Convolution(Layer):				# pylint: disable=too-few-public-methods
 					'name' : self.name,
 					'kernel_size' : self.size,
 					'strides' : self.strides,
+					# 'trainable' belong to **kwargs of Input()
 					'trainable' : not self.frozen
 				}
 
+				# select different types of keras_convol layers based on self.size values
 				if len(self.size) == 1:
 					func = L.Conv1D
 				elif len(self.size) == 2:
@@ -189,9 +211,11 @@ class Convolution(Layer):				# pylint: disable=too-few-public-methods
 					raise ValueError('Unhandled convolution dimension: {}. This '
 						'is a bug.'.format(len(self.size)))
 
+				# add a new arg input to kwargs if condition met
 				if len(self.size) > 1:
 					kwargs['data_format'] = 'channels_last'
 
+				# yield an instantiated keras.convol layer with arg inputs
 				yield func(**kwargs)
 
 		elif backend.get_name() == 'pytorch':

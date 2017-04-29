@@ -14,11 +14,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import logging
+
 import warnings
 from . import Layer, ParsingError
 
+import logging
+import matplotlib.pyplot as plt
+import numpy as np
 logger = logging.getLogger(__name__)
+from ...utils import DisableLogging
+# with DisableLogging(): how to disable logging for a function
+# if logger.isEnabledFor(logging.WARNING): work for pprint(object.__dict__)
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule, getfullargspec, getargvalues
+# to write multiple lines inside pdb
+# !import code; code.interact(local=vars())
 
 ###############################################################################
 class Placeholder(Layer):				# pylint: disable=too-few-public-methods
@@ -47,10 +59,14 @@ class Placeholder(Layer):				# pylint: disable=too-few-public-methods
 	def _parse_pre(self, engine):
 		""" Pre-parsing hook.
 		"""
+
 		super()._parse_pre(engine)
 
+		# get container_name: input
 		container_name = self.get_container_name()
+
 		if container_name in self.data:
+			# evaluate Placeholder.data's value: images
 			data = engine.evaluate(self.data[container_name])
 			if isinstance(data, str):
 				if 'name' in self.data:
@@ -99,14 +115,20 @@ class Placeholder(Layer):				# pylint: disable=too-few-public-methods
 			self.type = engine.evaluate(self.args['type'], recursive=True)
 
 	###########################################################################
+
 	def _infer_shape(self, model):
+
+		# the shape is (28,28,1) for mnist dataset
 		inferred_shape = model.get_inferred_shape(self.name)
+
 		if inferred_shape is None:
 			if self._shape is None:
 				raise ParsingError(
 					'Placeholder "{}" requires a shape.'.format(self.name))
 		else:
+			# if placeholder._shape is still None
 			if self._shape is None:
+				# then give it a new shape
 				self._shape = inferred_shape
 				logger.trace('Inferred shape: %s', self._shape)
 			else:
@@ -141,6 +163,7 @@ class Placeholder(Layer):				# pylint: disable=too-few-public-methods
 						self._shape)
 					self._shape = merged_shape
 
+		# if the new shape is empty, then set it to be a scalar
 		if self._shape == ():
 			logger.trace('Promoting an empty shape to a scalar.')
 			self._shape = (1,)
@@ -149,10 +172,14 @@ class Placeholder(Layer):				# pylint: disable=too-few-public-methods
 	def _build(self, model):
 		""" Create the backend-specific placeholder.
 		"""
+
 		backend = model.get_backend()
 		if backend.get_name() == 'keras':
 
+			# import keras.backend
 			import keras.backend as K			# pylint: disable=import-error
+
+			# set up type for placehold layer
 			if self.type is None:
 				dtype = K.floatx()
 			else:
@@ -160,9 +187,15 @@ class Placeholder(Layer):				# pylint: disable=too-few-public-methods
 			logger.trace('Creating placeholder for "%s" with data type "%s".',
 				self.name, dtype)
 
+			# set up shape for placeholder, using shape info stored inside model object
 			self._infer_shape(model)
 
+			# import keras.layers
 			import keras.layers as L			# pylint: disable=import-error
+
+			# yield keras.layers.Input
+			# to instantiate placeholder layer, we need name, shape, type
+			# there is no **kwargs inside L.Input(), so no trainable arg input 
 			yield L.Input(
 				shape=self._shape,
 				name=self.name,

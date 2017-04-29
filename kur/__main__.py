@@ -263,22 +263,21 @@ def prepare_data(args):
 					print('  {}: {}'.format(key, batch[key][entry]))
 
 
-
+		# plotting a few images
 		for k, v in spec.data['train']['data'][0].items():
 			name1 = k
 
 		if name1 == 'mnist':
+			images_p = batch['images'][0:9]
 			image_dim = images_p.shape[1:-1]
 
 		elif name1 == 'cifar':
+			images_p = batch['images'][0:9]
 			image_dim = images_p.shape[1:]
 
 		else:
 			return None # no plotting
 
-		# plotting a few images
-		images_p = batch['images'][0:9]
-		import numpy as np
 		labels_p = [np.argmax(label) for label in batch['labels'][0:9]]
 
 		plot_images(images=images_p, cls_true=labels_p, image_dim=image_dim)

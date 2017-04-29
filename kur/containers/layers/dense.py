@@ -96,6 +96,7 @@ class Dense(Layer):						# pylint: disable=too-few-public-methods
 			if backend.keras_version() == 1:
 				func = lambda x, **kwargs: L.Dense(output_dim=x, **kwargs)
 			else:
+
 				func = lambda x, **kwargs: L.Dense(units=x, **kwargs)
 
 			# control on how many of dense layers to be create
