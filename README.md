@@ -23,11 +23,11 @@ How to create checksum for a dataset file?
 3. `shasum -a256 FILE` for macOS
 
 ## Progress
-### Explore `kur -vv data -n 1 mnist.yml` 
+Explore `kur data -n 1 mnist.yml` 
 - done 
 
-### Explore `kur -vv build mnist.yml` 
+Explore `kur -v build mnist.yml` 
 - done 
 
-### Explore `kur -vv train mnist.yml`
+Explore `kur  train mnist.yml`
 - [commit1](https://github.com/EmbraceLife/LIE/commit/a0b95951cab0dc98f5653f612589c8c2c9791e59): walk through logic of `kur train mnist.yml`

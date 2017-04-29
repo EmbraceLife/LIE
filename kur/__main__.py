@@ -21,13 +21,15 @@ import atexit
 import time
 import sys
 import argparse
-import logging
 
 from . import __version__, __homepage__
 from .utils import logcolor
 from . import Kurfile
 from .engine import JinjaEngine
 
+import logging
+import matplotlib.pyplot as plt
+import numpy as np
 logger = logging.getLogger(__name__)
 from .utils import DisableLogging
 # with DisableLogging(): how to disable logging for a function
@@ -260,46 +262,57 @@ def prepare_data(args):
 				for key in keys:
 					print('  {}: {}'.format(key, batch[key][entry]))
 
+
+
+		for k, v in spec.data['train']['data'][0].items():
+			name1 = k
+
+		if name1 == 'mnist':
+			image_dim = images_p.shape[1:-1]
+
+		elif name1 == 'cifar':
+			image_dim = images_p.shape[1:]
+
+		else:
+			return None # no plotting
+
 		# plotting a few images
-		# images_p = batch['images'][0:9]
-		# import numpy as np
-		# labels_p = [np.argmax(label) for label in batch['labels'][0:9]]
-		# image_dim = images_p.shape[1:]
-		#
-		# plot_images(images=images_p, cls_true=labels_p, image_dim=image_dim)
+		images_p = batch['images'][0:9]
+		import numpy as np
+		labels_p = [np.argmax(label) for label in batch['labels'][0:9]]
+
+		plot_images(images=images_p, cls_true=labels_p, image_dim=image_dim)
 
 		if num_entries is None:
 			logger.error('No data sources was produced.')
 			continue
 
-#go with prepare_data()
-# import matplotlib.pyplot as plt
-# import numpy as np
-# def plot_images(images, cls_true, image_dim, cls_pred=None):
-#
-# 	assert len(images) == len(cls_true) == 9
-#
-# 	# Create figure with 3x3 sub-plots.
-# 	fig, axes = plt.subplots(3, 3)
-# 	fig.subplots_adjust(hspace=0.3, wspace=0.3)
-#
-# 	for i, ax in enumerate(axes.flat):
-# 		# Plot image.
-# 		ax.imshow(images[i].reshape(image_dim), cmap='binary')
-#
-#
-# 		# Show true and predicted classes.
-# 		if cls_pred is None:
-# 			xlabel = "True: {0}".format(cls_true[i])
-# 		else:
-# 			xlabel = "True: {0}, Pred: {1}".format(cls_true[i], cls_pred[i])
-#
-# 		ax.set_xlabel(xlabel)
-#
-#         # Remove ticks from the plot.
-# 		ax.set_xticks([])
-# 		ax.set_yticks([])
-# 	plt.show()
+# borrowed from https://hyp.is/9KkYnCyIEeeeUt-8LW6lMw/nbviewer.jupyter.org/github/Hvass-Labs/TensorFlow-Tutorials/blob/master/01_Simple_Linear_Model.ipynb
+def plot_images(images, cls_true, image_dim, cls_pred=None):
+
+	assert len(images) == len(cls_true) == 9
+
+	# Create figure with 3x3 sub-plots.
+	fig, axes = plt.subplots(3, 3)
+	fig.subplots_adjust(hspace=0.3, wspace=0.3)
+
+	for i, ax in enumerate(axes.flat):
+		# Plot image.
+		ax.imshow(images[i].reshape(image_dim), cmap='binary')
+
+
+		# Show true and predicted classes.
+		if cls_pred is None:
+			xlabel = "True: {0}".format(cls_true[i])
+		else:
+			xlabel = "True: {0}, Pred: {1}".format(cls_true[i], cls_pred[i])
+
+		ax.set_xlabel(xlabel)
+
+        # Remove ticks from the plot.
+		ax.set_xticks([])
+		ax.set_yticks([])
+	plt.show()
 ###############################################################################
 def version(args):							# pylint: disable=unused-argument
 	""" Prints the Kur version and exits.

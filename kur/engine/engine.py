@@ -101,7 +101,7 @@ class Engine:
 			if not isinstance(v, (list, tuple)):
 				v = [v]
 			self._templates[k] = v
-		logger.info('Registering the following templates: %s', ', '.join(
+		logger.trace('Registering the following templates: %s', ', '.join(
 			self._templates.keys()))
 
 	###########################################################################

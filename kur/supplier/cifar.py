@@ -58,9 +58,9 @@ class CifarSupplier(Supplier):
 			# Arguments
 
 		"""
-		logger.critical("\n\n(self, url=None, checksum=None, path=None, parts=None, *args, **kwargs): \n\nCreate cifar data supplier object given relevant spec info \n\n1. inherit args from superclass.__init__; \n\n2. get file path (also download if necessary) stored locally; \n\n3. convert dataset from compressed file into numpy array; \n\n4. convert array(40000, 3072) to array(40000, 32,32,3) inside _normalize(); \n\n5. normalize and onehot the two arrays, and store numpy array inside VanillaSource object; \n\n6. store VanillaSource object into a dict under CifarSupplier.data. \n\n")
+		logger.info("\n\n(self, url=None, checksum=None, path=None, parts=None, *args, **kwargs): \n\nCreate cifar data supplier object given relevant spec info \n\n1. inherit args from superclass.__init__; \n\n2. get file path (also download if necessary) stored locally; \n\n3. convert dataset from compressed file into numpy array; \n\n4. convert array(40000, 3072) to array(40000, 32,32,3) inside _normalize(); \n\n5. normalize and onehot the two arrays, and store numpy array inside VanillaSource object; \n\n6. store VanillaSource object into a dict under CifarSupplier.data. \n\n")
 
-		if logger.isEnabledFor(logging.CRITICAL):
+		if logger.isEnabledFor(logging.INFO):
 			print("""
 super().__init__(*args, **kwargs)
 
@@ -99,7 +99,7 @@ self.data = {
 	@staticmethod
 	def _load_parts(path, parts):
 
-		logger.critical("\n\n(path, parts): load specific parts of the datasets and merge them into a single pair of numpy arrays: \n\n1. open cifar-10-python.tar.gz file; \n\n2. get each object inside the file one by one; \n\n3. find the specified objects and extract them into tar object; \n\n4. read the tar object into bytes, and then use pickle.loads them into a dict with many arrays inside. by now we can use data.keys() to see what are the structure of the datasets; \n\n4. save all specified parts into a single dict result; \n\n5. merge all data arrays into a single data array and all labels arrays into a single label array, and return them as a single dict \n\n ")
+		logger.info("\n\n(path, parts): load specific parts of the datasets and merge them into a single pair of numpy arrays: \n\n1. open cifar-10-python.tar.gz file; \n\n2. get each object inside the file one by one; \n\n3. find the specified objects and extract them into tar object; \n\n4. read the tar object into bytes, and then use pickle.loads them into a dict with many arrays inside. by now we can use data.keys() to see what are the structure of the datasets; \n\n4. save all specified parts into a single dict result; \n\n5. merge all data arrays into a single data array and all labels arrays into a single label array, and return them as a single dict \n\n ")
 		if parts is not None:
 			if not isinstance(parts, (list, tuple)):
 				parts = [parts]
@@ -163,6 +163,7 @@ self.data = {
 	def _normalize(source):
 		# Numpy won't automatically promote the uint8 fields to float32.
 		data = source.astype(numpy.float32)
+		# if want to see the colorful image, comment out the following two lines
 		data -= data.mean(axis=0)
 		data /= 255
 		data = data.reshape((-1, 3, 32, 32))

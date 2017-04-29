@@ -45,7 +45,7 @@ class Supplier:
 	def from_specification(spec, kurfile=None):
 		""" Creates a new Supplier from a specification.
 		"""
-		logger.critical("(spc, kurfile=None): start \n create data supplier object from kurfile dict \n1. make sure spec is a dict; \n2. get data supplier name from spec: supplier_name; \n3. get spec dict description for this data supplier: params; \n4. create the data supplier class by its name, and then instantiate the supplier object with kurfile object and params; \n5. return this data supplier \n\n")
+		logger.info("\n\nfrom_specification(spec, kurfile=None): \n\n create data supplier object from kurfile dict \n\n1. make sure spec is a dict or entry from upper function; \n\n2. get data supplier name from spec: supplier_name; \n\n3. get entry dict description for this data supplier: params; \n\n4. create the data supplier class by its name, and then instantiate the supplier object with kurfile object and params; \n\n5. return this data supplier \n\n")
 
 		if not isinstance(spec, dict):
 			raise ValueError('Each element of the "input" list must be a '
@@ -56,7 +56,7 @@ candidates = set(
 	cls.get_name() for cls in Supplier.get_all_suppliers()
 ) & set(spec.keys())
 		"""
-		logger.critical("\n\nFind the Supplier class name for the data specified in kurfile\n\n%s\n\n", supplier_name_get)
+		logger.info("\n\nFind the Supplier class name from the data specified in kurfile\n\n%s\n\n", supplier_name_get)
 		candidates = set(
 			cls.get_name() for cls in Supplier.get_all_suppliers()
 		) & set(spec.keys())
@@ -96,7 +96,8 @@ elif isinstance(params, (list, tuple)):
 #### Must dive into MnistSupplier(name=supplier_name, kurfile=kurfile, **params) ####
 		"""
 
-		logger.critical("\n\nGet detailed info on data provider in kurfile\n\nget the Supplier class with the same name in kurfile\n\nInstantiate the Supplier object with kurfile details on the data\n\n%s\n\nFinally, return the data supplier objects\n\n", create_supplier_obj)
+		logger.info("\n\nGet detailed info on data provider in kurfile: params\n\nget the name of Supplier class: name = candidates.pop() \n\nGet the Supplier class and instantiate it\n\n%s\n\nFinally, return the data supplier objects\n\n", create_supplier_obj)
+
 		name = candidates.pop()
 		params = spec[name]
 
@@ -118,8 +119,8 @@ elif isinstance(params, (list, tuple)):
 				'list, tuple, or string for parameters. Instead, we received: '
 				'{}'.format(params))
 
-		logger.critical("\n\nFirst, see supplier class, specified params on data supplier; \n\nthen see inside data supplier object\n\n")
-		if logger.isEnabledFor(logging.CRITICAL):
+		logger.info("\n\nFirst, see supplier class, specified params on data supplier; \n\nthen see inside data supplier object\n\n")
+		if logger.isEnabledFor(logging.INFO):
 			print("Supplier class: {}\n".format(Supplier.get_supplier_by_name(name)))
 			pprint(params)
 			print("\n")
