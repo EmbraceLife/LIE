@@ -13,6 +13,19 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+import logging
+import matplotlib.pyplot as plt
+import numpy as np
+logger = logging.getLogger(__name__)
+
+# with DisableLogging(): how to disable logging for a function
+# if logger.isEnabledFor(logging.WARNING): work for pprint(object.__dict__)
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule, getfullargspec, getargvalues
+# to write multiple lines inside pdb
+# !import code; code.interact(local=vars())
 
 ###############################################################################
 def get_subclasses(cls, recursive=True):
@@ -29,6 +42,7 @@ def get_subclasses(cls, recursive=True):
 		A list of subclasses of `cls`.
 	"""
 	sub = cls.__subclasses__()
+
 	if recursive:
 		for cls in sub:
 			sub.extend(get_subclasses(cls, recursive=True))

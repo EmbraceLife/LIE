@@ -195,7 +195,7 @@ class Placeholder(Layer):				# pylint: disable=too-few-public-methods
 
 			# yield keras.layers.Input
 			# to instantiate placeholder layer, we need name, shape, type
-			# there is no **kwargs inside L.Input(), so no trainable arg input 
+			# there is no **kwargs inside L.Input(), so no trainable arg input
 			yield L.Input(
 				shape=self._shape,
 				name=self.name,
@@ -218,6 +218,7 @@ class Placeholder(Layer):				# pylint: disable=too-few-public-methods
 	def shape(self, input_shapes=None):
 		""" Returns the output shape of this layer for a given input shape.
 		"""
+
 		if input_shapes is not None:
 			raise ValueError('Input placeholders do not take inputs.')
 		return self._shape

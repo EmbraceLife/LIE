@@ -147,12 +147,10 @@ class Kurfile:
 		if logger.isEnabledFor(logging.WARNING):
 			pprint(self.containers)
 			print("\n")
-			pprint(self.containers[0].__class__)
-			print("\n")
-			pprint(self.containers[3].__class__)
-			print("\n")
-			pprint(self.containers[3].__dict__)
-			print("\n\n")
+			for container in self.containers:
+				pprint(container.__class__)
+				pprint(container.__dict__)
+				print("\n\n")
 
 		# Parse the loss function.
 		self._parse_section(

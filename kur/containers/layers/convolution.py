@@ -74,7 +74,7 @@ class Convolution(Layer):				# pylint: disable=too-few-public-methods
 	def _parse(self, engine):
 		""" Parses out the convolution layer.
 		"""
-		# Parse self
+		# define arg kernels
 		if 'kernels' not in self.args:
 			raise ParsingError('Missing key "kernels" in convolution '
 				'container.')
@@ -84,6 +84,7 @@ class Convolution(Layer):				# pylint: disable=too-few-public-methods
 		except ValueError:
 			raise ParsingError('"kernels" must evaluate to an integer.')
 
+		# define arg size
 		if 'size' not in self.args:
 			raise ParsingError('Missing key "size" in convolution container.')
 		self.size = engine.evaluate(self.args['size'], recursive=True)
@@ -100,6 +101,7 @@ class Convolution(Layer):				# pylint: disable=too-few-public-methods
 					'integers. We received this instead: {}'
 					.format(self.size[i]))
 
+		# define arg strides
 		if 'strides' in self.args:
 			self.strides = engine.evaluate(self.args['strides'], recursive=True)
 			if not isinstance(self.strides, (list, tuple)):
@@ -122,8 +124,12 @@ class Convolution(Layer):				# pylint: disable=too-few-public-methods
 		else:
 			self.strides = [1] * len(self.size)
 
+		# set arg activation to be None
 		self.activation = None
 
+		# define arg border
+		# if border is set in kurfile, then use engine.evaluate()
+		# after evaluation, the outcome can be dict, list/tuple or str or int, define it accordingly 
 		if 'border' in self.args:
 			self.border = engine.evaluate(self.args['border'])
 			if not isinstance(self.border, str) or \
@@ -286,6 +292,7 @@ class Convolution(Layer):				# pylint: disable=too-few-public-methods
 	def shape(self, input_shapes):
 		""" Returns the output shape of this layer for a given input shape.
 		"""
+
 		if len(input_shapes) > 1:
 			raise ValueError('Convolutions only take a single input.')
 		input_shape = input_shapes[0]

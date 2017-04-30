@@ -104,6 +104,8 @@ class Dense(Layer):						# pylint: disable=too-few-public-methods
 			for v in self.size[:-1]:
 				yield func(v, trainable=not self.frozen)
 
+			# set_trace()
+			# k_dense = func(self.size[-1],name=self.name,trainable=not self.frozen)
 			# create the last dense layer if more than 1 dense layer is required to create
 			yield func(
 				self.size[-1],
@@ -138,6 +140,7 @@ class Dense(Layer):						# pylint: disable=too-few-public-methods
 	def shape(self, input_shapes):
 		""" Returns the output shape of this layer for a given input shape.
 		"""
+
 		if len(input_shapes) > 1:
 			raise ValueError('Dense layers only take a single input.')
 		return (self.size[-1], )

@@ -14,12 +14,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import logging
+
 import warnings
 from . import ParsingError
 from ..utils import get_subclasses
 
+
+import logging
+import matplotlib.pyplot as plt
+import numpy as np
 logger = logging.getLogger(__name__)
+from ..utils import DisableLogging
+# with DisableLogging(): how to disable logging for a function
+# if logger.isEnabledFor(logging.WARNING): work for pprint(object.__dict__)
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule, getfullargspec, getargvalues
+# to write multiple lines inside pdb
+# !import code; code.interact(local=vars())
 
 ###############################################################################
 class Container:
@@ -71,9 +84,11 @@ class Container:
 	def create_container_from_data(data, **kwargs):
 		""" Factory method for creating containers.
 		"""
+
 		cls = Container.find_container_for_data(data)
 		if cls:
 			return cls(data, **kwargs)
+
 
 		from .operators.meta import Meta
 		return Meta(data, **kwargs)
