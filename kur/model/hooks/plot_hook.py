@@ -16,7 +16,7 @@ limitations under the License.
 
 import colorsys
 import os
-import logging
+
 import itertools
 from collections import OrderedDict
 
@@ -25,7 +25,19 @@ import numpy
 from . import TrainingHook
 from ...loggers import PersistentLogger, Statistic
 
+import logging
+import matplotlib.pyplot as plt
+import numpy as np
 logger = logging.getLogger(__name__)
+from ...utils import DisableLogging
+# with DisableLogging(): how to disable logging for a function
+# if logger.isEnabledFor(logging.WARNING): work for pprint(object.__dict__)
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule, getfullargspec, getargvalues
+# to write multiple lines inside pdb
+# !import code; code.interact(local=vars())
 
 ###############################################################################
 class PlotHook(TrainingHook):
@@ -38,14 +50,14 @@ class PlotHook(TrainingHook):
 			plots.
 			n is the number of colors to choose from for styling.
 		"""
-		
+
 		def taste_the_rainbow(n_hues):
 			h = [x * 1.0 / n_hues for x in range(n_hues)]  # All possible hues
 			sv = [0.7, 1.0]  # all possible saturation and values
 			hsv = [(x, y, y) for x, y in itertools.product(h, sv)]
 			return numpy.array(list(map(lambda x: colorsys.hsv_to_rgb(*x) + (1, ), hsv)))
-	
-		# Too many colors means neighboring colors that are 
+
+		# Too many colors means neighboring colors that are
 		# hard to distinguish between, so we cap n.
 		colors = taste_the_rainbow(n_hues=7)
 
@@ -69,20 +81,24 @@ class PlotHook(TrainingHook):
 	###########################################################################
 	def __init__(self, loss_per_batch=None, loss_per_time=None,
 		throughput_per_time=None, *args, **kwargs):
-		""" Creates a new plotting hook.
+		""" Creates a new plotting hook, get plot filenames and matplotlib ready.
 		"""
+
 		super().__init__(*args, **kwargs)
 
+		# put plot filenames int of dict
 		plots = dict(zip(
 			('loss_per_batch', 'loss_per_time', 'throughput_per_time'),
 			(loss_per_batch, loss_per_time, throughput_per_time)
 		))
 
+		# get plot filenames as dict into self.plots
 		self.plots = plots
 		for k, v in self.plots.items():
 			if v is not None:
 				self.plots[k] = os.path.expanduser(os.path.expandvars(v))
 
+		# import matplotlib and use
 		try:
 			import matplotlib					# pylint: disable=import-error
 		except:
@@ -92,12 +108,14 @@ class PlotHook(TrainingHook):
 				'troubleshooting.html#plotting')
 			raise
 
+		# Set the matplotlib backend to one of the known backends.
 		matplotlib.use('Agg')
 
 	###########################################################################
 	def notify(self, status, log=None, info=None):
 		""" Creates the plot.
 		"""
+
 		from matplotlib import pyplot as plt	# pylint: disable=import-error
 
 		logger.debug('Plotting hook received training message.')
@@ -109,6 +127,7 @@ class PlotHook(TrainingHook):
 		):
 			logger.debug('Plotting hook does not handle this status.')
 			return
+
 
 		if log is None:
 			logger.warning('Plot hook was requested, but no logger is '
@@ -122,6 +141,7 @@ class PlotHook(TrainingHook):
 		log.flush()
 
 		# Load the data
+		# extract data from log for plotting
 		batch, time, loss = log.load_statistic(
 			Statistic(Statistic.Type.BATCH, 'loss', 'total')
 		)
@@ -156,6 +176,10 @@ class PlotHook(TrainingHook):
 				'time' : vtime,
 				'loss' : vloss
 			}
+
+
+		# get a dict with 'default' and 'None' as keys, and values is a dict on batch index, time, and loss
+		# and we need validation_data[''] only, not default part
 		validation_data = OrderedDict(sorted(validation_data.items()))
 		if len(validation_data) == 2 and 'default' in validation_data:
 			validation_data = {'' : validation_data['']}
@@ -168,6 +192,7 @@ class PlotHook(TrainingHook):
 					return ''
 			return ': {}'.format(k)
 
+		# plot the first loss plot
 		path = self.plots.get('loss_per_batch')
 		if path:
 			plt.xlabel('Batch')
@@ -203,6 +228,8 @@ class PlotHook(TrainingHook):
 
 			logger.debug('Loss-per-batch plot saved to: %s', path)
 
+
+		# plot the second loss plot
 		path = self.plots.get('loss_per_time')
 		if path:
 			plt.xlabel('Time')
@@ -244,6 +271,7 @@ class PlotHook(TrainingHook):
 
 			logger.debug('Loss-per-time plot saved to: %s', path)
 
+		# plot the third loss plot
 		path = self.plots.get('throughput_per_time')
 		if path:
 			if time is None or batch is None:

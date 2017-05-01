@@ -529,7 +529,9 @@ class Executor:
 			if not training_hooks:
 				return
 			info = {
+				# epoch here is the accumulated epochs from long before
 				'epoch' : epoch+1,
+				# epochs are the total epochs defined inside stop_when
 				'total_epochs' : epochs,
 				'Training loss' : cur_train_loss
 			}
@@ -1068,7 +1070,7 @@ cur_train_loss = run_posttrain(n_entries, train_loss)
 # 3. save current training weights to best_valid weights folder if condition met
 validation_loss = run_validation()
 
-# Execute training hooks.
+# Execute training hooks at the end of each epoch
 run_training_hooks(
 	cur_train_loss,
 	validation_loss,
@@ -1095,67 +1097,67 @@ print_times()
 			# Validate
 			validation_loss = run_validation()
 
-			# Execute training hooks.
+			# Execute training hooks at the end of each epoch
 			run_training_hooks(
 				cur_train_loss,
 				validation_loss,
 				status=TrainingHook.EPOCH_END
 			)
 
-			#### start here:
-			# make plot_weights() working for all image models
-			# to make it a hook 
-			# let's save weights plots for 1 epoch and every 50 epochs
-			def plot_weights():
-
-				# Get the values for the weights from the TensorFlow variable.
-				w = idx.load("mnist.best.valid.w/..dense.0+..dense.0_kernel:0.kur")
-
-				# Get the lowest and highest values for the weights.
-				# This is used to correct the colour intensity across
-				# the images so they can be compared with each other.
-				w_min = np.min(w)
-				w_max = np.max(w)
-
-
-				# Create figure with 3x4 sub-plots,
-				# where the last 2 sub-plots are unused.
-				fig, axes = plt.subplots(3, 4)
-				fig.subplots_adjust(hspace=0.3, wspace=0.3)
-
-
-				for i, ax in enumerate(axes.flat):
-					# Only use the weights for the first 10 sub-plots.
-					if i<10:
-						# Get the weights for the i'th digit and reshape it.
-						# Note that w.shape == (img_size_flat, 10)
-						image = w[:, i].reshape((28, 28))
-
-						# Set the label for the sub-plot.
-						ax.set_xlabel("Weights: {0}".format(i))
-
-
-						# Plot the image.
-						ax.imshow(image, vmin=w_min, vmax=w_max, cmap='seismic')
-
-					if i == 0:
-						# how to make a title for plotting
-						ax.set_title("validation_loss: {}".format(round(validation_loss[None]['labels'], 3)))
-
-					# Remove ticks from each sub-plot.
-					ax.set_xticks([])
-					ax.set_yticks([])
-				# if we plot while training, we can't save it
-				# plt.show()
-				plt.savefig('plot_weights/epoch_{}.png'.format(completed_epochs + session['epochs']))
-
-
-			if completed_epochs + session['epochs'] == 1 or (completed_epochs + session['epochs']) % 100 == 0:
-				# save weights plots
-				logger.critical("\n\nLet's print weights every 20 epochs\n\n")
-
-				plot_weights()
-				# save validation_loss on the plotting
+			# #### start here:
+			# # make plot_weights() working for all image models
+			# # to make it a hook
+			# # let's save weights plots for 1 epoch and every 50 epochs
+			# def plot_weights():
+			#
+			# 	# Get the values for the weights from the TensorFlow variable.
+			# 	w = idx.load("mnist.best.valid.w/..dense.0+..dense.0_kernel:0.kur")
+			#
+			# 	# Get the lowest and highest values for the weights.
+			# 	# This is used to correct the colour intensity across
+			# 	# the images so they can be compared with each other.
+			# 	w_min = np.min(w)
+			# 	w_max = np.max(w)
+			#
+			#
+			# 	# Create figure with 3x4 sub-plots,
+			# 	# where the last 2 sub-plots are unused.
+			# 	fig, axes = plt.subplots(3, 4)
+			# 	fig.subplots_adjust(hspace=0.3, wspace=0.3)
+			#
+			#
+			# 	for i, ax in enumerate(axes.flat):
+			# 		# Only use the weights for the first 10 sub-plots.
+			# 		if i<10:
+			# 			# Get the weights for the i'th digit and reshape it.
+			# 			# Note that w.shape == (img_size_flat, 10)
+			# 			image = w[:, i].reshape((28, 28))
+			#
+			# 			# Set the label for the sub-plot.
+			# 			ax.set_xlabel("Weights: {0}".format(i))
+			#
+			#
+			# 			# Plot the image.
+			# 			ax.imshow(image, vmin=w_min, vmax=w_max, cmap='seismic')
+			#
+			# 		if i == 0:
+			# 			# how to make a title for plotting
+			# 			ax.set_title("validation_loss: {}".format(round(validation_loss[None]['labels'], 3)))
+			#
+			# 		# Remove ticks from each sub-plot.
+			# 		ax.set_xticks([])
+			# 		ax.set_yticks([])
+			# 	# if we plot while training, we can't save it
+			# 	# plt.show()
+			# 	plt.savefig('plot_weights/epoch_{}.png'.format(completed_epochs + session['epochs']))
+			#
+			#
+			# if completed_epochs + session['epochs'] == 1 or (completed_epochs + session['epochs']) % 100 == 0:
+			# 	# save weights plots
+			# 	logger.critical("\n\nLet's print weights every 20 epochs\n\n")
+			#
+			# 	plot_weights()
+			# 	# save validation_loss on the plotting
 
 			print_times()
 
