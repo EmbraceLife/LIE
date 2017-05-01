@@ -347,6 +347,7 @@ class Executor:
 						info={'Reason' : reason}
 					)
 			""")
+			# ?????? to comment back: conflict with info['epoch']
 			if training_hooks:
 				for hook in training_hooks:
 					hook.notify(
@@ -1098,6 +1099,7 @@ print_times()
 			validation_loss = run_validation()
 
 			# Execute training hooks at the end of each epoch
+			logger.critical("\n\nNow acting on hooks, plot_weights for mnist1.yml is a good start, and try to make them as simple as possible\n\nDon't tackle complex problem as a whole\n\nIt can easily break you\n\n")
 			run_training_hooks(
 				cur_train_loss,
 				validation_loss,

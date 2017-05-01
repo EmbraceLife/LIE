@@ -331,6 +331,7 @@ class KerasBackend(Backend):
 	def _save_keras(self, keras_model, filename):
 		""" Saves a native Keras model.
 		"""
+
 		path = os.path.expanduser(os.path.expandvars(filename))
 		if os.path.exists(path):
 			if not os.path.isdir(path):
@@ -342,6 +343,7 @@ class KerasBackend(Backend):
 			for dirpath, _, filenames in os.walk(path):
 				for this_file in filenames:
 					if this_file.endswith('.kur'):
+
 						os.unlink(os.path.join(dirpath, this_file))
 		else:
 			os.makedirs(path, exist_ok=True)

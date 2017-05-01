@@ -101,10 +101,11 @@ class PlotWeightsHook(TrainingHook):
 			return
 
 
-		def plot_weights():
 
-			# Get the values for the weights from the TensorFlow variable.
-			w = idx.load("mnist.best.valid.w/..dense.0+..dense.0_kernel:0.kur")
+		def plot_weights(kernel_filename):
+
+			# load weights from weight files in idx format
+			w = idx.load(kernel_filename)
 
 			# Get the lowest and highest values for the weights.
 			# This is used to correct the colour intensity across
@@ -122,9 +123,13 @@ class PlotWeightsHook(TrainingHook):
 			for i, ax in enumerate(axes.flat):
 				# Only use the weights for the first 10 sub-plots.
 				if i<10:
+				# if i<64:
 					# Get the weights for the i'th digit and reshape it.
 					# Note that w.shape == (img_size_flat, 10)
+					# mnist (28, 28)
+					# cifar (32,32,3)
 					image = w[:, i].reshape((28, 28))
+
 
 					# Set the label for the sub-plot.
 					ax.set_xlabel("Weights: {0}".format(i))
@@ -142,12 +147,30 @@ class PlotWeightsHook(TrainingHook):
 				ax.set_yticks([])
 			# if we plot while training, we can't save it
 			# plt.show()
-			plt.savefig('plot_weights/epoch_{}.png'.format(info['epoch']))
+
+			# get filename without "dir/.."
+			filename_cut_dir = kernel_filename[kernel_filename.find("/..")+3 :]
+			# save figure with a nicer name
+			plt.savefig('plot_weights/{}_epoch_{}.png'.format(filename_cut_dir, info['epoch']))
 
 
-		if info['epoch'] == 1 or info['epoch'] % 100 == 0:
+
+
+		if info['epoch'] == 1 or info['epoch'] % 2 == 0:
 			# save weights plots
-			logger.critical("\n\nLet's print weights every 20 epochs\n\n")
+			logger.critical("\n\nLet's print weights every 100 epochs\n\n")
 
-			plot_weights()
+
+			# get all the validation weights names
+			valid_weights_filenames = []
+			# how to give a path name to plot_weights???
+			for dirpath, _, filenames in os.walk("mnist.best.valid.w"): # mnist or cifar
+				for this_file in filenames:
+					valid_weights_filenames.append(dirpath+"/"+this_file)
+
+
+			for this_file in valid_weights_filenames:
+				if this_file.find("kernel") > -1:
+					plot_weights(this_file)
+
 			# save validation_loss on the plotting
