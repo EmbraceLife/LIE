@@ -562,7 +562,7 @@ return {
 			logger.critical("\n\nadd more inputs into default \n\ndefaults.update(kwargs) \n\n")
 			defaults.update(kwargs)
 
-			logger.critical("\n\nreturn trainer.train(**defaults)\n\nEOF\n\nDive into Executor.train()\n\n")
+			logger.critical("\n\nreturn trainer.train(**defaults)\n\nEOF\n\nDive into Executor.train()\nWeights are accessed and saved from this fucntion onward\n\n")
 
 			return trainer.train(**defaults)
 

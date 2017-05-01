@@ -28,7 +28,9 @@ from ..loggers import PersistentLogger
 from .hooks import TrainingHook
 
 logger = logging.getLogger(__name__)
-from ..utils import DisableLogging
+import numpy as np
+import matplotlib.pyplot as plt
+from ..utils import DisableLogging, idx
 # with DisableLogging(): how to disable logging for a function
 # if logger.isEnabledFor(logging.WARNING): work for pprint(object.__dict__)
 # prepare examine tools
@@ -323,9 +325,13 @@ class Executor:
 			reason = 'success'
 			return result
 		finally:
-			logger.critical("\n\nself.model.save(last_weights)  \n\n")
+			# save the last weights at the end of training after 2 epochs 6 batches in this case
+
+
 			if last_weights is not None:
-				logger.info('Saving most recent weights: %s', last_weights)
+				logger.critical('\n\nself.model.save(last_weights) \n\nSaving most recent weights: %s\n\n', last_weights)
+
+				# Protects critical code from system signals (e.g., keyboard interrupts)
 				with CriticalSection():
 					self.model.save(last_weights)
 			if log is not None:
@@ -374,16 +380,21 @@ class Executor:
 		def run_validation(num_batches=None):
 			""" Executes a validation run.
 			"""
+			logger.critical("\n\nResume timer for validate\n\nTest or validate on a validate provider: \n1. get average loss on validation\n2. get current validation loss\n3.update progress bar for validate\n\n4. save current validation weight to best_valid folder, if current validation loss is less than previous best validation loss\n\nLog training statistics after a validation run.\n\n")
+
+			# validation is a data provider dict for validation
 			if validation is None:
 				return None
 
 			nonlocal best_valid_loss
 
+			# resume timer for validate
 			timers['validate'].resume()
 
 			# Continue with a validation run.
 			previous_num_batches = {}
 			try:
+				# num_batches is not the same with num_batches of validation data provider
 				if num_batches is not None:
 					for provider in validation.values():
 						if hasattr(provider, 'num_batches'):
@@ -391,11 +402,15 @@ class Executor:
 								provider.num_batches
 							provider.num_batches = num_batches
 
+				# Tests/validates the model on some data.
+				# output average_loss on validation and current loss on validation
+				# update progress bar on validation
 				average_loss, validation_loss = self.test(
 					providers=validation,
-					validating=True,
+					validating=True, # this is validating not testing
 					hooks=validation_hooks
 				)
+
 			finally:
 				if num_batches is not None:
 					for provider in validation.values():
@@ -407,50 +422,66 @@ class Executor:
 				timers['validate'].pause()
 				return None
 
+			# a method to get dict.values() into pure number
 			cur_validation_loss = sum(average_loss.values())
+			# set None as a dict key
 			validation_loss[None] = average_loss
-			logger.debug('Current validation loss: %.3f', cur_validation_loss)
 
+			logger.critical("\n\nCurrent validation loss (average of validation loss in this validation run): %.3f\n\n", cur_validation_loss)
+
+			# Save best historical validate weights, if condition met
 			if best_valid is not None:
 				if best_valid_loss is None or \
 						cur_validation_loss < best_valid_loss:
-					logger.debug(
-						'Saving best historical validation weights: %s',
+					logger.critical(
+						'\n\nSaving best historical validation weights: %s\n\n',
 						best_valid
 					)
 					best_valid_loss = cur_validation_loss
 					save_or_copy_weights(best_valid)
+				else:
+					logger.critical("\n\nDon't save current weights to best_valid weights folder, because\n\ncur_validation_loss < best_valid_loss: %s", cur_validation_loss < best_valid_loss)
 
+			# update log validation info
 			if log is not None:
+				# Log training statistics after a validation run.
 				log.log_validation(validation_loss, 'loss', clocks=timers)
 
+			# pause timer for validate
 			timers['validate'].pause()
+
+			# return validation loss
 			return validation_loss
 
 		#######################################################################
 		def save_or_copy_weights(target):
 			""" Saves the current model weights.
 			"""
+			# save weights at the end of an epoch
 			nonlocal saved_recent
 
 			if saved_recent is None:
-				logger.trace('Saving weights to: %s', target)
+
 				with CriticalSection():
 					self.model.save(target)
 				saved_recent = target
+				logger.critical("\n\nGiven no weights yet saved in this time of training, Set saved_recent from None to %s, \n\nand save weights using `self.model.save(target)`\n\n", target)
 			elif not os.path.exists(saved_recent):
-				logger.warning('Recently saved weight file seems to have '
-					'vanished: %s', saved_recent)
+				logger.critical('\n\nRecently saved weight file seems to have '
+					'vanished: %s\n\n', saved_recent)
 				saved_recent = None
 				save_or_copy_weights(target)
 			elif os.path.exists(target) and \
 					os.path.samefile(target, saved_recent):
-				logger.trace('Recent weight file seems the same as the '
-					'soon-to-be-saved file. Skipping: %s', target)
+				logger.critical('\n\nRecent weight file seems the same as the '
+					'soon-to-be-saved file. Skipping: %s\n\n', target)
 			else:
-				logger.trace('Copying weights from: %s', saved_recent)
+				logger.critical('\n\nGiven weights have saved previously, and previous saved folder is different from this folder for saving\n\nCopying weights from: %s\n\nValidation is new on its data, the weights are from best_train\n\n', saved_recent)
 				with CriticalSection():
+
+					# Recursively delete a directory tree.
 					shutil.rmtree(target, ignore_errors=True)
+					# Recursively copy a directory tree.
 					shutil.copytree(saved_recent, target)
 
 		#######################################################################
@@ -462,22 +493,26 @@ class Executor:
 				Read-write non-locals:
 					best_train_loss
 			"""
+			logger.critical("\n\nGet the current training loss; \n\nIf there is no best_train_loss previously, or If current_train_loss < best_train_loss so far, \n\nSave current weights as best historical training weights\n\n")
 			nonlocal best_train_loss
 			if not n_entries:
 				logger.warning('No data provided to training loop.')
 				return None
 
 			cur_train_loss = sum(train_loss.values())
-			logger.info('Training loss: %.3f', cur_train_loss)
+			logger.critical('\n\nCurrent Training loss: %.3f\n\n', cur_train_loss)
 
 			if best_train is not None:
 				if best_train_loss is None or \
 					cur_train_loss < best_train_loss:
 
-					logger.debug('Saving best historical training weights: '
-						'%s', best_train)
+					logger.critical('\n\nSaving best historical training weights: '
+						'%s\n\n', best_train)
 					best_train_loss = cur_train_loss
 					save_or_copy_weights(best_train)
+				else:
+					if logger.isEnabledFor(logging.CRITICAL):
+						print("\n\nDon't save current training weights to best_train_weights folder, because \n\ncur_train_loss < best_train_loss: {}\n\n".format(cur_train_loss < best_train_loss))
 
 			if log is not None:
 				log.log_training(train_loss, 'loss', clocks=timers)
@@ -630,28 +665,28 @@ class Executor:
 		logger.critical("\n\nIf log is not available, there is no best or any historical train loss or validate loss;\n\nIf log is available with files, then we can print out best historical train_loss and validate_loss;\n\n`best_train_loss = log.get_best_training_loss()`\n\n`best_valid_loss = log.get_best_validation_loss()` ")
 		# Parse logs
 		if log is None:
-			logger.info('No log specified, so no historical loss information '
-				'is available.')
+			logger.critical('\n\nNo log specified, so no historical loss information '
+				'is available.\n\n')
 			best_train_loss = best_valid_loss = None
 		elif not isinstance(log, PersistentLogger):
-			logger.info('Log type is non-persistent, so no historical loss '
+			logger.critical('Log type is non-persistent, so no historical loss '
 				'information is available.')
 			best_train_loss = best_valid_loss = None
 		else:
 			best_train_loss = log.get_best_training_loss()
 			if best_train_loss is not None:
-				logger.info('Best historical training loss: %.3f',
+				logger.critical('\n\nBest historical training loss: %.3f\n\n',
 					best_train_loss)
 			else:
-				logger.info('No historical training loss available from logs.')
+				logger.critical('\n\nNo historical training loss available from logs.\n\n')
 
 			best_valid_loss = log.get_best_validation_loss()
 			if best_valid_loss is not None:
-				logger.info('Best historical validation loss: %.3f',
+				logger.critical('\n\nBest historical validation loss: %.3f\n\n',
 					best_valid_loss)
 			else:
-				logger.info(
-					'No historical validation loss available from logs.')
+				logger.critical(
+					'\n\nNo historical validation loss available from logs.\n\n')
 
 			logger.critical("\n\nprint out wall clock time\n\nNo idea what are these??\n\n")
 			clocks = log.get_clocks()
@@ -664,20 +699,21 @@ class Executor:
 
 
 		#######################################################################
-		logger.critical("\n\nget previous trained epochs number\n\ncompleted_epochs = log.get_number_of_epochs() if log else 0\n\n")
+		logger.critical("\n\nget previous trained epochs number from log as log tracks history\n\ncompleted_epochs = log.get_number_of_epochs() if log else 0\n\n")
 		# Parse desired number of epochs
 		completed_epochs = log.get_number_of_epochs() if log else 0
 		if not completed_epochs:
-			logger.warning('No previous epochs.')
+			logger.critical('No previous epochs.')
 		else:
-			logger.warning('Restarting from epoch %d.', completed_epochs+1)
+			logger.critical('\n\nRestarting from epoch %d.\n\n', completed_epochs+1)
 
 		#######################################################################
 		# Parse the stopping criterion mode.
 		logger.critical("\n\nExtract mode\n\nThere are two valid modes: additional (default), total; \n\nIf mode is set total, then log must be available, otherwise, mode set back to additional automatically\n\n")
-		print("""
-		mode = stop_when.get('mode', valid_modes[0])
-		""")
+		if logger.isEnabledFor(logging.CRITICAL):
+			print("""
+			mode = stop_when.get('mode', valid_modes[0])
+			""")
 		valid_modes = ('additional', 'total')
 		mode = stop_when.get('mode', valid_modes[0])
 
@@ -687,10 +723,12 @@ class Executor:
 				mode))
 
 		if mode == 'total' and log is None:
-			logger.warning('The epoch specification has "mode" set to "%s". '
+			logger.critical('The epoch specification has "mode" set to "%s". '
 			'This mode requires a log to be used correctly. Kur will proceed '
 			'as if "mode" were "%s".', mode, valid_modes[0])
 			mode = valid_modes[0]
+		if logger.isEnabledFor(logging.CRITICAL):
+			print("mode: {}\n\n".format(mode))
 
 		#######################################################################
 		logger.critical("\n\nWhen to stop training based on epochs \n\nSet epochs to None if meant to be infinite\n\nepochs must be int or None;\n\nAccumulate epochs in additional mode; \n\nIn total mode, epochs == total epochs, stop training when completed_epochs>epochs\n\n")
@@ -954,6 +992,7 @@ class Executor:
 		else:
 			train_loss = {
 				k : v * (n_entries / new_entries) + batch_loss[k] * (batch_size / new_entries)
+				# does train_loss contain all batch_loss from beginning of training????
 				for k, v in train_loss.items()
 			}
 					""")
@@ -1011,31 +1050,39 @@ class Executor:
 			timers['train'].pause()
 			# END: Train one epoch
 			###################################################################
+			func_stats_save = ("""
+# Update our session statistics.
+session['epochs'] += 1
 
-			logger.critical("\n\nupdate session stats\n\nupdate checkpoint by `run_checkpoint()`\n\nCacl current training loss\n\nCalc validation loss\n\nExecute training hook with current training loss and validation loss\n\nEOF\n\n")
+# Checkpoint if necessary
+run_checkpoint('epochs', allow_validation=False)
 
-			print("""
-		# Update our session statistics.
-		session['epochs'] += 1
+# run_posttrain():
+# 1. Extract current training loss and
+# 2. save current weights to be the best train weights if conditions met
+cur_train_loss = run_posttrain(n_entries, train_loss)
 
-		# Checkpoint if necessary
-		run_checkpoint('epochs', allow_validation=False)
+# run_validation():
+# 1. run validation on a validate provider (model needs compilation again, based on previous training weights)
+# 2. update progress bar validation
+# 3. save current training weights to best_valid weights folder if condition met
+validation_loss = run_validation()
 
-		# Check to see what our current training loss is.
-		cur_train_loss = run_posttrain(n_entries, train_loss)
+# Execute training hooks.
+run_training_hooks(
+	cur_train_loss,
+	validation_loss,
+	status=TrainingHook.EPOCH_END
+)
 
-		# Validate
-		validation_loss = run_validation()
-
-		# Execute training hooks.
-		run_training_hooks(
-			cur_train_loss,
-			validation_loss,
-			status=TrainingHook.EPOCH_END
-		)
-
-		print_times()
+print_times()
 			""")
+
+
+			logger.critical("\n\nAfter each epoch of training, Let's extract outputs, stats, and save weights\n\n%s\n\n", func_stats_save)
+
+
+
 			# Update our session statistics.
 			session['epochs'] += 1
 
@@ -1054,6 +1101,61 @@ class Executor:
 				validation_loss,
 				status=TrainingHook.EPOCH_END
 			)
+
+			#### start here:
+			# make plot_weights() working for all image models
+			# to make it a hook 
+			# let's save weights plots for 1 epoch and every 50 epochs
+			def plot_weights():
+
+				# Get the values for the weights from the TensorFlow variable.
+				w = idx.load("mnist.best.valid.w/..dense.0+..dense.0_kernel:0.kur")
+
+				# Get the lowest and highest values for the weights.
+				# This is used to correct the colour intensity across
+				# the images so they can be compared with each other.
+				w_min = np.min(w)
+				w_max = np.max(w)
+
+
+				# Create figure with 3x4 sub-plots,
+				# where the last 2 sub-plots are unused.
+				fig, axes = plt.subplots(3, 4)
+				fig.subplots_adjust(hspace=0.3, wspace=0.3)
+
+
+				for i, ax in enumerate(axes.flat):
+					# Only use the weights for the first 10 sub-plots.
+					if i<10:
+						# Get the weights for the i'th digit and reshape it.
+						# Note that w.shape == (img_size_flat, 10)
+						image = w[:, i].reshape((28, 28))
+
+						# Set the label for the sub-plot.
+						ax.set_xlabel("Weights: {0}".format(i))
+
+
+						# Plot the image.
+						ax.imshow(image, vmin=w_min, vmax=w_max, cmap='seismic')
+
+					if i == 0:
+						# how to make a title for plotting
+						ax.set_title("validation_loss: {}".format(round(validation_loss[None]['labels'], 3)))
+
+					# Remove ticks from each sub-plot.
+					ax.set_xticks([])
+					ax.set_yticks([])
+				# if we plot while training, we can't save it
+				# plt.show()
+				plt.savefig('plot_weights/epoch_{}.png'.format(completed_epochs + session['epochs']))
+
+
+			if completed_epochs + session['epochs'] == 1 or (completed_epochs + session['epochs']) % 100 == 0:
+				# save weights plots
+				logger.critical("\n\nLet's print weights every 20 epochs\n\n")
+
+				plot_weights()
+				# save validation_loss on the plotting
 
 			print_times()
 
