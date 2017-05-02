@@ -90,14 +90,14 @@ class PlotWeightsHook(TrainingHook):
 
 		from matplotlib import pyplot as plt	# pylint: disable=import-error
 
-		logger.critical('Plotting hook received training message.')
+		logger.critical('PlotWeightsHook received training message.')
 
 		if status not in (
-			TrainingHook.TRAINING_END,
-			TrainingHook.VALIDATION_END,
-			TrainingHook.EPOCH_END
+			# TrainingHook.TRAINING_END,
+			# TrainingHook.VALIDATION_END,
+			TrainingHook.EPOCH_END, # , is a must here
 		):
-			logger.debug('Plotting hook does not handle this status.')
+			logger.critical('PlottingWeight hook does not handle this status.')
 			return
 
 
@@ -156,7 +156,7 @@ class PlotWeightsHook(TrainingHook):
 
 
 
-		if info['epoch'] == 1 or info['epoch'] % 2 == 0:
+		if info['epoch'] == 1 or info['epoch'] % 1 == 0:
 			# save weights plots
 			logger.critical("\n\nLet's print weights every 100 epochs\n\n")
 

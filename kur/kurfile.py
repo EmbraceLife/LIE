@@ -343,21 +343,22 @@ return {
 		""" Returns a function that will train the model.
 		"""
 
-		logger.critical("\n\nif 'train' not in self.data: error \n\n")
+		logger.critical("\n\nWe must have 'train' section in self.data \n\n")
 		if 'train' not in self.data:
 			raise ValueError('Cannot construct training function. There is a '
 				'missing "train" section.')
 
-		logger.critical("\n\nlog = Logger.from_specification(self.data['train']['log']) or None \n\n")
+		logger.critical("\n\nExtract log from `self.data['train']['log']` \n\nlog = Logger.from_specification(self.data['train']['log']) or None \n\n")
 		if 'log' in self.data['train']:
 			log = Logger.from_specification(self.data['train']['log'])
 		else:
 			log = None
 
-		logger.critical("\n\nepochs = self.data['train'].get('epochs') \n\n")
+		logger.critical("\n\nExtract number of epochs to train this time\n\n`epochs = self.data['train'].get('epochs')` \n\n")
 		epochs = self.data['train'].get('epochs')
 
-		logger.critical("\n\nstop_when = self.data['train'].get('stop_when', {})\n\nstop_when['epochs'] = epochs['number']\n\nstop_when['mode'] = epochs['mode']\n\n")
+		logger.critical("\n\nExtract conditions on when to stop training\n\n`stop_when = self.data['train'].get('stop_when', {})`\n\n`stop_when['epochs'] = epochs['number']`\n\n`stop_when['mode'] = epochs['mode']`\n\n")
+
 		stop_when = self.data['train'].get('stop_when', {})
 		if epochs:
 			if stop_when:
@@ -372,10 +373,12 @@ return {
 			elif 'epochs' not in stop_when:
 				stop_when['epochs'] = epochs
 
-		logger.critical("\n\nprovider = get_any_value(self.get_provider('train')) \n\n")
+
+		logger.critical("\n\nExtract data provider for training\n\n`provider = get_any_value(self.get_provider('train'))` \n\n")
 		provider = get_any_value(self.get_provider('train'))
 
-		logger.critical("\n\ntraining_hooks = self.data['train'].get('hooks') or [] \n\ntraining_hooks = [TrainingHook.from_specification(spec) for spec in training_hooks] \n\n")
+		logger.critical("\n\nExtract and convert to training hook objects\n\n`training_hooks = self.data['train'].get('hooks') or []` \n\n`training_hooks = [TrainingHook.from_specification(spec) for spec in training_hooks]` \n\n")
+
 		training_hooks = self.data['train'].get('hooks') or []
 		if not isinstance(training_hooks, (list, tuple)):
 			raise ValueError('"hooks" (in the "train" section) should '
@@ -385,18 +388,21 @@ return {
 
 
 		if 'validate' in self.data:
-			logger.critical("\n\nvalidation = self.get_provider('validate', accept_many=True) \n\n")
+			logger.critical("\n\nExtract validate data provider\n\n`validation = self.get_provider('validate', accept_many=True)` \n\n")
 			validation = self.get_provider('validate', accept_many=True)
 
-			logger.critical("\n\nExtract dirname for best_valid weights: \n\nvalidation_weights = self.data['validate'].get('weights')\n\n")
-			print("""
-			if validation_weights is None:
-				best_valid = None
-			elif isinstance(validation_weights, str):
-				best_valid = validation_weights
-			elif isinstance(validation_weights, dict):
-				best_valid = validation_weights.get('best')
-			""")
+			logger.critical("\n\nExtract dirname for `best_valid` folder aka `validation_weights` folder: \n\n`validation_weights = self.data['validate'].get('weights')`\n\n")
+
+			if logger.isEnabledFor(logging.CRITICAL):
+				print("""
+if validation_weights is None:
+	best_valid = None
+elif isinstance(validation_weights, str):
+	best_valid = validation_weights
+elif isinstance(validation_weights, dict):
+	best_valid = validation_weights.get('best')
+				""")
+
 			validation_weights = self.data['validate'].get('weights')
 			if validation_weights is None:
 				best_valid = None
@@ -408,7 +414,8 @@ return {
 				raise ValueError('Unknown type for validation weights: {}'
 					.format(validation_weights))
 
-			logger.critical("\n\nvalidation_hooks = self.data['validate'].get('hooks', []) \n\nvalidation_hooks = [EvaluationHook.from_specification(spec) for spec in validation_hooks]\n\n")
+			logger.critical("\n\nExtract and convert to validation hooks object from validation section\n\n`validation_hooks = self.data['validate'].get('hooks', [])` \n\n`validation_hooks = [EvaluationHook.from_specification(spec) for spec in validation_hooks]`\n\n")
+
 			validation_hooks = self.data['validate'].get('hooks', [])
 			if not isinstance(validation_hooks, (list, tuple)):
 				raise ValueError('"hooks" (in the "validate" section) should '
@@ -416,32 +423,34 @@ return {
 			validation_hooks = [EvaluationHook.from_specification(spec) \
 				for spec in validation_hooks]
 		else:
-			logger.critical("\n\nIf validate section not availabel, set validation, best_valid, validation_hooks to be None\n\n")
+			logger.critical("\n\nIf validate section not availabel, set validation data provider, best_valid folder, validation_hooks to be None\n\n")
 			validation = None
 			best_valid = None
 			validation_hooks = None
 
-		logger.critical("\n\nExtract dict on train_weights: \n\ntrain_weights = self.data['train'].get('weights') \n\nextract initial_weights, best_train, best_valid, last_weights, initial_must_exist, deprecated_checkpoint from train_weights dict\n\n")
-		print("""
-		if train_weights is None:
-			initial_weights = best_train = last_weights = None
-			deprecated_checkpoint = None
-		elif isinstance(train_weights, str):
-			initial_weights = train_weights
-			best_train = train_weights if best_valid is None else None
-			last_weights = None
-			initial_must_exist = False
-			deprecated_checkpoint = None
-		elif isinstance(train_weights, dict):
-			initial_weights = train_weights.get('initial')
-			best_train = train_weights.get('best')
-			last_weights = train_weights.get('last')
-			initial_must_exist = train_weights.get('must_exist', False)
-			deprecated_checkpoint = train_weights.get('checkpoint')
-		else:
-			raise ValueError('Unknown weight specification for training: {}'
-				.format(train_weights))
-		""")
+		logger.critical("\n\nExtract dirnames for initial_weights, best_train, best_valid, last_weights, initial_must_exist, deprecated_checkpoint from train_weights dict \n\n`train_weights = self.data['train'].get('weights')` \n\nUsually, initial_weights is set to 'best.valid.w' \n\n")
+		if logger.isEnabledFor(logging.CRITICAL):
+			print("""
+if train_weights is None:
+	initial_weights = best_train = last_weights = None
+	deprecated_checkpoint = None
+elif isinstance(train_weights, str):
+	initial_weights = train_weights
+	best_train = train_weights if best_valid is None else None
+	last_weights = None
+	initial_must_exist = False
+	deprecated_checkpoint = None
+elif isinstance(train_weights, dict):
+	initial_weights = train_weights.get('initial')
+	best_train = train_weights.get('best')
+	last_weights = train_weights.get('last')
+	initial_must_exist = train_weights.get('must_exist', False)
+	deprecated_checkpoint = train_weights.get('checkpoint')
+else:
+	raise ValueError('Unknown weight specification for training: {}'
+		.format(train_weights))
+			""")
+
 		train_weights = self.data['train'].get('weights')
 		if train_weights is None:
 			initial_weights = best_train = last_weights = None
@@ -462,7 +471,7 @@ return {
 			raise ValueError('Unknown weight specification for training: {}'
 				.format(train_weights))
 
-		logger.critical("\n\nExtract checkpoint = self.data['train'].get('checkpoint') \n\nCheckpoint is a way to set conditions for save weights \n\n")
+		logger.critical("\n\nExtract checkpoint from train section\n\n`checkpoint = self.data['train'].get('checkpoint')` \n\nCheckpoint is a way to set conditions for save weights \n\n")
 
 		checkpoint = self.data['train'].get('checkpoint')
 
@@ -476,37 +485,40 @@ return {
 				logger.warning('The currently-accepted "checkpoint" will be '
 					'used over the deprecated "checkpoint".')
 
-		logger.critical("\n\nGet 4 dir paths for weights\n\n")
-		print("""
-		expand = lambda x: os.path.expanduser(os.path.expandvars(x))
-		initial_weights, best_train, best_valid, last_weights = [
-			expand(x) if x is not None else x for x in
-				(initial_weights, best_train, best_valid, last_weights)
-		]
-		""")
+		logger.critical("\n\nGet proper dir_path names for initial_weights, best_valid, best_train, last_weights\n\n")
+		if logger.isEnabledFor(logging.CRITICAL):
+			print("""
+expand = lambda x: os.path.expanduser(os.path.expandvars(x))
+initial_weights, best_train, best_valid, last_weights = [
+	expand(x) if x is not None else x for x in
+		(initial_weights, best_train, best_valid, last_weights)
+]
+			""")
 		expand = lambda x: os.path.expanduser(os.path.expandvars(x))
 		initial_weights, best_train, best_valid, last_weights = [
 			expand(x) if x is not None else x for x in
 				(initial_weights, best_train, best_valid, last_weights)
 		]
 
-		logger.critical("\n\nmodel = self.get_model(provider) \n\n")
+		logger.critical("\n\nBuild model with train section data provider\n\n`model = self.get_model(provider)` \n\n")
 		model = self.get_model(provider)
 
-		logger.critical("\n\ntrainer = self.get_trainer() \n\n")
+		logger.critical("\n\nBuild Executor trainer\n\n`trainer = self.get_trainer()` \n\n")
 		trainer = self.get_trainer()
 
 
-		logger.critical("\n\nAbove are inputs for func\n\nNow def func(**kwargs): for training\n\n")
+		logger.critical("\n\nDefine a func(**kwargs) and return func\n\nEOF and back to `__main__.train` last line `func(args.step)`\n\nso, now Dive into this `func`\n\n")
+
 		def func(**kwargs):
 			""" Trains a model from a pre-packaged specification file.
 			"""
-			logger.critical("\n\nmodel.restore(initial_weights)\n\n")
-			print("""
-			if initial_weights is not None:
-				if os.path.exists(initial_weights):
-					model.restore(initial_weights)
-			""")
+			logger.critical("\n\nRestore best validate weights to model, if the folder and files are available\n\n`model.restore(initial_weights)`\n\n")
+			if logger.isEnabledFor(logging.CRITICAL):
+				print("""
+if initial_weights is not None:
+	if os.path.exists(initial_weights):
+		model.restore(initial_weights)
+				""")
 			if initial_weights is not None:
 				if os.path.exists(initial_weights):
 					model.restore(initial_weights)
@@ -531,21 +543,22 @@ return {
 							'in the approriate "weights" section.',
 							initial_weights)
 
-			logger.critical("\n\nGather all inputs into defaults dict\n\n")
-			print("""
-			defaults = {
-				'provider' : provider,
-				'validation' : validation,
-				'stop_when' : stop_when,
-				'log' : log,
-				'best_train' : best_train,
-				'best_valid' : best_valid,
-				'last_weights' : last_weights,
-				'training_hooks' : training_hooks,
-				'validation_hooks' : validation_hooks,
-				'checkpoint' : checkpoint
-			}
-			""")
+			logger.critical("\n\nGather all inputs into defaults dict for training\n\n")
+			if logger.isEnabledFor(logging.CRITICAL):
+				print("""
+defaults = {
+	'provider' : provider,
+	'validation' : validation,
+	'stop_when' : stop_when,
+	'log' : log,
+	'best_train' : best_train,
+	'best_valid' : best_valid,
+	'last_weights' : last_weights,
+	'training_hooks' : training_hooks,
+	'validation_hooks' : validation_hooks,
+	'checkpoint' : checkpoint
+}
+				""")
 			defaults = {
 				'provider' : provider,
 				'validation' : validation,
@@ -559,14 +572,14 @@ return {
 				'checkpoint' : checkpoint
 			}
 
-			logger.critical("\n\nadd more inputs into default \n\ndefaults.update(kwargs) \n\n")
+			logger.critical("\n\nadd more inputs into default the dict \n\ndefaults.update(kwargs) \n\n")
 			defaults.update(kwargs)
 
-			logger.critical("\n\nreturn trainer.train(**defaults)\n\nEOF\n\nDive into Executor.train()\nWeights are accessed and saved from this fucntion onward\n\n")
+			logger.critical("\n\nreturn trainer.train(**defaults)\n\nEOF for `func`\n\nDive into trainer.train(**defaults)\n\n")
 
 			return trainer.train(**defaults)
 
-		logger.critical("\n\nreturn func\n\nEOF\n\nOut of Kurfile.get_training_function() back to __main__.train() \n\n")
+		# logger.critical("\n\nreturn func\n\nEOF\n\nOut of Kurfile.get_training_function() back to __main__.train() \n\n")
 		return func
 
 	###########################################################################

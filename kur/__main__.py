@@ -72,10 +72,10 @@ def train(args):
 	logger.critical("\n\nspec = parse_kurfile(args.kurfile, args.engine)  \n\n")
 	spec = parse_kurfile(args.kurfile, args.engine)
 
-	logger.critical("\n\nfunc = spec.get_training_function()  \n\nDive into Kurfile.get_training_function()\n\n")
+	logger.critical("\n\nfunc = spec.get_training_function()  \n\nThen run `func(step=args.step)`\n\nEOF \n\nDive inside `func = spec.get_training_function()`\n\n")
 	func = spec.get_training_function()
 
-	logger.critical("\n\nfunc(step=args.step)\n\nEOF \n\nDive into func() inside get_training_function\n\n")
+	# logger.critical("\n\nfunc(step=args.step)\n\nEOF \n\nDive into func() inside get_training_function\n\n")
 	func(step=args.step)
 
 ###############################################################################
