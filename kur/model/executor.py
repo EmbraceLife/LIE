@@ -25,7 +25,7 @@ import tqdm
 from ..providers import Provider
 from ..utils import get_any_value, CriticalSection, parallelize, Timer
 from ..loggers import PersistentLogger
-from .hooks import TrainingHook
+from .hooks import TrainingHook, PlotWeightsHook
 
 logger = logging.getLogger(__name__)
 import numpy as np
@@ -347,14 +347,18 @@ class Executor:
 						info={'Reason' : reason}
 					)
 			""")
-			# ?????? to comment back: conflict with info['epoch']
+
+			# hooks when training end
+			# code conflict with PlotWeightsHook below is handled
 			if training_hooks:
 				for hook in training_hooks:
-					hook.notify(
-						TrainingHook.TRAINING_END,
-						log=log,
-						info={'Reason' : reason}
-					)
+					# make sure PlotWeightsHook is not run here
+					if not isinstance(hook, PlotWeightsHook):
+						hook.notify(
+							TrainingHook.TRAINING_END,
+							log=log,
+							info={'Reason' : reason}
+						)
 
 	###########################################################################
 	def wrapped_train(self, provider, *, validation=None, stop_when=None,
@@ -538,6 +542,8 @@ class Executor:
 			}
 			if validation is not None:
 				info['Validation loss'] = validation_loss
+
+			# hooks for validation
 			for hook in training_hooks:
 				hook.notify(
 					status,
@@ -598,6 +604,8 @@ class Executor:
 						else:
 							num_batches = checkpoint['validation']
 						val_loss = run_validation(num_batches)
+
+						# run hooks at the end of validation 
 						run_training_hooks(None, val_loss,
 							TrainingHook.VALIDATION_END)
 
@@ -889,6 +897,7 @@ class Executor:
 		self.compile('train', with_provider=provider)
 		provider.source_shapes()
 
+		# hooks when training start
 		if training_hooks:
 			for hook in training_hooks:
 				hook.notify(
@@ -1100,6 +1109,8 @@ print_times()
 
 			# Execute training hooks at the end of each epoch
 			logger.critical("\n\nNow acting on hooks, plot_weights for mnist1.yml is a good start, and try to make them as simple as possible\n\nDon't tackle complex problem as a whole\n\nIt can easily break you\n\n")
+
+			# run hooks at the end of each epoch
 			run_training_hooks(
 				cur_train_loss,
 				validation_loss,
