@@ -28,6 +28,7 @@ from ...loggers import PersistentLogger, Statistic
 import logging
 import matplotlib.pyplot as plt
 import numpy as np
+import math
 logger = logging.getLogger(__name__)
 from ...utils import DisableLogging, idx
 # with DisableLogging(): how to disable logging for a function
@@ -52,24 +53,17 @@ class PlotWeightsHook(TrainingHook):
 		return 'plot_weights'
 
 	###########################################################################
-	def __init__(self, *args, **kwargs):
+	def __init__(self, weight_file, weight_keywords1, weight_keywords2, plot_every_n_epochs, *args, **kwargs):
 		""" Creates a new plotting hook, get plot filenames and matplotlib ready.
 		"""
 
 		super().__init__(*args, **kwargs)
 
-		# put plot filenames int of dict
-		# plots = dict(zip(
-		# 	('loss_per_batch', 'loss_per_time', 'throughput_per_time'),
-		# 	(loss_per_batch, loss_per_time, throughput_per_time)
-		# ))
-
-		# get plot filenames as dict into self.plots
-		# self.plots = plots
-		# for k, v in self.plots.items():
-		# 	if v is not None:
-		# 		self.plots[k] = os.path.expanduser(os.path.expandvars(v))
-
+		# bring in kurfile: hooks: plot_weights: weight_file, weight_file_keywords
+		self.plot_every_n_epochs = plot_every_n_epochs
+		self.weight_file = weight_file
+		self.weight_keywords1 = weight_keywords1
+		self.weight_keywords2 = weight_keywords2
 		# import matplotlib and use
 		try:
 			import matplotlib					# pylint: disable=import-error
@@ -90,14 +84,14 @@ class PlotWeightsHook(TrainingHook):
 
 		from matplotlib import pyplot as plt	# pylint: disable=import-error
 
-		logger.critical('PlotWeightsHook received training message.')
+		# logger.critical('PlotWeightsHook received training message.')
 
 		if status not in (
 			# TrainingHook.TRAINING_END,
 			# TrainingHook.VALIDATION_END,
 			TrainingHook.EPOCH_END, # , is a must here
 		):
-			logger.critical('PlottingWeight hook does not handle this status.')
+			logger.critical('\n\nPlotWeightsHook is tried here, but it does not handle the specified status.\n\n')
 			return
 
 
@@ -112,7 +106,6 @@ class PlotWeightsHook(TrainingHook):
 			# the images so they can be compared with each other.
 			w_min = np.min(w)
 			w_max = np.max(w)
-
 
 			# Create figure with 3x4 sub-plots,
 			# where the last 2 sub-plots are unused.
@@ -153,24 +146,86 @@ class PlotWeightsHook(TrainingHook):
 			# save figure with a nicer name
 			plt.savefig('plot_weights/{}_epoch_{}.png'.format(filename_cut_dir, info['epoch']))
 
+		def plot_conv_weights(kernel_filename, input_channel=0):
+			# Assume weights are TensorFlow ops for 4-dim variables
+			# e.g. weights_conv1 or weights_conv2.
+
+			# Retrieve the values of the weight-variables from TensorFlow.
+			# A feed-dict is not necessary because nothing is calculated.
+			# load weights from weight files in idx format
+			w = idx.load(kernel_filename)
+
+			# Get the lowest and highest values for the weights.
+			# This is used to correct the colour intensity across
+			# the images so they can be compared with each other.
+			w_min = np.min(w)
+			w_max = np.max(w)
+
+			# Number of filters used in the conv. layer.
+			num_filters = w.shape[3]
+
+			# Number of grids to plot.
+			# Rounded-up, square-root of the number of filters.
+			num_grids = math.ceil(math.sqrt(num_filters))
+
+			# Create figure with a grid of sub-plots.
+			fig, axes = plt.subplots(num_grids, num_grids)
+
+			# Plot all the filter-weights.
+			for i, ax in enumerate(axes.flat):
+				# Only plot the valid filter-weights.
+				if i<num_filters:
+					# Get the weights for the i'th filter of the input channel.
+					# See new_conv_layer() for details on the format
+					# of this 4-dim tensor.
+					img = w[:, :, input_channel, i]
+
+					# Plot image.
+					ax.imshow(img, vmin=w_min, vmax=w_max, interpolation='nearest', cmap='seismic')
+
+				# Remove ticks from the plot.
+				ax.set_xticks([])
+				ax.set_yticks([])
+
+		    # Ensure the plot is shown correctly with multiple plots
+		    # in a single Notebook cell.
+		    # if we plot while training, we can't save it
+			# plt.show()
+
+			# get filename without "dir/.."
+			filename_cut_dir = kernel_filename[kernel_filename.find("/..")+3 :]
+			# save figure with a nicer name
+			plt.savefig('plot_weights/{}_epoch_{}.png'.format(filename_cut_dir, info['epoch']))
 
 
 
-		if info['epoch'] == 1 or info['epoch'] % 1 == 0:
+		if info['epoch'] == 1 or info['epoch'] % self.plot_every_n_epochs == 0:
 			# save weights plots
-			logger.critical("\n\nLet's print weights every 100 epochs\n\n")
+			logger.critical("\n\nLet's print weights at epoch idx 1 or every %s epochs\n\n", self.plot_every_n_epochs)
 
 
 			# get all the validation weights names
 			valid_weights_filenames = []
 			# how to give a path name to plot_weights???
-			for dirpath, _, filenames in os.walk("mnist.best.valid.w"): # mnist or cifar
+			for dirpath, _, filenames in os.walk(self.weight_file): # mnist or cifar
 				for this_file in filenames:
 					valid_weights_filenames.append(dirpath+"/"+this_file)
 
 
 			for this_file in valid_weights_filenames:
-				if this_file.find("kernel") > -1:
-					plot_weights(this_file)
+				if this_file.find(self.weight_keywords1[0]) > -1 and this_file.find(self.weight_keywords1[1]) > -1:
 
+
+					if self.weight_keywords1[0].find("convol") > -1 or self.weight_keywords1[1].find("convol") > -1:
+						plot_conv_weights(this_file)
+					else:
+						plot_weights(this_file)
+
+				if this_file.find(self.weight_keywords2[0]) > -1 and this_file.find(self.weight_keywords2[1]) > -1:
+
+
+					if self.weight_keywords2[0].find("convol") > -1 or self.weight_keywords2[1].find("convol") > -1:
+						plot_conv_weights(this_file)
+					else:
+						plot_weights(this_file)
 			# save validation_loss on the plotting

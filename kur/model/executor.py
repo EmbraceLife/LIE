@@ -328,7 +328,7 @@ try:
 
 
 		else:
-			logger.critical("\n\nIf `wrapped_train()` run without error, then set reason=`success`, and return result \n\nThen continue to run codes inside `finally`\n\n")
+			logger.critical("\n\nNow all the training is done! \n\nIf `wrapped_train()` run without error, then set reason=`success`, \n\nand return result (which is nothing)\n\nThen continue to run codes inside `finally`\n\n")
 
 			reason = 'success'
 			return result
@@ -337,7 +337,7 @@ try:
 
 
 			if last_weights is not None:
-				logger.critical('\n\nSave the latest weights into folder of `last_weights` if folder available\n\n`self.model.save(last_weights)` \n\nFolder name for `last_weights`: %s\n\n', last_weights)
+				logger.critical('\n\nSave the latest weights into folder of `last_weights` if folder available\n\n`self.model.save(last_weights)` \n\nFolder name for `last_weights` in the kurfile or yaml file: %s\n\n', last_weights)
 
 				# Protects critical code from system signals (e.g., keyboard interrupts)
 				with CriticalSection():
@@ -346,7 +346,7 @@ try:
 				# Hook for asking the logger to process log information in its queue
 				log.flush()
 
-			logger.critical("\n\nExecute training hooks which is set to activate on End of Training\n\nSuch hooks require to use info['Reason']\n\nEOF\n\n")
+			logger.critical("\n\nTry all training hooks but only Execute the ones which is set to activate on End of Training\n\nNote: Such hooks require to use info['Reason']\n\nEOF\n\n")
 			if logger.isEnabledFor(logging.CRITICAL):
 				print("""
 if training_hooks:
@@ -369,6 +369,8 @@ if training_hooks:
 						log=log,
 						info={'Reason' : reason}
 					)
+
+			logger.critical("\n\nNow Program finishes here\n\n")
 
 	###########################################################################
 	def wrapped_train(self, provider, *, validation=None, stop_when=None,
@@ -455,7 +457,7 @@ if training_hooks:
 					best_valid_loss = cur_validation_loss
 					save_or_copy_weights(best_valid)
 				else:
-					logger.critical("\n\nDon't save current weights to best_valid weights folder, because\n\ncur_validation_loss < best_valid_loss: %s", cur_validation_loss < best_valid_loss)
+					logger.critical("\n\nDon't save current weights to best_valid weights folder, because\n\ncur_validation_loss < best_valid_loss: %s\n\n", cur_validation_loss < best_valid_loss)
 
 			# update log validation info
 			if log is not None:
@@ -587,6 +589,7 @@ if training_hooks:
 				write_time('Validation wall-clock time',
 					timers['validate'].get())
 			write_time('     Batch wall-clock time', timers['batch'].get())
+			print("\n\n")
 
 		#######################################################################
 
@@ -919,7 +922,7 @@ all_done = False
 		self.compile('train', with_provider=provider)
 		provider.source_shapes()
 
-		logger.critical("\n\nOnly hooks with `status = TrainingHook.TRAINING_START` are allowed to perform here\n\n")
+		logger.critical("\n\nAll training_hooks will be tried, but \n\nOnly hooks with `status = TrainingHook.TRAINING_START` are allowed to perform here\n\n")
 		if training_hooks:
 			for hook in training_hooks:
 				hook.notify(
@@ -974,7 +977,7 @@ while not all_done:
 				for num_batches, batch in parallelize(enumerate(provider)):
 
 					# The loss averaged over this batch.
-					logger.critical('Training on batch...')
+					logger.critical('\n\nTraining on a batch...\n\n')
 
 					logger.critical("\n\nTurn on step feature: %s \n\n", step)
 
@@ -1002,12 +1005,12 @@ while not all_done:
 					# last weight file.
 					saved_recent = None
 
-					logger.critical('Finished training on batch.')
+					logger.critical('\n\nFinished training on the batch.\n\n')
 
 					# How many entries we just processed.
 					batch_size = len(get_any_value(batch))
 
-					logger.critical("\n\nlog training information after a batch\n\n`log.log_batch(batch_size, batch_loss, 'loss',clocks=timers)`\n\nupdate session\n\nupdate Checkpoint: if condition?? satifised, then Prints the current(wall) timer values.\n\nupdate new entries\n\n")
+					logger.critical("\n\nUpdate log training information after a batch\n\n`log.log_batch(batch_size, batch_loss, 'loss',clocks=timers)`\n\nupdate session\n\nupdate Checkpoint: if condition?? satifised, then Prints the current(wall) timer values.\n\nupdate new entries\n\n")
 					if log is not None:
 						log.log_batch(batch_size, batch_loss, 'loss',
 							clocks=timers)
@@ -1025,7 +1028,7 @@ while not all_done:
 					# How many entries we've processed this epoch.
 					new_entries = n_entries + batch_size
 
-					logger.critical("\n\nGet average train_loss for each batch\n\n")
+					logger.critical("\n\nGet average train_loss for this batch\n\n")
 					print("""
 		if train_loss is None:
 			train_loss = batch_loss
@@ -1049,7 +1052,7 @@ while not all_done:
 					print("train_loss average: {}\n\n".format(train_loss))
 					n_entries = new_entries
 
-					logger.critical("\n\nCheck on training clock to see whether training time is up or not\n\n")
+					logger.critical("\n\nCheck on training clock to see whether training time is up or not\n\nIf time is up, then progress bar will print out time up\n\ntime is not up, do nothing\n\n")
 					if clock and clock['seconds'] < \
 							(clock['timer'].get() - clock['mark']):
 						logger.critical("\n\nPrint out in progress bar to say `Training time is up` \n\nand set all_done True\n\nStop training\n\n")
@@ -1086,15 +1089,16 @@ while not all_done:
 								'clip your gradients.', k)
 							if self.NAN_IS_FATAL:
 								raise ValueError('Model loss is infinite.')
+					logger.critical("\n\nRepeat the process above for every batch of an epoch\n\n")
 
-			logger.critical("\n\nAn epoch of data is finished training\n\nPause timer for train\n\n")
+			logger.critical("\n\nNow An epoch of data is finished training\n\nPause timer for train\n\n")
 			timers['train'].pause()
 			# END: Train one epoch
 			###################################################################
 
 
 
-			logger.critical("\n\nAfter each epoch of training,\n\nAdd 1 to session['epochs']\n\nrun_checkpoint() \n\nGet current training loss, and save the current training weights to `best_train` if the training loss is smaller than previous_best_training_loss\n\nRun validate data onto the current training weights, get validate_loss, and save current training weights inside `best_valid` if the validate_loss is smaller than previous ones\n\n")
+			logger.critical("\n\nAfter each epoch of training,\n\n")
 			if logger.isEnabledFor(logging.CRITICAL):
 				print("""
 # Update our session statistics.
@@ -1114,13 +1118,14 @@ cur_train_loss = run_posttrain(n_entries, train_loss)
 # 3. save current training weights to best_valid weights folder if condition met
 validation_loss = run_validation()
 
-# Execute training hooks at the end of each epoch
+# Finally, try all training_hooks but execute ones which are to activate at End of Epoch
 run_training_hooks(
 	cur_train_loss,
 	validation_loss,
 	status=TrainingHook.EPOCH_END
 )
 
+# print out
 print_times()
 				""")
 
@@ -1139,7 +1144,7 @@ print_times()
 			validation_loss = run_validation()
 
 			# Execute training hooks at the end of each epoch
-			logger.critical("\n\nRun TrainingHook after an epoch of training\n\nNote: this hook is activate only when `status=TrainingHook.EPOCH_END`\n\n")
+			logger.critical("\n\nTry all training_hooks, but only the ones with `status=TrainingHook.EPOCH_END` will be executed\n\n")
 
 			# run hooks at the end of each epoch
 			run_training_hooks(
@@ -1148,62 +1153,10 @@ print_times()
 				status=TrainingHook.EPOCH_END
 			)
 
-			# #### start here:
-			# # make plot_weights() working for all image models
-			# # to make it a hook
-			# # let's save weights plots for 1 epoch and every 50 epochs
-			# def plot_weights():
-			#
-			# 	# Get the values for the weights from the TensorFlow variable.
-			# 	w = idx.load("mnist.best.valid.w/..dense.0+..dense.0_kernel:0.kur")
-			#
-			# 	# Get the lowest and highest values for the weights.
-			# 	# This is used to correct the colour intensity across
-			# 	# the images so they can be compared with each other.
-			# 	w_min = np.min(w)
-			# 	w_max = np.max(w)
-			#
-			#
-			# 	# Create figure with 3x4 sub-plots,
-			# 	# where the last 2 sub-plots are unused.
-			# 	fig, axes = plt.subplots(3, 4)
-			# 	fig.subplots_adjust(hspace=0.3, wspace=0.3)
-			#
-			#
-			# 	for i, ax in enumerate(axes.flat):
-			# 		# Only use the weights for the first 10 sub-plots.
-			# 		if i<10:
-			# 			# Get the weights for the i'th digit and reshape it.
-			# 			# Note that w.shape == (img_size_flat, 10)
-			# 			image = w[:, i].reshape((28, 28))
-			#
-			# 			# Set the label for the sub-plot.
-			# 			ax.set_xlabel("Weights: {0}".format(i))
-			#
-			#
-			# 			# Plot the image.
-			# 			ax.imshow(image, vmin=w_min, vmax=w_max, cmap='seismic')
-			#
-			# 		if i == 0:
-			# 			# how to make a title for plotting
-			# 			ax.set_title("validation_loss: {}".format(round(validation_loss[None]['labels'], 3)))
-			#
-			# 		# Remove ticks from each sub-plot.
-			# 		ax.set_xticks([])
-			# 		ax.set_yticks([])
-			# 	# if we plot while training, we can't save it
-			# 	# plt.show()
-			# 	plt.savefig('plot_weights/epoch_{}.png'.format(completed_epochs + session['epochs']))
-			#
-			#
-			# if completed_epochs + session['epochs'] == 1 or (completed_epochs + session['epochs']) % 100 == 0:
-			# 	# save weights plots
-			# 	logger.critical("\n\nLet's print weights every 20 epochs\n\n")
-			#
-			# 	plot_weights()
-			# 	# save validation_loss on the plotting
 
 			print_times()
+
+			logger.critical("\n\nKeep training on more epochs, until \n\ntotal epochs for this time of training is up (mode='additional') or \ntotal epochs throughout history is up (mode='total'), \n\nor total time for this time of training is up (stop_when['mode']='additional') or \ntotal time throughout history is up (stop_when['mode']='total')\n\n")
 
 	###########################################################################
 	def evaluate(self, provider, callback=None, step=False):

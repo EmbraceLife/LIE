@@ -24,14 +24,35 @@ train:
   # nice and quick on slow/CPU-only machines. If you have a GPU, feel free to
   # remove the "provider:" section entirely.
   provider:
+    batch_size:
     num_batches: 1
   log: mnist-log
   # How many epochs to train for.
-  epochs: 500
+  epochs:
+    number: 2
+    mode: additional
+  stop_when:
+    epochs: 100 # null or infinite : to train forever
+    elapsed:
+      minutes: 10
+      hours: 0
+      days: 0
+      clock: all # (time spend on all things) or all | train | validate | batch
+    mode: additional # additional | total, if set total, then elapsed above define total training time in history added
   weights: # the folders below are prepared automatically?
     initial: mnist.best.valid.w
     best: mnist.best.train.w
     last: mnist.last.w
+  hooks:
+    - plot_weights:
+        weight_file: mnist.best.valid.w
+        weight_keywords1: ["kernel", "dense"]
+        weight_keywords2: ["kernel", "convol"]
+        #  mnist.best.valid.w/..dense.0+..dense.0_kernel/0.kur
+    - plot: # the folder must be prepared first
+        loss_per_batch: mnist-plot/plot1.png
+        loss_per_time: mnist-plot/plot2.png
+        throughput_per_time: mnist-plot/plot3.png
 
 # Here, we use the MNIST test set as a validation set (more generally, you'll
 # want train, validation, and test sets; but we ignore this for the MNIST

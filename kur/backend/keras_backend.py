@@ -838,7 +838,7 @@ model.compiled[key] = result
 	def wait_for_compile(self, model, key):
 		""" Waits for the model to finish compiling.
 		"""
-		logger.critical("\n\nwait_for_compile(self, model, key): dive for details now????? \n\nCompile a model == save initial weights into files, test with 2 samples and restore weights from files into model object \n\n1. get provider with a single batch of size 2 ready \n\n2. get temporal dir ready; \n\n3. save weights arrays of layers into temporal files; \n\n4. test weights and model by using 2 sample data and weights to make predictions and calc loss; \n\n5. finall restore the weights to the model using self._restore_keras(model.compiled['raw'], weight_path) \n\n")
+		logger.critical("\n\nwait_for_compile(self, model, key): dive for details now????? \n\nCompile a model == save initial weights into files, test with 2 samples and restore weights from files into model object \n\n1. get provider with a single batch of size 2 ready \n\n2. get temporal dir ready; \n\n3. save weights arrays of layers into temporal files; \n\n4. Dive inside `keras_backend.run_batch()`; \n1. reshape the batch (2 samples) for compile; \n2. run forward pass to get predictions and loss, using \n\n5. finall restore the weights to the model using self._restore_keras(model.compiled['raw'], weight_path) \n\n")
 
 		if model.provider is None:
 			logger.warning('No data provider available, so we cannot reliably '
@@ -896,6 +896,8 @@ model.supplement_provider(provider)
 
 	###########################################################################
 	def run_batch(self, model, batch, key, is_train):
+		logger.critical("\n\n`keras_backend.run_batch()` does 2 things; \n1. reshape the batch (2 samples) for compile; \n2. run forward pass to get predictions and loss, using\n\n")
+
 		logger.critical("\n\noriginal Batch shape\n")
 		for k, v in batch.items():
 			print(k, ":", v.shape, "\n")
@@ -914,13 +916,15 @@ model.supplement_provider(provider)
 
 
 		def coerce_shape(data, shape, name):
-			print("\n\ndata's name: {}\nIf data.ndim < len(shape): {} \nAdd one more dim to data, otherwise, remain same:\n".format(name, data.ndim < len(shape)))
+			if logger.isEnabledFor(logging.CRITICAL):
+				print("\n\ndata's name: {}\nIf data.ndim < len(shape) true: Add one more dim to data; \notherwise, remain same:\n\nIn this case, data.ndim < len(shape): {}\n\n".format(name, data.ndim < len(shape)))
 			if data.ndim < len(shape):
-				print("\nadd one dim to the end, make a new_data's shape: numpy.expand_dims(data, -1).shape\n{}".format(numpy.expand_dims(data, -1).shape))
+				if logger.isEnabledFor(logging.CRITICAL):
+					print("\nTherefore, add one dim to the end, make a new_data's shape: numpy.expand_dims(data, -1).shape\n{}".format(numpy.expand_dims(data, -1).shape))
 				return numpy.expand_dims(data, -1)
 			else:
-
-				print("return the original data's shape:{}".format(data.shape))
+				if logger.isEnabledFor(logging.CRITICAL):
+					print("So, return the original data's shape unchanged:{}\n\n".format(data.shape))
 				return data
 
 		inputs = [
@@ -934,7 +938,8 @@ model.supplement_provider(provider)
 			)
 		] + [is_train]
 
-		logger.critical("\n\nspec.model.compiled[train or key]['func'] is used to calc predictions and metrics\n\nAfter training each batch, the weights will be backproped or updated, but it is handled not in kur but in backend_specific_function\n\noutputs = compiled['func'](inputs)\n\nThe inputs this func use:\n\n \nspec.model.compiled['train'|key]['shapes']['input'],\nspec.model.compiled['train'|key]\nbatch being coerce_shaped\n\n")
+		if logger.isEnabledFor(logging.CRITICAL):
+			print("\n\npredictions and loss of this batch are produced using\n\n`outputs = compiled['func'](inputs)`\n\n")
 		outputs = compiled['func'](inputs)
 		num_outputs = len(raw.outputs)
 		metrics = {
@@ -944,9 +949,11 @@ model.supplement_provider(provider)
 			)
 		}
 		predictions = {name : data for name, data in zip(model.outputs, outputs[:num_outputs])}
-		for k, v in predictions.items():
-			print("prediction:", k, "shape:", v.shape, "\n")
-		print("metrics or loss: {}\n\n".format(metrics))
+
+		if logger.isEnabledFor(logging.CRITICAL):
+			for k, v in predictions.items():
+				print("prediction:", k, "shape:", v.shape, "\n")
+			print("metrics or loss: {}\n\n".format(metrics))
 
 
 		return predictions, metrics
@@ -955,11 +962,13 @@ model.supplement_provider(provider)
 	def train(self, model, data):
 		""" Fits the given model on a batch of data.
 		"""
-		logger.critical("\n\nExtract optimizer\nkur_optimizer = model.compiled['train']['kur_optimizer'] \n\n")
+		logger.critical("\n\nExtract optimizer\n\n`kur_optimizer = model.compiled['train']['kur_optimizer']` \n\n")
 		kur_optimizer = model.compiled['train']['kur_optimizer']
 
-		logger.critical("\n\nIf kur_optimizer.scale_rate is available, do something??? before run a batch on the model\n\nOtherwise, just run a batch on the model\n\nDive into keras_backend.run_batch\n\n")
-		print("""
+		logger.critical("\n\nIf kur_optimizer.scale_rate is available, do something??? before `run_batch()`\n\nOtherwise, just `run_batch()`\n\n")
+
+		if logger.isEnabledFor(logging.CRITICAL):
+			print("""
 if kur_optimizer.scale_rate:
 	if kur_optimizer.scale_rate in data:
 		import keras.backend as K		# pylint: disable=import-error
@@ -980,8 +989,8 @@ if kur_optimizer.scale_rate:
 			'no such data column was found: %s. Ignoring this.',
 			kur_optimizer.scale_rate)
 return self.run_batch(model, data, 'train', True)
-		""")
-		print("\n\nEOF\n\n")
+			""")
+			print("\n\nEOF\n\nDive into `keras_backend.run_batch`\n\n")
 
 		if kur_optimizer.scale_rate:
 			if kur_optimizer.scale_rate in data:

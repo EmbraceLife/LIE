@@ -42,21 +42,26 @@ train:
         <<: *cifar
         parts: [1, 2, 3, 4]
   provider:
-    batch_size: 31
+    batch_size: 32
     num_batches: 1
   log: cifar-log
   epochs:
     number: 2
     mode: additional
   stop_when:
-    epochs: 10 # null or infinite : to train forever
+    epochs: 5 # null or infinite : to train forever
     elapsed:
-      minutes: 5
-      hours: 1
+      minutes: 10
+      hours: 0
       days: 0
       clock: all # (time spend on all things) or all | train | validate | batch
-    mode: additional # additional | total
+    mode: additional # additional | total, if set total, then elapsed above define total training time in history added
   hooks:
+    - plot_weights:
+        plot_every_n_epochs: 10
+        weight_file: cifar.best.valid.w
+        weight_keywords1: ["convolution.0", "kernel"]
+        weight_keywords2: ["convolution.1", "kernel"]
     - plot: # the folder must be prepared first
         loss_per_batch: cifar-plot/plot1.png
         loss_per_time: cifar-plot/plot2.png
@@ -67,8 +72,11 @@ train:
     last: cifar.last.w
   checkpoint:
     path: cifar-checkpoint/
-    batches: 10 # save the training weights after 10 batches in folder above
+    batches: 500 # batches, samples, epochs, minutes if present, must be an integer, not a string, not null, not None
     samples: 1000
+    epochs: 1
+    minutes: 1000
+    validation: no
   optimizer:
     name: adam
     learning_rate: 0.001
