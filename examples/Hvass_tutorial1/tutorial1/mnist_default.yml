@@ -45,6 +45,7 @@ train:
     last: mnist.last.w
   hooks:
     - plot_weights:
+        plot_every_n_epochs: 10
         weight_file: mnist.best.valid.w
         weight_keywords1: ["kernel", "dense"]
         weight_keywords2: ["kernel", "convol"]
