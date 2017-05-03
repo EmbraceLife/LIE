@@ -322,6 +322,16 @@ def version(args):							# pylint: disable=unused-argument
 	print('Homepage: {}'.format(__homepage__))
 
 ###############################################################################
+def why(args):
+	""" Print out reasons for using kur primarily over other libraries.
+	"""
+	import webbrowser
+	import time
+	print("See reasons of why I use kur primarily over other libs")
+	time.sleep(10)
+	webbrowser.open("https://github.com/EmbraceLife/LIE/issues/5")
+
+###############################################################################
 def do_monitor(args):
 	""" Handle "monitor" mode.
 	"""
@@ -468,6 +478,8 @@ def build_parser():
 			'errors, like segmentation faults.')
 	parser.add_argument('--version', action='store_true',
 		help='Display version and exit.')
+	parser.add_argument('--why', action='store_true',
+		help='Display Reasons for why using kur primarily over other libraries.')
 	parser.add_argument('--plugin', help='Plugin directory, or "none" to '
 		'disable plugins.')
 
@@ -608,6 +620,8 @@ def main():
 	logger.critical("\n\nget version or do Nothing\n\n")
 	if args.version:
 		args.func = version
+	elif args.why:
+		args.func = why
 	elif not hasattr(args, 'func'):
 		print('Nothing to do!', file=sys.stderr)
 		print('For usage information, try: kur --help', file=sys.stderr)

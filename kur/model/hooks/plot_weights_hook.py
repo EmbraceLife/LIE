@@ -101,7 +101,7 @@ class PlotWeightsHook(TrainingHook):
 
 		# borrowed from https://hyp.is/MKzd7C4eEeeWlPvso_EWdg/nbviewer.jupyter.org/github/Hvass-Labs/TensorFlow-Tutorials/blob/master/01_Simple_Linear_Model.ipynb
 		def plot_weights(kernel_filename):
-			# designed to plot weights of a single dense layer model on recognising images 
+			# designed to plot weights of a single dense layer model on recognising images of single color 
 
 			# load weights from weight files in idx format
 			w = idx.load(kernel_filename)
