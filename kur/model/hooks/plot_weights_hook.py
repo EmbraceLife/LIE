@@ -53,11 +53,15 @@ class PlotWeightsHook(TrainingHook):
 		return 'plot_weights'
 
 	###########################################################################
-	def __init__(self, weight_file, weight_keywords1, weight_keywords2, plot_every_n_epochs, *args, **kwargs):
+	def __init__(self, plot_directory, weight_file, weight_keywords1, weight_keywords2, plot_every_n_epochs, *args, **kwargs):
 		""" Creates a new plotting hook, get plot filenames and matplotlib ready.
 		"""
 
 		super().__init__(*args, **kwargs)
+
+		self.directory = plot_directory
+		if not os.path.exists(self.directory):
+			os.makedirs(self.directory)
 
 		# bring in kurfile: hooks: plot_weights: weight_file, weight_file_keywords
 		self.plot_every_n_epochs = plot_every_n_epochs
@@ -144,7 +148,7 @@ class PlotWeightsHook(TrainingHook):
 			# get filename without "dir/.."
 			filename_cut_dir = kernel_filename[kernel_filename.find("/..")+3 :]
 			# save figure with a nicer name
-			plt.savefig('plot_weights/{}_epoch_{}.png'.format(filename_cut_dir, info['epoch']))
+			plt.savefig('{}/{}_epoch_{}.png'.format(self.directory, filename_cut_dir, info['epoch']))
 
 		def plot_conv_weights(kernel_filename, input_channel=0):
 			# Assume weights are TensorFlow ops for 4-dim variables
@@ -195,7 +199,7 @@ class PlotWeightsHook(TrainingHook):
 			# get filename without "dir/.."
 			filename_cut_dir = kernel_filename[kernel_filename.find("/..")+3 :]
 			# save figure with a nicer name
-			plt.savefig('plot_weights/{}_epoch_{}.png'.format(filename_cut_dir, info['epoch']))
+			plt.savefig('{}/{}_epoch_{}.png'.format(self.directory, filename_cut_dir, info['epoch']))
 
 
 

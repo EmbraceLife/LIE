@@ -58,7 +58,8 @@ train:
     mode: additional # additional | total, if set total, then elapsed above define total training time in history added
   hooks:
     - plot_weights:
-        plot_every_n_epochs: 10
+        plot_every_n_epochs: 2
+        plot_directory: "plot_weights2"
         weight_file: cifar.best.valid.w
         weight_keywords1: ["convolution.0", "kernel"]
         weight_keywords2: ["convolution.1", "kernel"]
