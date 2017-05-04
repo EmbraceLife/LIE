@@ -60,13 +60,17 @@ train:
       days: 0
       clock: all # (time spend on all things) or all | train | validate | batch
     mode: additional # additional | total, if set total, then elapsed above define total training time in history added
+
   hooks:
     - plot_weights:
         plot_every_n_epochs: 1
         plot_directory: "plot_weights2"
         weight_file: cifar.best.valid.w
-        weight_keywords1: ["convolution.0", "kernel"]
-        weight_keywords2: ["convolution.1", "kernel"]
+        with_weights:
+          - ["convolution.0", "kernel"]
+          - ["convolution.1", "kernel"]
+        # weight_keywords1: ["convolution.0", "kernel"]
+        # weight_keywords2: ["convolution.1", "kernel"]
     - plot: # the folder must be prepared first
         loss_per_batch: cifar-plot/plot1.png
         loss_per_time: cifar-plot/plot2.png

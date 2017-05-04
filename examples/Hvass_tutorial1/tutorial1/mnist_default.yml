@@ -48,8 +48,9 @@ train:
         plot_every_n_epochs: 1
         plot_directory: plot_weights2
         weight_file: mnist.best.valid.w
-        weight_keywords1: ["kernel", "dense"]
-        weight_keywords2: ["kernel", "convol"]
+        with_weights:
+          - ["kernel", "dense"]
+          - ["kernel", "convol"]
         #  mnist.best.valid.w/..dense.0+..dense.0_kernel/0.kur
     - plot: # the folder must be prepared first
         loss_per_batch: mnist-plot/plot1.png

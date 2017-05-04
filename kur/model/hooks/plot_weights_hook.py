@@ -53,7 +53,7 @@ class PlotWeightsHook(TrainingHook):
 		return 'plot_weights'
 
 	###########################################################################
-	def __init__(self, plot_directory, weight_file, weight_keywords1, weight_keywords2, plot_every_n_epochs, *args, **kwargs):
+	def __init__(self, plot_directory, weight_file, with_weights, plot_every_n_epochs, *args, **kwargs):
 		""" Creates a new plot_weights hook, get weights filenames, path for saving plots, keywords for selecting layer-weights, num_epochs before plotting, and matplotlib ready.
 		"""
 
@@ -66,8 +66,10 @@ class PlotWeightsHook(TrainingHook):
 		# bring in kurfile: hooks: plot_weights: weight_file, weight_file_keywords
 		self.plot_every_n_epochs = plot_every_n_epochs
 		self.weight_file = weight_file
-		self.weight_keywords1 = weight_keywords1
-		self.weight_keywords2 = weight_keywords2
+		self.with_weights = with_weights
+
+		# self.weight_keywords1 = weight_keywords1
+		# self.weight_keywords2 = weight_keywords2
 		# import matplotlib and use
 		try:
 			import matplotlib					# pylint: disable=import-error
@@ -101,7 +103,7 @@ class PlotWeightsHook(TrainingHook):
 
 		# borrowed from https://hyp.is/MKzd7C4eEeeWlPvso_EWdg/nbviewer.jupyter.org/github/Hvass-Labs/TensorFlow-Tutorials/blob/master/01_Simple_Linear_Model.ipynb
 		def plot_weights(kernel_filename):
-			# designed to plot weights of a single dense layer model on recognising images of single color 
+			# designed to plot weights of a single dense layer model on recognising images of single color
 
 			# load weights from weight files in idx format
 			w = idx.load(kernel_filename)
@@ -226,19 +228,21 @@ class PlotWeightsHook(TrainingHook):
 
 			# find two layers-weights with selected keywords, and plot their weights, either single dense layer model or covolutional layer weights
 			for this_file in valid_weights_filenames:
-				if this_file.find(self.weight_keywords1[0]) > -1 and this_file.find(self.weight_keywords1[1]) > -1:
+				for weight_keywords in self.with_weights:
 
+					if this_file.find(weight_keywords[0]) > -1 and this_file.find(weight_keywords[1]) > -1:
 
-					if self.weight_keywords1[0].find("convol") > -1 or self.weight_keywords1[1].find("convol") > -1:
-						plot_conv_weights(this_file)
-					else:
-						plot_weights(this_file)
+						if weight_keywords[0].find("convol") > -1 or weight_keywords[1].find("convol") > -1:
+							plot_conv_weights(this_file)
 
-				if this_file.find(self.weight_keywords2[0]) > -1 and this_file.find(self.weight_keywords2[1]) > -1:
+						else:
+							plot_weights(this_file)
 
-
-					if self.weight_keywords2[0].find("convol") > -1 or self.weight_keywords2[1].find("convol") > -1:
-						plot_conv_weights(this_file)
-					else:
-						plot_weights(this_file)
+				# if this_file.find(self.weight_keywords2[0]) > -1 and this_file.find(self.weight_keywords2[1]) > -1:
+				#
+				#
+				# 	if self.weight_keywords2[0].find("convol") > -1 or self.weight_keywords2[1].find("convol") > -1:
+				# 		plot_conv_weights(this_file)
+				# 	else:
+				# 		plot_weights(this_file)
 			# save validation_loss on the plotting
