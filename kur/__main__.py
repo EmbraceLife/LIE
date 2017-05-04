@@ -25,6 +25,8 @@ import argparse
 from . import __version__, __homepage__
 from .utils import logcolor
 from . import Kurfile
+from .supplier import Supplier
+from .providers import BatchProvider
 from .plugins import Plugin
 from .engine import JinjaEngine
 
@@ -221,6 +223,133 @@ def prepare_data(args):
 
 	logger.critical("Kurfile.get_provider( section, accept_many=False):  \n\nUsing detailed info from spec.data[section]['data'] to build data suppliers first, then build a data provider : \n\n1. get the dict of spec.data[section]; \n\n2. make sure spec.data[section] has a key as 'data' or 'provider'; \n\n3. store spec.data[section]['data'] in 'supplier_list', then make it a dict with key 'default'; \n\n4. Make sure there is no more than one data sources execpt when accept_many=True; \n\n5. create data Supplier object from spec.data[section]['data']; \n\n6. create data provider using data supplier and provider_detailed_info from spec.data[section]['provider']; \n\n7. finally return this provider\n\n")
 
+	logger.critical("\n\nLook at each step above in details: \n\n")
+	if logger.isEnabledFor(logging.CRITICAL):
+		print("1. get the dict of spec.data[section];\n\n2. make sure spec.data[section] has a key as 'data' or 'provider';\n\nSee spec.data['train']['data'] below, note: it is a list of dict\n")
+		pprint(spec.data[args.target]['data'])
+		print("\n\n")
+		print("3. store `spec.data[section]['data']` in 'supplier_list', then make it a dict with key 'default';\n\n `supplier_list['default'] = spec.data[section]['data']`\n\n4. Make sure there is no more than one data sources execpt when accept_many=True;\n\n")
+		print("5. create data Supplier object from spec.data[section]['data']; \n")
+		print("""
+suppliers = {}
+for k, v in supplier_list.items():
+	if not isinstance(v, (list, tuple)):
+		raise ValueError('Data suppliers must form a list of '
+			'suppliers.')
+	suppliers[k] = [
+		Supplier.from_specification(entry, kurfile=self)
+		for entry in v
+	]
+
+For simplicity, we use:
+# Note: entry_supplier, must be a dict, rather than a list of dict
+
+entry_supplier = spec.data[args.target]['data'][0]
+data_supplier = Supplier.from_specification(entry_supplier, kurfile=spec)
+
+		""")
+
+		print("\nLet's dive inside this data_supplier\n")
+		entry_supplier = spec.data[args.target]['data'][0]
+		data_supplier = Supplier.from_specification(entry_supplier, kurfile=spec)
+		pprint(data_supplier.__dict__)
+		print("\n\n")
+
+		print("5.5 How exactly entry_supplier become data_supplier object? \n\nFirst, extract a Supplier Class name in this entry_supplier dict, see `name` below, note: entry_supplier == spec below\n")
+		print("""
+candidates = set(
+	cls.get_name() for cls in Supplier.get_all_suppliers()
+) & set(spec.keys())
+name = candidates.pop()
+		""")
+		candidates = set(
+			cls.get_name() for cls in Supplier.get_all_suppliers()
+		) & set(entry_supplier.keys())
+		name = candidates.pop()
+		print("\nthe above, name: {}".format(name))
+		print("\nThen extract data_details as params and try to get supplier_name if available\n")
+		print("""
+params = spec[name]
+
+# maybe, the kurfile added a dict = name: supplier_class
+supplier_name = spec.get('name')
+		""")
+		params = entry_supplier[name]
+		supplier_name = entry_supplier.get('name')
+		print("\nparams: {}\nsupplier_name: {}\n".format(params, supplier_name))
+		print("\nFinally, we get the specific Supplier class, and instantiate its object\n\n")
+		print("""
+if isinstance(params, dict):
+	result = Supplier.get_supplier_by_name(name)(
+		name=supplier_name, kurfile=spec, **params)
+
+...
+		""")
+		print("\nAbove function takes 2 steps: \n\nstep1: Supplier.__init__ \n\n")
+		print("""
+def __init__(self, name=None, kurfile=None):
+	# Creates a new supplier.
+
+	self.name = name
+	self.kurfile = kurfile
+		""")
+		print("\nStep2: MnistSupplier.__init__: \n\n")
+		print("""
+def __init__(self, labels, images, *args, **kwargs):
+	super().__init__(*args, **kwargs)
+
+	self.data = {
+		'images' : MnistSupplier._normalize(
+			VanillaSource(idx.load(MnistSupplier._get_filename(images)))
+		),
+		'labels' : MnistSupplier._onehot(
+			VanillaSource(idx.load(MnistSupplier._get_filename(labels)))
+		)
+}
+		""")
+
+
+		print("6. Create provider object using supplier object and provider_spec\n")
+
+		print("Get provider_detailed_info: to be extracted from  spec.data['train']['provider']\n")
+		provider_spec = spec.data['train']['provider']
+		pprint(provider_spec)
+		print("\n\n")
+		print("As there is no provider_spec['name'], we use default provider: BatchProvider\n\n`provider = Kurfile.DEFAULT_PROVIDER = BatchProvider`\n\n")
+
+		print("Now, create provider from supplier and provider_spec\n")
+		print("""
+provider = BatchProvider
+p = {}
+
+Msupplier = {}
+Msupplier['default'] = [data_supplier]
+
+# note: v must be a list of dict
+for k, v in Msupplier.items():
+
+	p[k] = provider(
+		sources=Supplier.merge_suppliers(v),
+		**provider_spec
+	)
+pprint(p)
+# Note: p is iterable to throw out batches
+		""")
+		provider = BatchProvider
+		p = {}
+
+		Msupplier = {}
+		Msupplier['default'] = [data_supplier]
+
+		for k, v in Msupplier.items():
+
+			p[k] = provider(
+				sources=Supplier.merge_suppliers(v),
+				**provider_spec
+			)
+		pprint(p)
+
+
 
 
 	providers = spec.get_provider(
@@ -228,7 +357,7 @@ def prepare_data(args):
 		accept_many=args.target == 'test'
 	)
 
-	# set_trace()
+
 
 	logger.critical("\n\nIf assemble is required, then \n\nspec.get_model(default_provider); \n\ntarget = spec.get_trainer(with_optimizer=True); \n\ntarget.compile(assemble_only=True)\n\nDon't set assemble=True, let `build` takes care of Model and Compilation\n\n")
 

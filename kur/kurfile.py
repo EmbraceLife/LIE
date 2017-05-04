@@ -314,6 +314,8 @@ for k, v in supplier_list.items():
 		logger.info("\n\n5. create data Supplier object from spec.data[section]['data'];\n\nA single data entry can have many data sources embedded\n\n%s\n\nDive deep into 'Supplier.from_specification(entry, kurfile=self)'\n\n", func_dict_2_suppliers)
 
 		suppliers = {}
+
+		# Note: v is a list of a single dict, not a dict on its own
 		for k, v in supplier_list.items():
 			if not isinstance(v, (list, tuple)):
 				raise ValueError('Data suppliers must form a list of '
@@ -340,11 +342,23 @@ return {
 		"""
 
 		logger.info("\n\n6. create data provider using data_supplier object and provider_spec from spec.data[section]['provider'];\n\n%s\n\nFinally, Return the data provider\n\n", func_supplier_2_provider)
+
+
 		provider_spec = dict(section.get('provider') or {})
 		if 'name' in provider_spec:
 			provider = Provider.get_provider_by_name(provider_spec.pop('name'))
 		else:
 			provider = Kurfile.DEFAULT_PROVIDER
+
+		# p = {}
+		#
+		# for k, v in suppliers.items():
+		# 	set_trace()
+		# 	p[k] = provider(
+		# 		sources=Supplier.merge_suppliers(v),
+		# 		**provider_spec
+		# 	)
+
 
 		return {
 			k : provider(

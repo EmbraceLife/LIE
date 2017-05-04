@@ -51,12 +51,7 @@ class Supplier:
 			raise ValueError('Each element of the "input" list must be a '
 				'dictionary.')
 
-		supplier_name_get = """
-candidates = set(
-	cls.get_name() for cls in Supplier.get_all_suppliers()
-) & set(spec.keys())
-		"""
-		logger.info("\n\nFind the Supplier class name from the data specified in kurfile\n\n%s\n\n", supplier_name_get)
+
 		candidates = set(
 			cls.get_name() for cls in Supplier.get_all_suppliers()
 		) & set(spec.keys())
@@ -75,32 +70,11 @@ candidates = set(
 				'"input" list. Exactly one of the following keys must be '
 				'present: {}'.format(', '.join(candidates)))
 
-		create_supplier_obj = """
-name = candidates.pop()
-params = spec[name]
-
-supplier_name = spec.get('name')
-
-# All other keys must be parsed out by this point.
-
-if isinstance(params, dict):
-	result = Supplier.get_supplier_by_name(name)(
-		name=supplier_name, kurfile=kurfile, **params)
-elif isinstance(params, str):
-	result = Supplier.get_supplier_by_name(name)(params,
-		name=supplier_name, kurfile=kurfile)
-elif isinstance(params, (list, tuple)):
-	result = Supplier.get_supplier_by_name(name)(*params,
-		name=supplier_name, kurfile=kurfile)
-
-#### Must dive into MnistSupplier(name=supplier_name, kurfile=kurfile, **params) ####
-		"""
-
-		logger.info("\n\nGet detailed info on data provider in kurfile: params\n\nget the name of Supplier class: name = candidates.pop() \n\nGet the Supplier class and instantiate it\n\n%s\n\nFinally, return the data supplier objects\n\n", create_supplier_obj)
-
+		# name is the Supplier class name used here
 		name = candidates.pop()
 		params = spec[name]
 
+		# maybe, the kurfile added a dict on {name: supplier_class}
 		supplier_name = spec.get('name')
 
 		# All other keys must be parsed out by this point.
