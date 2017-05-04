@@ -74,6 +74,7 @@ class Kurfile:
 			engine: Engine instance. The templating engine to use in parsing.
 				If None, a Passthrough engine is instantiated.
 		"""
+		logger.warning("\n\nCreate a Kurfile object\n\nCreate a few attributes: \nself.filename=filename, \nself.data = self.parse_source(engine,source=filename,context=None)\nself.containers\nself.model=None, \nself.backend=None,\nself.engine=engine, \nself.templates = None\n\n")
 		engine = engine or PassthroughEngine()
 		if isinstance(source, str):
 			filename = os.path.expanduser(os.path.expandvars(source))
@@ -151,7 +152,9 @@ class Kurfile:
 		# Parse the model.
 		self.containers = self._parse_model(
 			self.engine, builtin['model'], stack, required=True)
-		logger.warning("\n\nCreate spec.containers == convert model in dict to model in kur_layer objects: \n\nSee inside spec.containers\n\n")
+
+		logger.warning("\n\nSee inside spec.containers as a list of containers\n\nSee inside each container or kur layer\n\n")
+
 		if logger.isEnabledFor(logging.WARNING):
 			pprint(self.containers)
 			print("\n")
@@ -179,7 +182,7 @@ class Kurfile:
 					'This section will be ignored.'.format(key), SyntaxWarning)
 
 		if logger.isEnabledFor(logging.WARNING):
-			logger.warning("\n\nAt the end of parse(), look inside spec.__dict__\n\n")
+			logger.warning("\n\nLook into a parsed spec object, using\n\n pprint(spec.__dict__)\n\n")
 			pprint(self.__dict__)
 			print("\n\n")
 	###########################################################################
@@ -202,7 +205,7 @@ class Kurfile:
 			self.model.build()
 
 		if logger.isEnabledFor(logging.WARNING):
-			logger.warning("\n\nLet's see inside spec.model.__dict__\n\n")
+			logger.warning("\n\nAfter `Model.build`, get back to `Kurfile.get_model`, \n\nLet's see inside the built Model object, using  \n\npprint(spec.model.__dict__)\n\n")
 			pprint(self.model.__dict__)
 			print("\n\n")
 		return self.model
@@ -274,9 +277,9 @@ class Kurfile:
 			section defined, then this returns a Provider instance. Otherwise,
 			returns None.
 		"""
-		# logger.critical("(self, section, accept_many=False):  \n\nUsing detailed info from spec.data[section]['data'] to build data suppliers first, then build a data provider : \n\n1. get spec.data[section]; \n\n2. make sure spec.data[section] has a key as 'data' or 'provider'; \n\n3. store spec.data[section]['data'] in 'supplier_list'; \n\n4. consider when there are more than one data sources; \n\n5. create data Supplier object from spec.data[section]['data']; \n\n6. create data provider using data supplier and provider_detailed_info from spec.data[section]['provider']; \n\n7. finally return this provider \n\nInputs: \n\b1. section: %s \b\n2. accept_many: %s \n\n", section, accept_many)
+		logger.trace("(self, section, accept_many=False):  \n\nUsing detailed info from spec.data[section]['data'] to build data suppliers first, then build a data provider : \n\n1. get spec.data[section]; \n\n2. make sure spec.data[section] has a key as 'data' or 'provider'; \n\n3. store spec.data[section]['data'] in 'supplier_list'; \n\n4. consider when there are more than one data sources; \n\n5. create data Supplier object from spec.data[section]['data']; \n\n6. create data provider using data supplier and provider_detailed_info from spec.data[section]['provider']; \n\n7. finally return this provider \n\nInputs: \n\b1. section: %s \b\n2. accept_many: %s \n\n", section, accept_many)
 
-		logger.info("\n\n1. Extract spec.data[section]; \n\n2. make sure spec.data[section] has a key as 'data' or 'provider'; \n\n")
+		logger.info("\n\n1. Select a section from `spec.data`, and make sure this `spec.data[section]` has either 'data' or 'provider' as keys \n\n")
 		if section in self.data:
 			section = self.data[section]
 			if not any(k in section for k in ('data', 'provider')):
@@ -284,14 +287,14 @@ class Kurfile:
 		else:
 			return None
 
-		logger.info("\n\n3. store spec.data[section]['data'] in 'supplier_list';\n\n")
+		logger.info("\n\n2. Extract detailed description of dataset, such as data_supplier name, checksum, url, path,... from `spec.data[section]['data']`;\n\n`supplier_list = section.get('data') or {}`\n\nThen make it a dict `supplier_list = {'default' : supplier_list}`\n\n")
 		supplier_list = section.get('data') or {}
 		if isinstance(supplier_list, (list, tuple)):
 			supplier_list = {'default' : supplier_list}
 		elif not isinstance(supplier_list, dict):
 			raise ValueError('"data" section should be a list or dictionary.')
 
-		logger.info("\n\n4. No more than one data entry here to extract data provider\n\n")
+		logger.info("\n\n3. No more than one data entry here to extract data provider\n\n")
 		if not accept_many and len(supplier_list) > 1:
 			raise ValueError('We only accept a single "data" entry for this '
 				'section, but found {}.'.format(len(supplier_list)))
@@ -927,7 +930,7 @@ with ScopeStack(engine, stack):
 		################
 
 		"""
-		logger.warning("\n\nHow model in dict is converted into mode in kur layers\n\n%s\n\n", func_kur_layers)
+		logger.warning("\n\nConvert model as dict to model as list of kur containers, using\n\n%s\n\n", func_kur_layers)
 		return containers
 
 	###########################################################################

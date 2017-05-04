@@ -99,19 +99,17 @@ def evaluate(args):
 def build(args):
 	""" Builds a model.
 	"""
-	logger.critical("\n\nspec = parse_kurfile(args.kurfile, args.engine)\n\n")
+	logger.critical("\n\n1. get kurfile object, using\n\n`spec = parse_kurfile(args.kurfile, args.engine)`\n\n2. select a section for data provider, or no section no data provider, using\n\n`providers = spec.get_provider(args.compile,accept_many=args.compile == 'test')`\n`provider = Kurfile.find_default_provider(providers)`\n\n3. create model and assigned to `spec` using \n\n`spec.get_model(provider)`\n\n4. create Executor trainer for train section (with optimizer), or test section (without optimizer), or create Executor evaluator  for evaluate section (without loss, optimizer), using \n\n`target = spec.get_trainer(with_optimizer=True)`\n\n`target = spec.get_evaluator()`\n\n")
+
+	if logger.isEnabledFor(logging.CRITICAL):
+		print("4. Use target.compile() to compile model object in specific backend lib\n\n4.1. create spec.model.compiled[key] and spec.model.compiled['raw']\n4.2. Then save initial weights from compiled['raw'] into external idx files, \n4.3. test func using compiled[key] onto compiled['raw'] on a provider with just 2 samples\n4.4. restore initial weights back to variables in model\n\nEOF\n\n")
+
+	# step1
+	logger.critical("\n\nStep1. Create a Kurfile object, using\n\n`Kurfile.__init__`\n\nand parse it, using\n\n`Kurfile.parse`\n\n")
+
 	spec = parse_kurfile(args.kurfile, args.engine)
 
-	func_provider = """
-	providers = spec.get_provider(
-		args.compile,
-		# args.compile = "auto", "train", "test", "evalute", "none"
-		accept_many=args.compile == 'test'
-	)
-	provider = Kurfile.find_default_provider(providers)
-	"""
 
-	logger.critical("\n\nget data provider from a section(mostly train, or any specified section)\n\n%s\n\n", func_provider)
 
 	if args.compile == 'auto':
 		result = []
@@ -132,6 +130,12 @@ def build(args):
 	else:
 		logger.info('Trying to build a "%s" model.', args.compile)
 
+	logger.critical("\n\nStep2. select a section using args.compile\n\nargs.compile can be set as 'auto' by default (train, or test, or evaluate), \n\nor none (without data provider), \n\nor set as a specific section 'train' or 'test' or 'evaluate')\n\nIn this case, we build with section: %s", args.compile)
+
+
+
+	logger.critical("\n\nStep3. get data provider of the section, or none if no section selected\n\nAccess the data provider of the selected section above, using \n\n`providers = spec.get_model(args.compile, accept_many=args.compile == 'test')`\n`provider = Kurfile.find_default_provider(providers)` \n\n")
+
 	if args.bare or args.compile == 'none':
 		provider = None
 	else:
@@ -141,49 +145,52 @@ def build(args):
 		)
 		provider = Kurfile.find_default_provider(providers)
 
-	logger.critical("\n\nCreate, parse, build kur.Model object using \n\nspec.get_model(provider) \n\n")
+
+
+	# step3. get model and get Executor for trainer,
+	logger.critical("\n\nStep4. Create model and assigned to spec\n\nDive into `Kurfile.get_model`, then into `Model.__init__`, `Model.parse`, `Model.register_provider`, `Model.build`\n\n")
 
 	spec.get_model(provider)
 
 
 
+	# step4. get Executor trainer or evaluator
+	logger.critical("\n\nStep5. get Executor trainer or evaluator is to prepare loss, optimizer and model in one place\n\nDive into `Kurfile.get_trainer` or `Kurfile.get_evaluator`, \n\nthen into `Executor.__init__`\n\n")
 
 	if args.compile == 'none':
 		logger.critical("\n\nargs.compile == 'none', then return with Nothing\n\n")
 		return
 	elif args.compile == 'train':
-		func_str = """
-return Executor(
-	model=self.get_model(),
-	loss=self.get_loss(),
-	optimizer=self.get_optimizer() if with_optimizer else None
-		)
-		"""
 
 		target = spec.get_trainer(with_optimizer=True)
 
-		logger.critical("\n\nMain purpose of Executor object is to put loss, optimizer, model together in one place for this model, using\n\ntarget = spec.get_trainer(with_optimizer=True)\n\nCreate an Executor with model, loss and optimizer of this spec, using\n\n%s\n\n", func_str)
-
-		logger.warning("\n\nLet's see inside the Executor object for %s\n\n", args.compile)
-		pprint(target.__dict__)
-		print("\n\n")
+		logger.critical("\n\nExecutor for train section: \n\n")
+		if logger.isEnabledFor(logging.CRITICAL):
+			pprint(target.__dict__)
+			print("\n\n")
 
 	elif args.compile == 'test':
-		logger.critical("\n\nMain purpose of Executor object is to put loss, optimizer, model together in one place for this model, using\n\ntarget = spec.get_trainer(with_optimizer=False)\n\nCreate an Executor with model, loss and optimizer of this spec, using\n\n%s\n\nLet's see inside the Executor object for %s\n\n", func_str, args.compile)
+
 		target = spec.get_trainer(with_optimizer=False)
-		pprint(target.__dict__)
-		print("\n\n")
+		logger.critical("\n\nExecutor for test section: \n\n")
+		if logger.isEnabledFor(logging.CRITICAL):
+			pprint(target.__dict__)
+			print("\n\n")
+
 	elif args.compile == 'evaluate':
-		logger.critical("\n\nMain purpose of Executor object is to put loss, optimizer, model together in one place for this model, using\n\ntarget = spec.get_evaluator()\n\nCreate an Executor with model, loss and optimizer of this spec, using\n\n%s\n\nLet's see inside the Executor object for %s\n\n", func_str, args.compile)
+
 		target = spec.get_evaluator()
-		pprint(target.__dict__)
-		print("\n\n")
+		logger.critical("\n\nExecutor for evaluate section: \n\n")
+		if logger.isEnabledFor(logging.CRITICAL):
+			pprint(target.__dict__)
+			print("\n\n")
+
 	else:
 		logger.error('Unhandled compilation target: %s. This is a bug.',
 			args.compile)
 		return 1
 
-	logger.critical("\n\nUse target.compile() to compile model object\n\nTo create spec.model.compiled[key] and spec.model.compiled['raw']\n\nThen save initial weights from compiled['raw'] into external idx files, \ntest func from compiled[key] onto compiled['raw'], \nrestore initial weights back to variables in model\n\nEOF\n\n")
+	logger.critical("\n\nStep6. Compile model\n\n1. To create spec.model.compiled[key] and spec.model.compiled['raw']\n\n2. Then save initial weights from compiled['raw'] into external idx files, \n\n3. test func using compiled[key] onto compiled['raw'] on a provider with just 2 samples\n\n4. restore initial weights back to variables in model\n\nEOF\n\n")
 
 	target.compile()
 
@@ -209,13 +216,21 @@ def prepare_data(args):
 
 	logger.critical('The section for data provider is: %s', args.target)
 
-	logger.critical("\n\nDive into how data is flowing from external fines into a data provider\n\ndata provider is ready to iterate out batches one by one\n\n")
+	logger.critical("\n\nDive into how data is flowing from external fines into a data provider\n\ndata provider is ready to iterate out batches one by one\n\nDive into `providers = spec.get_provider(args.target, accept_many=args.target == 'test'`\n\n")
+
+
+	logger.critical("Kurfile.get_provider( section, accept_many=False):  \n\nUsing detailed info from spec.data[section]['data'] to build data suppliers first, then build a data provider : \n\n1. get the dict of spec.data[section]; \n\n2. make sure spec.data[section] has a key as 'data' or 'provider'; \n\n3. store spec.data[section]['data'] in 'supplier_list', then make it a dict with key 'default'; \n\n4. Make sure there is no more than one data sources execpt when accept_many=True; \n\n5. create data Supplier object from spec.data[section]['data']; \n\n6. create data provider using data supplier and provider_detailed_info from spec.data[section]['provider']; \n\n7. finally return this provider\n\n")
+
+
+
 	providers = spec.get_provider(
 		args.target,
 		accept_many=args.target == 'test'
 	)
 
-	logger.critical("\n\nIf assemble is required, then \n\nspec.get_model(default_provider); \n\ntarget = spec.get_trainer(with_optimizer=True); \n\ntarget.compile(assemble_only=True)\n\n")
+	# set_trace()
+
+	logger.critical("\n\nIf assemble is required, then \n\nspec.get_model(default_provider); \n\ntarget = spec.get_trainer(with_optimizer=True); \n\ntarget.compile(assemble_only=True)\n\nDon't set assemble=True, let `build` takes care of Model and Compilation\n\n")
 
 
 	if args.assemble:
@@ -265,23 +280,25 @@ def prepare_data(args):
 
 
 		# plotting a few images
-		for k, v in spec.data['train']['data'][0].items():
-			name1 = k
+		if args.plot_images:
+			logger.critical("\n\nPlot 9 images\n\n")
+			for k, v in spec.data['train']['data'][0].items():
+				name1 = k
 
-		if name1 == 'mnist':
-			images_p = batch['images'][0:9]
-			image_dim = images_p.shape[1:-1]
+			if name1 == 'mnist':
+				images_p = batch['images'][0:9]
+				image_dim = images_p.shape[1:-1]
 
-		elif name1 == 'cifar':
-			images_p = batch['images'][0:9]
-			image_dim = images_p.shape[1:]
+			elif name1 == 'cifar':
+				images_p = batch['images'][0:9]
+				image_dim = images_p.shape[1:]
 
-		else:
-			return None # no plotting
+			else:
+				return None # no plotting
 
-		labels_p = [np.argmax(label) for label in batch['labels'][0:9]]
+			labels_p = [np.argmax(label) for label in batch['labels'][0:9]]
 
-		plot_images(images=images_p, cls_true=labels_p, image_dim=image_dim)
+			plot_images(images=images_p, cls_true=labels_p, image_dim=image_dim)
 
 		if num_entries is None:
 			logger.error('No data sources was produced.')
@@ -537,6 +554,7 @@ def build_parser():
 		'sources.')
 	subparser.add_argument('-n', '--number', type=int,
 		help='Number of samples to print (default: the entire batch).')
+	subparser.add_argument('-plot', '--plot_images', action='store_true', help='plot 9 images from a batch of data provider.')
 	subparser.set_defaults(func=prepare_data)
 
 	###########################################################################

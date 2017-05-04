@@ -17,7 +17,7 @@ limitations under the License.
 import logging
 import types
 from collections import namedtuple, OrderedDict, deque
-import numpy 
+import numpy
 from ..containers import Container
 from ..containers.operators import ContainerGroup
 from ..containers.layers import Placeholder
@@ -303,7 +303,7 @@ class Model:
 
 		# Construct the high-level network nodes.
 		nodes = self.enumerate_nodes(self.root)
-		logger.warning("\n\nCreate nodes\n\nTake all containers from spec.model.root, recursively make all containers into CollapsedContainers with three keys: inputs, container, names \n\nnodes = self.enumerate_nodes(self.root) \n\nthis list is called nodes\n")
+		logger.warning("\n\nCreate nodes\n\nTake all containers from spec.model.root, recursively make all containers into CollapsedContainers with three keys: inputs, container, names \n\n`nodes = self.enumerate_nodes(self.root)` \n\nthis list is called nodes\n")
 		# pprint(nodes)
 		# print("\n\n")
 

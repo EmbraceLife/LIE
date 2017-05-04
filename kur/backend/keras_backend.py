@@ -631,7 +631,7 @@ compiled = self.make_model(
 )
 		"""
 		if 'raw' not in model.compiled:
-			logger.warning("\n\nInstantiating a Keras model == Translate the model in kur.layers to keras.layers\n\nUsing model.inputs and model.outpus to create a Keras model and save it in model.compiled['raw'].\n\nCreate a model using backend-lib like keras Using\n\n%s\n\nDive into this function above later for keras code???? \n\nLet's see model.compiled['raw'].__dict__: \n\n",func_raw)
+			logger.warning("\n\nInstantiating a Keras model == Translate the model in kur.layers to keras.layers\n\nUsing model.inputs and model.outpus to create a Keras model and save it in model.compiled['raw'].\n\nCreate a model using backend-lib like keras Using\n\n%s\n\nHow keras_backend work in kur??? \n\n",func_raw)
 
 
 			compiled = self.make_model(
@@ -784,10 +784,9 @@ result = {
 
 model.compiled[key] = result
 		"""
-		logger.warning("\n\nCreate model.compiled['train'] == create a dict to store inputs for the backend-specific-func to preform\n\n \ninput_names, \noutput_names, \ninput_shapes, \noptimizer (Executor_trainer.optimizer), \nbackend-specific-func\n\nHere are how they made: \n\n%s\n\nLet's see inside model.compiled['train']\n\n", compiled_key)
+		logger.warning("\n\nCreate model.compiled['train'] == create a dict to store inputs for the backend-specific-func to preform\n\n \ninput_names, \noutput_names, \ninput_shapes, \noptimizer (Executor_trainer.optimizer), \nbackend-specific-func\n\nHere are how they made: \n\n%s\n\n", compiled_key)
 		# get input_names and output names
-		logger.warning('Additional inputs for loss functions: %s',
-			', '.join(loss_inputs.keys()))
+
 
 		input_names = compiled.input_names + \
 			list(loss_inputs.keys())
@@ -802,10 +801,6 @@ model.compiled[key] = result
 			for layer in loss_inputs.values()
 		]
 
-		logger.warning("\n\nExpected input names and shapes: %s\n\nThe output_names: %s\n\n",
-			', '.join('{}={}'.format(k, v) for k, v in \
-				zip(input_names, input_shapes)
-			), output_names)
 
 		if assemble_only:
 			func = None
