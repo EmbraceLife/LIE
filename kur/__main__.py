@@ -280,6 +280,9 @@ supplier_name = spec.get('name')
 		print("\nFinally, we get the specific Supplier class, and instantiate its object\n\n")
 		print("""
 if isinstance(params, dict):
+
+	# Note: pay attention to the argument inputs for MnistSupplier
+
 	result = Supplier.get_supplier_by_name(name)(
 		name=supplier_name, kurfile=spec, **params)
 
@@ -295,8 +298,14 @@ def __init__(self, name=None, kurfile=None):
 		""")
 		print("\nStep2: MnistSupplier.__init__: \n\n")
 		print("""
+
+# Attention: labels, images can be hidden inside **params
+# Attention: name and kurfile can be given as args to MnistSupplier
+
 def __init__(self, labels, images, *args, **kwargs):
 	super().__init__(*args, **kwargs)
+
+# Attention: MnistSupplier.methods are doing a lot of useful preprocessing here
 
 	self.data = {
 		'images' : MnistSupplier._normalize(
