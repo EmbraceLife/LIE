@@ -32,7 +32,7 @@ train:
     number: 2
     mode: additional
   stop_when:
-    epochs: 10 # null or infinite : to train forever
+    epochs: 1 # null or infinite : to train forever
     elapsed:
       minutes: 10
       hours: 0
@@ -45,8 +45,8 @@ train:
     last: mnist.last.w
   hooks:
     - plot_weights:
-        plot_every_n_epochs: 2
-        plot_directory: plot_weights2 
+        plot_every_n_epochs: 1
+        plot_directory: plot_weights2
         weight_file: mnist.best.valid.w
         weight_keywords1: ["kernel", "dense"]
         weight_keywords2: ["kernel", "convol"]

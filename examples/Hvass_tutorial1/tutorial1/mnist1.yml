@@ -24,7 +24,8 @@ model:
   - input: images
   - flatten: true
   - dense: 10
-  - activation: softmax
+  - activation:
+      name: softmax
     name: labels
 
 
