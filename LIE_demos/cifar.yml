@@ -39,8 +39,8 @@ model:
             # alpha: 0.7 # if alpha not exist or empty as None, default value is 0.3
   - flatten:
   - dense: 10
-  - activation:
-      name: softmax
+  - activation: softmax
+    #   name: softmax
     name: labels
 
 train:
@@ -51,7 +51,7 @@ train:
   provider:
     batch_size: 32
     num_batches: 1
-  log: cifar-log
+  log: ../LIE_cifar_folders/cifar-log
   epochs:
     number: 2
     mode: additional
@@ -67,23 +67,23 @@ train:
   hooks:
     - plot_weights:
         plot_every_n_epochs: 1
-        plot_directory: "plot_weights2"
-        weight_file: cifar.best.valid.w
+        plot_directory: ../LIE_cifar_folders/cifar_plot_weights
+        weight_file: ../LIE_cifar_folders/cifar.best.valid.w
         with_weights:
           - ["convolution", "kernel"]
           - ["convolution", "weight"]
         #   - ["dense", "kernel"]
         #   - ["dense", "weight"]
     - plot: # the folder must be prepared first
-        loss_per_batch: cifar-plot/plot1.png
-        loss_per_time: cifar-plot/plot2.png
-        throughput_per_time: cifar-plot/plot3.png
+        loss_per_batch: ../LIE_cifar_folders/plot1.png
+        loss_per_time: ../LIE_cifar_folders/plot2.png
+        throughput_per_time: ../LIE_cifar_folders/plot3.png
   weights: # the folders below are prepared automatically?
-    initial: cifar.best.valid.w
-    best: cifar.best.train.w
-    last: cifar.last.w
+    initial: ../LIE_cifar_folders/cifar.best.valid.w
+    best: ../LIE_cifar_folders/cifar.best.train.w
+    last: ../LIE_cifar_folders/cifar.last.w
   checkpoint:
-    path: cifar-checkpoint/
+    path: ../LIE_cifar_folders/cifar-checkpoint
     batches: 500 # batches, samples, epochs, minutes if present, must be an integer, not a string, not null, not None
     samples: 1000
     epochs: 1
@@ -100,10 +100,10 @@ validate:
        parts: 5
   provider:
     num_batches: 1
-  weights: cifar.best.valid.w
+  weights: ../LIE_cifar_folders/cifar.best.valid.w
   hooks:
     - output: # folder and file must be prepared first
-        path: cifar-output-validate/output.pkl
+        path: ../LIE_cifar_folders/output.pkl
         format: pickle
 
 
@@ -112,17 +112,14 @@ test: &test
     - cifar:
        <<: *cifar
        parts: test
-  weights: cifar.best.valid.w
+  weights: ../LIE_cifar_folders/cifar.best.valid.w
   provider:
     num_batches: 10
 
 evaluate:
   <<: *test
-  destination: cifar.results.pkl
-  hooks:
-    - output:
-        path: cifar-output-hook/output.pkl
-        format: pickle
+  destination: ../LIE_cifar_folders/cifar.results.pkl
+
 
 loss:
   - target: labels

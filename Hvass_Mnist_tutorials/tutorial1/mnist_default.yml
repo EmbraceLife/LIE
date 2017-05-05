@@ -26,13 +26,14 @@ train:
   provider:
     batch_size: # empty or None is default 32 samples as a batch
     num_batches: 1
-  log: mnist-log
+  log: ../../Havss_tutorial1_folders/mnist-log # remember if don't set log, your model won't build on previous runs
+
   # How many epochs to train for.
   epochs:
     number: 2
     mode: additional
   stop_when:
-    epochs: 1000 # null or infinite : to train forever
+    epochs: 1 # null or infinite : to train forever
     elapsed:
       minutes: 10
       hours: 0
@@ -40,14 +41,14 @@ train:
       clock: all # (time spend on all things) or all | train | validate | batch
     mode: additional # additional | total, if set total, then elapsed above define total training time in history added
   weights: # the folders below are prepared automatically?
-    initial: mnist.best.valid.w
-    best: mnist.best.train.w
-    last: mnist.last.w
+    initial: ../../Havss_tutorial1_folders/mnist.best.valid.w
+    best: ../../Havss_tutorial1_folders/mnist.best.train.w
+    last: ../../Havss_tutorial1_folders/mnist.last.w
   hooks:
     - plot_weights:
-        plot_every_n_epochs: 100
-        plot_directory: plot_weights2
-        weight_file: mnist.best.valid.w
+        plot_every_n_epochs: 1
+        plot_directory: ../../Havss_tutorial1_folders/mnist_plot_weights
+        weight_file: ../../Havss_tutorial1_folders/mnist.best.valid.w
         with_weights:
           - ["kernel", "dense"]
           - ["kernel", "convol"]
@@ -55,9 +56,9 @@ train:
           - ["weight", "convol"] # pytorch use weight, keras use kernel
         #  mnist.best.valid.w/..dense.0+..dense.0_kernel/0.kur
     - plot: # the folder must be prepared first
-        loss_per_batch: mnist-plot/plot1.png
-        loss_per_time: mnist-plot/plot2.png
-        throughput_per_time: mnist-plot/plot3.png
+        loss_per_batch: ../../Havss_tutorial1_folders/plot1.png
+        loss_per_time: ../../Havss_tutorial1_folders/plot2.png
+        throughput_per_time: ../../Havss_tutorial1_folders/plot3.png
 
 # Here, we use the MNIST test set as a validation set (more generally, you'll
 # want train, validation, and test sets; but we ignore this for the MNIST
@@ -80,7 +81,7 @@ validate: &validate
     num_batches: 1
 
   # Where to save the model weights that have the lowest validation loss.
-  weights: mnist.best.valid.w
+  weights: ../../Havss_tutorial1_folders/mnist.best.valid.w
 
 # Let's define the test set, used if you execute something like:
 # $ kur test mnist.yml
@@ -100,7 +101,7 @@ evaluate:
 
   # Where do we want to store the output file?
   # Here, we are just storing it as a Python pickle.
-  destination: mnist.results.pkl
+  destination: ../../Havss_tutorial1_folders/mnist.results.pkl
 
   # This is a list of post-processing hooks. Here, we want to produce the
   # digit-by-digit accuracy table (just called "mnist").

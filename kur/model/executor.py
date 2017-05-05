@@ -1156,7 +1156,7 @@ print_times()
 			weight_path = os.path.join(tempdir, 'current_epoch_model')
 			# save this model weights to this tempfolder
 			self.model.save(weight_path)
-			# then bring this weight_path into run_training_hooks(), and store inside info dict
+			# then bring this weight_path into run_training_hooks(), and which is stored as info['weight_path']
 
 			# introduce model weights to TrainingHook plot_weights
 			# run hooks at the end of each epoch

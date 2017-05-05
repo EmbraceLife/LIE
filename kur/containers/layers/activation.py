@@ -51,8 +51,11 @@ class Activation(Layer):				# pylint: disable=too-few-public-methods
 		""" Parse the layer.
 		"""
 
+		if not isinstance(self.args, dict):
+			self.type = self.args
+		else:
 		# if alpha not exist or empty as None, default value is 0.3
-		self.type = self.args['name']
+			self.type = self.args['name']
 		if self.type == 'leakyrelu':
 
 			if 'alpha' in self.args and self.args['alpha'] is not None:
