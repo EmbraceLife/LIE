@@ -252,6 +252,7 @@ class Model:
 			The file format is backend-specific. There is no guarantee of
 			compatability between different backends.
 		"""
+		# filename is actually folder name, misleading for the first sight 
 		logger.debug('Saving model weights to: %s', filename)
 		self.backend.save(self, filename)
 
@@ -268,6 +269,7 @@ class Model:
 			The file format is backend-specific. There is no guarantee of
 			compatability between different backends.
 		"""
+		# filename is actually folder name, misleading for the first sight
 		logger.debug('Loading model weights from: %s', filename)
 		self.backend.restore(self, filename)
 

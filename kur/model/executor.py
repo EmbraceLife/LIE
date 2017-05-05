@@ -27,6 +27,7 @@ from ..utils import get_any_value, CriticalSection, parallelize, Timer
 from ..loggers import PersistentLogger
 from .hooks import TrainingHook, PlotWeightsHook
 
+import tempfile
 logger = logging.getLogger(__name__)
 import numpy as np
 import matplotlib.pyplot as plt
@@ -553,8 +554,11 @@ if training_hooks:
 				'epoch' : epoch+1,
 				# epochs are the total epochs defined inside stop_when
 				'total_epochs' : epochs,
-				'Training loss' : cur_train_loss
+				'Training loss' : cur_train_loss,
+				# add weight_path (the tempfolder for current weights) from wrapped_train
+				'weight_path' : weight_path
 			}
+			# set_trace()
 			if validation is not None:
 				info['Validation loss'] = validation_loss
 
@@ -1146,6 +1150,15 @@ print_times()
 			# Execute training hooks at the end of each epoch
 			logger.critical("\n\nTry all training_hooks, but only the ones with `status=TrainingHook.EPOCH_END` will be executed\n\n")
 
+			# create a tempfolder for the current model weights
+			weight_path = None
+			tempdir = tempfile.mkdtemp()
+			weight_path = os.path.join(tempdir, 'current_epoch_model')
+			# save this model weights to this tempfolder
+			self.model.save(weight_path)
+			# then bring this weight_path into run_training_hooks(), and store inside info dict
+
+			# introduce model weights to TrainingHook plot_weights
 			# run hooks at the end of each epoch
 			run_training_hooks(
 				cur_train_loss,

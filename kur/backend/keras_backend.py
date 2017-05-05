@@ -424,6 +424,7 @@ for layer in layers:
 
 		import keras.backend as K				# pylint: disable=import-error
 
+		# here filename is the folder name
 		path = os.path.expanduser(os.path.expandvars(filename))
 		if os.path.exists(path):
 			if not os.path.isdir(path):
@@ -452,6 +453,7 @@ for layer in layers:
 		#	},
 		#	...
 		# }
+		# Enumerates saved tensors (weights)
 		tensors = self.enumerate_saved_tensors(path)
 
 		# We want to put (symbolic_weights, weight_values) tuples in this.
@@ -480,6 +482,7 @@ for layer in layers:
 
 				available = set(weights.keys())
 				needed = set(name.replace('/', '_') for name in weight_names)
+
 				if available ^ needed:
 					logger.error('Weight discrepancy in the weights we are '
 						'supposed to load.')
@@ -510,7 +513,11 @@ for layer in layers:
 				match = regex.match(filename)
 				if match is None:
 					continue
+
 				filename = os.path.join(dirpath, filename)
+
+				# layer: dense or convol
+				# weight: bias or kernel
 				layer, weight = match.groups()
 				if layer not in result:
 					result[layer] = {}
@@ -870,6 +877,7 @@ model.supplement_provider(provider)
 			logger.warning("\n\nCreate temporal dir/files and save initial weights inside the dir/files, \n\nso that later single batch model testing won't affect the weights\n\n")
 			weight_path = os.path.join(tempdir, 'weights')
 			self._save_keras(model.compiled['raw'], weight_path)
+
 
 			logger.warning('\n\nUse tailed single batch to test the model...\n\n')
 			for batch in provider:

@@ -8,8 +8,8 @@ settings:
 
   backend:
     name: keras
-    backend: tensorflow
-
+    # backend: tensorflow
+    # name: pytorch
 
 
 train:

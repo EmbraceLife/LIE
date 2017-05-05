@@ -65,7 +65,13 @@ class PlotWeightsHook(TrainingHook):
 
 		# bring in kurfile: hooks: plot_weights: weight_file, weight_file_keywords
 		self.plot_every_n_epochs = plot_every_n_epochs
-		self.weight_file = weight_file
+
+
+		if weight_file is None:
+			self.weight_file = None
+		else:
+			self.weight_file = weight_file
+
 		self.with_weights = with_weights
 
 		# self.weight_keywords1 = weight_keywords1
@@ -103,7 +109,7 @@ class PlotWeightsHook(TrainingHook):
 
 		# borrowed from https://hyp.is/MKzd7C4eEeeWlPvso_EWdg/nbviewer.jupyter.org/github/Hvass-Labs/TensorFlow-Tutorials/blob/master/01_Simple_Linear_Model.ipynb
 		def plot_weights(kernel_filename):
-			# designed to plot weights of a single dense layer model on recognising images of single color
+			# designed to plot weights of a single dense (2 dims) layer model on recognising images of single color
 
 			# load weights from weight files in idx format
 			w = idx.load(kernel_filename)
@@ -114,9 +120,13 @@ class PlotWeightsHook(TrainingHook):
 			w_min = np.min(w)
 			w_max = np.max(w)
 
-			num_classes = w.shape[-1]
-			flattend_pixels = w.shape[0]
+			# add this block, because in pytorch, w [10, 784]
+			s1, s2 = w.shape
+			if s1 < s2:
+				w = w.reshape((s2, s1))
 
+
+			flattend_pixels, num_classes = w.shape
 			# Number of grids to plot.
 			# Rounded-up, square-root of the number of filters.
 			num_grids = math.ceil(math.sqrt(num_classes))
@@ -159,8 +169,9 @@ class PlotWeightsHook(TrainingHook):
 			# if we plot while training, we can't save it
 			# plt.show()
 
-			# get filename without "dir/.."
-			filename_cut_dir = kernel_filename[kernel_filename.find("/..")+3 :]
+
+			# cut the filename part before 'dense': this is working for both with and without a given weight folder, like mnist.best.valid.w
+			filename_cut_dir = kernel_filename[kernel_filename.find("dense") :]
 			# save figure with a nicer name
 			plt.savefig('{}/{}_epoch_{}.png'.format(self.directory, filename_cut_dir, info['epoch']))
 
@@ -221,8 +232,13 @@ class PlotWeightsHook(TrainingHook):
 
 			# get all the validation weights names
 			valid_weights_filenames = []
-			# how to give a path name to plot_weights???
+
+			# info stores the tempfoder or weight_path from wrapped_train()
+			if self.weight_file is None:
+				self.weight_file = info['weight_path']
+
 			for dirpath, _, filenames in os.walk(self.weight_file): # mnist or cifar
+
 				for this_file in filenames:
 					valid_weights_filenames.append(dirpath+"/"+this_file)
 

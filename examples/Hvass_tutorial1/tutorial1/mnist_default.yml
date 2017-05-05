@@ -51,6 +51,8 @@ train:
         with_weights:
           - ["kernel", "dense"]
           - ["kernel", "convol"]
+          - ["weight", "dense"]   # pytorch use weight, keras use kernel
+          - ["weight", "convol"] # pytorch use weight, keras use kernel
         #  mnist.best.valid.w/..dense.0+..dense.0_kernel/0.kur
     - plot: # the folder must be prepared first
         loss_per_batch: mnist-plot/plot1.png
