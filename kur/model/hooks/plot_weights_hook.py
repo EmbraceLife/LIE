@@ -143,12 +143,7 @@ class PlotWeightsHook(TrainingHook):
 			for i, ax in enumerate(axes.flat):
 				# Only use the weights for the first 10 sub-plots.
 				if i<num_classes:
-				# if i<64:
-					# Get the weights for the i'th digit and reshape it.
-					# Note that w.shape == (img_size_flat, 10)
-					# mnist (28, 28)
-					# cifar (32,32,3)
-					# image = w[:, i].reshape((28, 28))
+
 					image = w[:, i].reshape((width_pixels, width_pixels))
 
 
@@ -187,6 +182,13 @@ class PlotWeightsHook(TrainingHook):
 			w_min = np.min(w)
 			w_max = np.max(w)
 
+			# add this block, because in pytorch, convolution for cifar dataset, dimension order is different from keras
+			# this way below can handle both pytorch and keras when plotting cifar images
+			s1, s2, s3, s4 = w.shape
+			if s1 > s4:
+				w = w.reshape((s3, s4, s2, s1))
+
+			# set_trace()
 			# Number of filters used in the conv. layer.
 			num_filters = w.shape[3]
 
@@ -201,25 +203,25 @@ class PlotWeightsHook(TrainingHook):
 			for i, ax in enumerate(axes.flat):
 				# Only plot the valid filter-weights.
 				if i<num_filters:
-					# Get the weights for the i'th filter of the input channel.
-					# See new_conv_layer() for details on the format
-					# of this 4-dim tensor.
+
 					img = w[:, :, input_channel, i]
 
 					# Plot image.
 					ax.imshow(img, vmin=w_min, vmax=w_max, interpolation='nearest', cmap='seismic')
 
+				if i == 0:
+					# plot loss on the first image 
+					ax.set_title("validation_loss: {}".format(round(info['Validation loss'][None]['labels'], 3)))
 				# Remove ticks from the plot.
 				ax.set_xticks([])
 				ax.set_yticks([])
 
-		    # Ensure the plot is shown correctly with multiple plots
-		    # in a single Notebook cell.
+
 		    # if we plot while training, we can't save it
 			# plt.show()
 
-			# get filename without "dir/.."
-			filename_cut_dir = kernel_filename[kernel_filename.find("/..")+3 :]
+			# cut the dirname part before "convolution"
+			filename_cut_dir = kernel_filename[kernel_filename.find("convol") :]
 			# save figure with a nicer name
 			plt.savefig('{}/{}_epoch_{}.png'.format(self.directory, filename_cut_dir, info['epoch']))
 
@@ -249,16 +251,11 @@ class PlotWeightsHook(TrainingHook):
 					if this_file.find(weight_keywords[0]) > -1 and this_file.find(weight_keywords[1]) > -1:
 
 						if weight_keywords[0].find("convol") > -1 or weight_keywords[1].find("convol") > -1:
+
 							plot_conv_weights(this_file)
 
 						else:
 							plot_weights(this_file)
 
-				# if this_file.find(self.weight_keywords2[0]) > -1 and this_file.find(self.weight_keywords2[1]) > -1:
-				#
-				#
-				# 	if self.weight_keywords2[0].find("convol") > -1 or self.weight_keywords2[1].find("convol") > -1:
-				# 		plot_conv_weights(this_file)
-				# 	else:
-				# 		plot_weights(this_file)
+
 			# save validation_loss on the plotting

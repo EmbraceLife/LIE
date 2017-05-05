@@ -10,8 +10,10 @@ settings:
 
   # Backend to use
   backend:
-    name: keras
+    # name: keras
     # backend: tensorflow
+    name: pytorch
+    # there is a problem with receptive fields size being even and 'same' border for pytorch convolution
 
   # Hyperparameters
   cnn:
@@ -30,10 +32,11 @@ model:
             kernels: "{{ cnn.kernels[index] }}"
             size: "{{ cnn.size }}"
             strides: "{{ cnn.strides }}"
+            border: valid
         - activation:
-            # name: relu
-            name: leakyrelu # leakyrelu # relu
-            alpha: 0.7 # if alpha not exist or empty as None, default value is 0.3
+            name: relu
+            # name: leakyrelu # leakyrelu # relu
+            # alpha: 0.7 # if alpha not exist or empty as None, default value is 0.3
   - flatten:
   - dense: 10
   - activation:
@@ -67,10 +70,10 @@ train:
         plot_directory: "plot_weights2"
         weight_file: cifar.best.valid.w
         with_weights:
-          - ["convolution.0", "kernel"]
-          - ["convolution.1", "kernel"]
-        # weight_keywords1: ["convolution.0", "kernel"]
-        # weight_keywords2: ["convolution.1", "kernel"]
+          - ["convolution", "kernel"]
+          - ["convolution", "weight"]
+        #   - ["dense", "kernel"]
+        #   - ["dense", "weight"]
     - plot: # the folder must be prepared first
         loss_per_batch: cifar-plot/plot1.png
         loss_per_time: cifar-plot/plot2.png
