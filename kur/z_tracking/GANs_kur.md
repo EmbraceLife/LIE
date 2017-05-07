@@ -1,12 +1,16 @@
 # Write gan_mnist in kur
 
-- write LeakyReLU in keras_kur (done)
-- pytorch_kur (done, but `alpha` or `negative_slope` is not added, but issue has been made, waiting for answers)
-- dive into each layer's output in mnist1.yml (second)
-	- where to access `output: labels` ???
-- gan_mnist model in kur
+## write LeakyReLU in keras_kur (done)
+## pytorch_kur (done, but `alpha` or `negative_slope` is not added, but issue has been made, waiting for answers)
 
-## Understanding dlnd_mnist_gan in tensorflow
+
+## dive into each layer's output in mnist1.yml (working)
+	- where to access `output: labels` ???
+
+
+
+
+## Understanding dlnd_mnist_gan in tensorflow (done)
 - read codes
 - experiment on codes like doing in kur
 - write each block in kur

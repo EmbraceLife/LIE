@@ -559,7 +559,7 @@ if training_hooks:
 				# add weight_path (the tempfolder for current weights) from wrapped_train
 				# 'weight_path' : weight_path
 			}
-			# set_trace()
+
 			if validation is not None:
 				info['Validation loss'] = validation_loss
 
@@ -1005,6 +1005,11 @@ while not all_done:
 						logger.critical("\n\nThen pause timer for batch\n\n")
 						timers['batch'].pause()
 
+
+					# try to access an activation layer
+					# but not successful
+
+
 					if step and logger.isEnabledFor(logging.CRITICAL):
 						print(prediction)
 
@@ -1153,7 +1158,7 @@ print_times()
 			# Execute training hooks at the end of each epoch
 			logger.critical("\n\nTry all training_hooks, but only the ones with `status=TrainingHook.EPOCH_END` will be executed\n\n")
 
-			# move this part to plot_weights_hook.py, otherwise, every epoch of training it will create temp folder and save model weights 
+			# move this part to plot_weights_hook.py, otherwise, every epoch of training it will create temp folder and save model weights
 			# create a tempfolder for the current model weights
 			# weight_path = None
 			# tempdir = tempfile.mkdtemp()

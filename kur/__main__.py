@@ -195,6 +195,35 @@ def build(args):
 	logger.critical("\n\nStep6. Compile model\n\n1. To create spec.model.compiled[key] and spec.model.compiled['raw']\n\n2. Then save initial weights from compiled['raw'] into external idx files, \n\n3. test func using compiled[key] onto compiled['raw'] on a provider with just 2 samples\n\n4. restore initial weights back to variables in model\n\nEOF\n\n")
 
 	target.compile()
+	# Aboe is `kur build` ####################
+
+
+	# # Experiment start here  ############################
+	# # a batch is ready from above
+	# # get weights from a particular weight file
+	#
+	# # create a single data sample
+	# sample = None
+	# for batch in provider:
+	# 	sample = batch['images'][0]
+	# 	break
+	#
+	# # make weights and biases available as numpy arrays
+	# import kur.utils.idx as idx
+	# dense_w = idx.load("../../Hvass_tutorial1_folders/mnist.best.valid.w/layer___dense_0+weight.kur")
+	# dense_b = idx.load("../../Hvass_tutorial1_folders/mnist.best.valid.w/layer___dense_0+bias.kur")
+	#
+	# # make activation object available
+	# set_trace()
+	# import keras.backend.tensorflow_backend as K
+	# # data_f = K.flatten(batch_images[0])
+	# data_flat = batch_images[0].reshape((1, -1))
+	# data_fw = data_flat.dot(dense_w.T)
+	# data_fw_v = data_fw.reshape((-1,))
+	# dense_h = data_fw_v + dense_b
+	# # the problem is I don't know the operators at all
+	# set_trace()
+	# #################################
 
 ###############################################################################
 def prepare_data(args):
@@ -359,8 +388,6 @@ pprint(p)
 		pprint(p)
 
 
-
-
 	providers = spec.get_provider(
 		args.target,
 		accept_many=args.target == 'test'
@@ -394,6 +421,7 @@ pprint(p)
 		if len(providers) > 1:
 			print('Provider:', k)
 
+		# take a batch of data out of provider
 		batch = None
 		for batch in provider:
 			break
@@ -406,6 +434,8 @@ pprint(p)
 			print("key:", k)
 			print("shape:", v.shape)
 
+
+		# print out a batch or a few samples of data (images, labels)
 		num_entries = None
 		keys = sorted(batch.keys())
 		num_entries = len(batch[keys[0]])
