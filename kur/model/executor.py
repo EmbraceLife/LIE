@@ -554,9 +554,10 @@ if training_hooks:
 				'epoch' : epoch+1,
 				# epochs are the total epochs defined inside stop_when
 				'total_epochs' : epochs,
-				'Training loss' : cur_train_loss,
+				'Training loss' : cur_train_loss
+				# don't save weight_path in info, but move it to plot_weights_hook.py
 				# add weight_path (the tempfolder for current weights) from wrapped_train
-				'weight_path' : weight_path
+				# 'weight_path' : weight_path
 			}
 			# set_trace()
 			if validation is not None:
@@ -567,7 +568,9 @@ if training_hooks:
 				hook.notify(
 					status,
 					log=log,
-					info=info
+					info=info,
+					# add model input here
+					model=self.model
 				)
 
 		#######################################################################
@@ -1150,12 +1153,13 @@ print_times()
 			# Execute training hooks at the end of each epoch
 			logger.critical("\n\nTry all training_hooks, but only the ones with `status=TrainingHook.EPOCH_END` will be executed\n\n")
 
+			# move this part to plot_weights_hook.py, otherwise, every epoch of training it will create temp folder and save model weights 
 			# create a tempfolder for the current model weights
-			weight_path = None
-			tempdir = tempfile.mkdtemp()
-			weight_path = os.path.join(tempdir, 'current_epoch_model')
+			# weight_path = None
+			# tempdir = tempfile.mkdtemp()
+			# weight_path = os.path.join(tempdir, 'current_epoch_model')
 			# save this model weights to this tempfolder
-			self.model.save(weight_path)
+			# self.model.save(weight_path)
 			# then bring this weight_path into run_training_hooks(), and which is stored as info['weight_path']
 
 			# introduce model weights to TrainingHook plot_weights

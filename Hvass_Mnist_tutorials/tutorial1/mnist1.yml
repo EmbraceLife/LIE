@@ -24,9 +24,9 @@ model:
   - input: images
   - flatten: true
   - dense: 10
-  - activation:
-      name: softmax
-    name: labels
+  - activation: softmax
+    #   name: softmax #leakyrelu # softmax
+  - output: labels
 
 
 ...

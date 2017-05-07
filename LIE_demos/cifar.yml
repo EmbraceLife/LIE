@@ -41,7 +41,7 @@ model:
   - dense: 10
   - activation: softmax
     #   name: softmax
-    name: labels
+    name: labels # this is output rather than labels of inputs???
 
 train:
   data:

@@ -112,7 +112,8 @@ class PlotHook(TrainingHook):
 		matplotlib.use('Agg')
 
 	###########################################################################
-	def notify(self, status, log=None, info=None):
+	# add model=None, but doing nothing here yet 
+	def notify(self, status, log=None, info=None, model=None):
 		""" Creates the plot.
 		"""
 

@@ -21,7 +21,7 @@ import itertools
 from collections import OrderedDict
 
 import numpy
-
+import tempfile
 from . import TrainingHook
 from ...loggers import PersistentLogger, Statistic
 
@@ -90,14 +90,14 @@ class PlotWeightsHook(TrainingHook):
 		matplotlib.use('Agg')
 
 	###########################################################################
-	def notify(self, status, log=None, info=None):
+	# added model=None to use bring in model for saving weights
+	def notify(self, status, log=None, info=None, model=None):
 		""" Creates the plot.
 		"""
 
 		from matplotlib import pyplot as plt	# pylint: disable=import-error
 
-		# logger.critical('PlotWeightsHook received training message.')
-
+		# Make sure plot_weights_hook only run for end of epoch not anywhere else
 		if status not in (
 			# TrainingHook.TRAINING_END,
 			# TrainingHook.VALIDATION_END,
@@ -106,6 +106,15 @@ class PlotWeightsHook(TrainingHook):
 			logger.critical('\n\nPlotWeightsHook is tried here, but it does not handle the specified status.\n\n')
 			return
 
+		# move this part (create temp folder and save model weights ) to plot_weights_hook.py
+		# create a tempfolder for the current model weights
+		weight_path = None
+		tempdir = tempfile.mkdtemp()
+		weight_path = os.path.join(tempdir, 'current_epoch_model')
+		# save this model weights to this tempfolder
+
+		model.save(weight_path)
+		
 
 		# borrowed from https://hyp.is/MKzd7C4eEeeWlPvso_EWdg/nbviewer.jupyter.org/github/Hvass-Labs/TensorFlow-Tutorials/blob/master/01_Simple_Linear_Model.ipynb
 		def plot_weights(kernel_filename):
@@ -210,7 +219,7 @@ class PlotWeightsHook(TrainingHook):
 					ax.imshow(img, vmin=w_min, vmax=w_max, interpolation='nearest', cmap='seismic')
 
 				if i == 0:
-					# plot loss on the first image 
+					# plot loss on the first image
 					ax.set_title("validation_loss: {}".format(round(info['Validation loss'][None]['labels'], 3)))
 				# Remove ticks from the plot.
 				ax.set_xticks([])
@@ -237,7 +246,8 @@ class PlotWeightsHook(TrainingHook):
 
 			# info stores the tempfoder or weight_path from wrapped_train()
 			if self.weight_file is None:
-				self.weight_file = info['weight_path']
+				# self.weight_file = info['weight_path']
+				self.weight_file = weight_path
 
 			for dirpath, _, filenames in os.walk(self.weight_file): # mnist or cifar
 
