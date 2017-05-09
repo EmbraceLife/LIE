@@ -40,17 +40,31 @@ class Activation(Layer):				# pylint: disable=too-few-public-methods
 	"""
 
 	###########################################################################
+
 	def __init__(self, *args, **kwargs):
 		""" Creates a new activation layer.
 		"""
+		# `args` inherit from upper level's input data
+		# use `c` to go up one level
+		# use `d` to go down one level back
+
+		# before super().__init__(*args, **kwargs), pprint(self.__dict__) is empty; after, we got lots of attributes from container class initialization; but most attributes are empty, execpt self.data filled with args or *args inherited from `data` of above level
+		"""
+		- activation: #softmax
+		      type: leakyrelu # softmax
+		      alpha: 100
+		"""
 		super().__init__(*args, **kwargs)
+		# introduce a new attribute to Activation class
+		# a new attribute like self.type1 can be introduced inside other methods of Activation class too, not has to be here.
 		self.type = None
 
 	###########################################################################
 	def _parse(self, engine):
 		""" Parse the layer.
 		"""
-		# added_feature: allow activation args to go beyond name
+		# previous level: container._parse_core() will fill self.args and self.type with details extracted from self.data
+		#
 
 		# when only name of activation is given
 		if not isinstance(self.args, dict):
@@ -59,7 +73,7 @@ class Activation(Layer):				# pylint: disable=too-few-public-methods
 		# when more than name is given
 		else:
 		# specify name from args as a dict
-			self.type = self.args['name']
+			self.type = self.args['type']
 
 		# when a second args is available
 		if self.type == 'leakyrelu':
@@ -74,6 +88,7 @@ class Activation(Layer):				# pylint: disable=too-few-public-methods
 	def _build(self, model):
 		""" Create the backend-specific placeholder.
 		"""
+
 		backend = model.get_backend()
 		if backend.get_name() == 'keras':
 

@@ -311,6 +311,8 @@ class Kurfile:
 			provider = Kurfile.DEFAULT_PROVIDER
 
 		return {
+				# sources args is taken directly into Supplier class
+				# provider_spec is splitted into images and labels and taken into BatchProvider class
 			k : provider(
 				sources=Supplier.merge_suppliers(v),
 				**provider_spec
@@ -592,6 +594,7 @@ class Kurfile:
 			output layer names and whose respective values are Loss instances.
 			Otherwise, this returns None.
 		"""
+
 		if 'loss' not in self.data:
 			return None
 

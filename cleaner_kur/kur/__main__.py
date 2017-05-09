@@ -162,10 +162,10 @@ def build(args):
 	# sample = None
 	# for batch in provider:
 	# 	# get a single image data
-	# 	sample = batch['images'][0]
+	# 	sample = batch['x'][0]
 	# 	break
 	# set_trace()
-	# act = target.model.compiled['train']
+	# act = target.model.compiled['raw'].layers
 
 
 
@@ -220,6 +220,12 @@ def prepare_data(args):
 		if batch is None:
 			logger.error('No batches were produced.')
 			continue
+
+		# added_features: print out dataset shapes
+		for k, v in batch.items():
+			print("See a batch's keys and shapes: \n")
+			print("key:", k)
+			print("shape:", v.shape, "\n")
 
 		num_entries = None
 		keys = sorted(batch.keys())

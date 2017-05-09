@@ -1,3 +1,33 @@
+# added_features
+################################
+# create temporal folders
+import tempfile
+
+################################
+# prepare logger functionality
+# import logging
+import matplotlib.pyplot as plt
+import numpy as np
+# logger = logging.getLogger(__name__)
+# from .utils import DisableLogging
+# with DisableLogging(): how to disable logging for a function
+# if logger.isEnabledFor(logging.WARNING): work for pprint(object.__dict__)
+
+################################
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule, getfullargspec, getargvalues
+# to write multiple lines inside pdb
+# !import code; code.interact(local=vars())
+
+################################
+# use pytorch to do tensor ops, layers, activations
+import torch
+from torch.autograd import Variable
+import torch.nn.functional as F
+
+
 """
 Copyright 2016 Deepgram
 
@@ -511,6 +541,7 @@ class KerasBackend(Backend):
 
 			The Keras tensor
 		"""
+
 		if model.compiled is None or 'raw' not in model.compiled:
 			raise ValueError('The model must be compiled first.')
 		if layer_name in model.output_aliases:
@@ -522,6 +553,7 @@ class KerasBackend(Backend):
 				.format(layer_name))
 		for keras_layer, kur_layer in \
 			zip(model.compiled['raw'].outputs, model.outputs):
+
 			if kur_layer == target:
 				return keras_layer
 		raise ValueError('Did not find expected layer. This is a bug.')

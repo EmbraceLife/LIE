@@ -1,6 +1,19 @@
-#####################################
-# add_features
-# this whole file is to replace `activation.py` inside `kur/containers/layers`
+"""
+Copyright 2016 Deepgram
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"""
+
 from . import Layer, ParsingError
 
 import logging
@@ -17,7 +30,7 @@ from inspect import getdoc, getmembers, getsourcelines, getmodule, getfullargspe
 # to write multiple lines inside pdb
 # !import code; code.interact(local=vars())
 
-#########################
+###############################################################################
 class Activation(Layer):				# pylint: disable=too-few-public-methods
 	""" An activation layer.
 
@@ -27,17 +40,31 @@ class Activation(Layer):				# pylint: disable=too-few-public-methods
 	"""
 
 	###########################################################################
+
 	def __init__(self, *args, **kwargs):
 		""" Creates a new activation layer.
 		"""
+		# `args` inherit from upper level's input data
+		# use `c` to go up one level
+		# use `d` to go down one level back
+
+		# before super().__init__(*args, **kwargs), pprint(self.__dict__) is empty; after, we got lots of attributes from container class initialization; but most attributes are empty, execpt self.data filled with args or *args inherited from `data` of above level
+		"""
+		- activation: #softmax
+		      type: leakyrelu # softmax
+		      alpha: 100
+		"""
 		super().__init__(*args, **kwargs)
+		# introduce a new attribute to Activation class
+		# a new attribute like self.type1 can be introduced inside other methods of Activation class too, not has to be here.
 		self.type = None
 
 	###########################################################################
 	def _parse(self, engine):
 		""" Parse the layer.
 		"""
-		# added_feature: allow activation args to go beyond name
+		# previous level: container._parse_core() will fill self.args and self.type with details extracted from self.data
+		#
 
 		# when only name of activation is given
 		if not isinstance(self.args, dict):
@@ -46,7 +73,7 @@ class Activation(Layer):				# pylint: disable=too-few-public-methods
 		# when more than name is given
 		else:
 		# specify name from args as a dict
-			self.type = self.args['name']
+			self.type = self.args['type']
 
 		# when a second args is available
 		if self.type == 'leakyrelu':
@@ -61,11 +88,11 @@ class Activation(Layer):				# pylint: disable=too-few-public-methods
 	def _build(self, model):
 		""" Create the backend-specific placeholder.
 		"""
+
 		backend = model.get_backend()
 		if backend.get_name() == 'keras':
 
 			import keras.layers as L			# pylint: disable=import-error
-			set_trace()
 			if self.type != "leakyrelu":
 				yield L.Activation(
 					'linear' if self.type == 'none' or self.type is None \

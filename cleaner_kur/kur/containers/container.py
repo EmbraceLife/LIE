@@ -1,3 +1,32 @@
+# added_features
+################################
+# create temporal folders
+import tempfile
+
+################################
+# prepare logger functionality
+# import logging
+import matplotlib.pyplot as plt
+import numpy as np
+# logger = logging.getLogger(__name__)
+# from .utils import DisableLogging
+# with DisableLogging(): how to disable logging for a function
+# if logger.isEnabledFor(logging.WARNING): work for pprint(object.__dict__)
+
+################################
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule, getfullargspec, getargvalues
+# to write multiple lines inside pdb
+# !import code; code.interact(local=vars())
+
+################################
+# use pytorch to do tensor ops, layers, activations
+import torch
+from torch.autograd import Variable
+import torch.nn.functional as F
+
 """
 Copyright 2016 Deepgram
 
@@ -72,6 +101,7 @@ class Container:
 		""" Factory method for creating containers.
 		"""
 		cls = Container.find_container_for_data(data)
+
 		if cls:
 			return cls(data, **kwargs)
 
@@ -362,6 +392,7 @@ class Container:
 
 		container_name = self.get_container_name()
 		if container_name in self.data:
+
 			self.args = engine.evaluate(self.data[container_name])
 		else:
 			if not self.is_anonymous():

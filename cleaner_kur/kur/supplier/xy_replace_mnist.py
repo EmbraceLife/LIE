@@ -50,7 +50,7 @@ from . import Supplier
 from ..sources import VanillaSource
 
 ###############################################################################
-class MnistSupplier(Supplier):
+class XYSupplier(Supplier):
 	""" A supplier which supplies MNIST image/label pairs. These are downloaded
 		from the internet, verified, and parsed as IDX files.
 	"""
@@ -60,11 +60,11 @@ class MnistSupplier(Supplier):
 	def get_name(cls):
 		""" Returns the name of the supplier.
 		"""
-		return 'mnist'
+		return 'xy'
 
 	###########################################################################
-	# labels and images are dicts extracted from {mnist: {images: {}, labels: {}}}
-	def __init__(self, labels, images, *args, **kwargs):
+	# x and y are dicts extracted from {xy: {x: {}, y: {}}}
+	def __init__(self, x, y, *args, **kwargs):
 		""" Creates a new MNIST supplier.
 
 			# Arguments
@@ -88,13 +88,13 @@ class MnistSupplier(Supplier):
 
 		self.data = {
 						# MnistSupplier._get_filename is staticmethod can be used in __init__
-			'images' : MnistSupplier._normalize(
+			'x' :
 				# VanillaSource.data == numpy.array
-				VanillaSource(idx.load(MnistSupplier._get_filename(images)))
+				VanillaSource(idx.load(XYSupplier._get_filename(x))
 				# dataset.shape = (60000, 28, 28)
 			),
-			'labels' : MnistSupplier._onehot(
-				VanillaSource(idx.load(MnistSupplier._get_filename(labels)))
+			'y' :
+				VanillaSource(idx.load(XYSupplier._get_filename(y))
 			)
 		}
 

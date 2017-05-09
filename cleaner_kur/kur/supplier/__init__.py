@@ -24,5 +24,6 @@ from .csv_supplier import CsvSupplier
 from .jsonl_supplier import JSONLSupplier
 from .text_supplier import TextSupplier
 from .mind import MindSupplier
+from .xy_replace_mnist import XYSupplier
 
 ### EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF.EOF

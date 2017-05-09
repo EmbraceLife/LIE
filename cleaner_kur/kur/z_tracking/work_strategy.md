@@ -15,7 +15,11 @@
 	- plot_images (done)
 	- plot_weights_hooks (done)
 	- adding new activations:
+		- how args of activation is passed from kurfile to source code 
 		- leaky_relu (done)
+	- Understand the workflow of MnistSupplier supplier and BatchProvider
+		- write down the workflow
+		- make catsdogs dataset using this style
 
 
 ## Kur official upcoming feature list
