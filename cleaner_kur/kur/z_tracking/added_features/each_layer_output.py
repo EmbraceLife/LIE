@@ -19,7 +19,14 @@ dense_w = idx.load("../../Hvass_tutorial1_folders/mnist.best.valid.w/layer___den
 # shape (10,)
 dense_b = idx.load("../../Hvass_tutorial1_folders/mnist.best.valid.w/layer___dense_0+bias.kur")
 # sample (1, 784), weight(784, 10) + bias (10,)
+#############################
+# keras solution
+from keras.layers import Dense
+dense1 = Dense(units=10, input_dim=784, kernel_initializer=dense_w, bias_initializer=dense_b, activation='softmax')
+dense1.build((28,28))
+layer1 = dense1(inputs = sample)
 
+#######################################
 import torch
 import torch.nn.functional as F
 from torch.autograd import Variable

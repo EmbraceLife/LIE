@@ -40,9 +40,9 @@ def _init_data_worker():
 ###############################################################################
 def _load_single(args):
 	"""
-	This function is called through an instance of multiprocessing.Pool 
+	This function is called through an instance of multiprocessing.Pool
 	in the RawUtterance source.  We do not make this function an instance
-	method of RawUtterance in order to avoid unnecessary pickling of 
+	method of RawUtterance in order to avoid unnecessary pickling of
 	RawUtterance instances which would fail due to the presence of some
 	unpickleable instance variables.
 	"""
@@ -171,7 +171,31 @@ class RawUtterance(ChunkSource):
 	"""
 
 	DEFAULT_NORMALIZATION_DEPTH = 100
+	_pool = None
+	_data_cpus = None
 
+	###########################################################################
+	@property
+	def pool(self):
+		return RawUtterance._pool
+
+	###########################################################################
+	@property
+	def data_cpus(self):
+		return RawUtterance._data_cpus
+
+	###########################################################################
+	@classmethod
+	def _init_pool(cls, data_cpus):
+		assert isinstance(data_cpus, int)
+		data_cpus = max(1, data_cpus)
+		if cls._pool is None:
+			cls._data_cpus = data_cpus
+			cls._pool = multiprocessing.Pool(data_cpus, _init_data_worker)
+		else:
+			if data_cpus != cls._data_cpus:
+				logger.warning('"data_cpus" has already been set to %d.',
+					cls._data_cpus)
 	###########################################################################
 	@classmethod
 	def default_chunk_size(cls):
@@ -192,9 +216,7 @@ class RawUtterance(ChunkSource):
 		self.features = None
 		self.max_frequency = max_frequency
 
-		assert isinstance(data_cpus, int)
-		self.data_cpus = max(1, data_cpus)
-		self.pool = multiprocessing.Pool(data_cpus, _init_data_worker)
+		self._init_pool(data_cpus)
 
 		self._init_normalizer(normalization)
 
@@ -273,13 +295,13 @@ class RawUtterance(ChunkSource):
 		n = n_paths // n_cpus  # paths per cpu
 		args = (self.feature_type, self.max_frequency, 'suppress')  # arguments to be passed into worker function
 
-		# Split the paths to be processed as evenly as possible 
+		# Split the paths to be processed as evenly as possible
 		x = [(args, paths[i * n:(i+1) * n]) for i in range(n_cpus - 1)]
 
 		# In case n_paths is not evenly divisible by n_cpus, we handle the last
 		# element outside of the above list comprehension
-		x.append((args, paths[(n_cpus - 1) * n:])) 
-	
+		x.append((args, paths[(n_cpus - 1) * n:]))
+
 		# actually load audio via process pool
 		try:
 			result = self.pool.map(_load_single, x)
@@ -550,7 +572,7 @@ class SpeechRecognitionSupplier(Supplier):
 		return 'speech_recognition'
 
 	###########################################################################
-	def __init__(self, url=None, path=None, checksum=None, unpack=None, 
+	def __init__(self, url=None, path=None, checksum=None, unpack=None,
 		type=None, normalization=None, min_duration=None, max_duration=None,
 		max_frequency=None, vocab=None, samples=None, fill=None, key=None,
 		bucket=None, data_cpus=None, *args, **kwargs):

@@ -283,9 +283,15 @@ class PlotHook(TrainingHook):
 				plt.ylabel('Throughput (Batches/Second)')
 
 				# it is always divided by zero for pytorch
+				# now it is supposed to be resolved in this commit
+				d_batch = numpy.diff(batch)
+				d_t = numpy.diff(time)
+				valid_indices = d_t.nonzero()
+				d_batch = d_batch[valid_indices]
+				d_t = d_t[valid_indices]
 
-				throughput = numpy.diff(batch) / numpy.diff(time)
-				t_line, = plt.plot(time[1:], throughput, 'co-',
+				throughput = d_batch / d_t
+				t_line, = plt.plot(time[1+valid_indices[0]], throughput, 'co-',
 					label='Training Throughput')
 
 				plt.legend(handles=(t_line, ))

@@ -158,15 +158,6 @@ def build(args):
 		return 1
 
 	target.compile()
-# experiment start #######################
-	# sample = None
-	# for batch in provider:
-	# 	# get a single image data
-	# 	sample = batch['x'][0]
-	# 	break
-	# set_trace()
-	# act = target.model.compiled['raw'].layers
-
 
 
 ###############################################################################
