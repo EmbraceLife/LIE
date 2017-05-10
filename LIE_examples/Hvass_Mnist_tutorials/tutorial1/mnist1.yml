@@ -1,0 +1,33 @@
+---
+include:
+  - mnist_default.yml
+
+
+
+settings:
+
+  backend:
+    name: keras
+    # backend: tensorflow
+    # name: pytorch
+
+
+train:
+  data:
+    - mnist:
+        images:
+          url: "http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz"
+        labels:
+          url: "http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz"
+
+model:
+  - input: images
+  - flatten: true
+  - dense: 10
+  - activation: #softmax
+      type: softmax # leakyrelu # softmax
+    #   alpha: 100
+  - output: labels
+
+
+...

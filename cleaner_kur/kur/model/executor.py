@@ -490,10 +490,9 @@ class Executor:
 			info = {
 				'epoch' : epoch+1,
 				'total_epochs' : epochs,
-				'Training loss' : cur_train_loss
-				# current epoch weights folder
-				# 'weight_path' : weight_path
-				# we don't save weight_path inside info anymore
+				'Training loss' : cur_train_loss,
+				# added a single image data sample
+				'sample': sample
 			}
 			if validation is not None:
 				info['Validation loss'] = validation_loss
@@ -771,6 +770,15 @@ class Executor:
 		all_done = False
 
 		#######################################################################
+		# prepare a single image sample data
+		sample = None
+		for batch in provider:
+			values = [v for v in batch.values()]
+			if len(values[0].shape) > len(values[1].shape):
+				sample = values[0][0]#.reshape(1,28,28,1)
+				break
+
+
 		# Main training loop.
 		timers['all'].resume()
 		while not all_done:

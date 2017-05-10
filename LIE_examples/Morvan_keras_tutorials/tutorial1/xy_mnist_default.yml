@@ -1,0 +1,96 @@
+---
+# Declare the loss function that is used during training/validation/testing.
+loss:
+  # It is a list of loss functions, one for each model output.
+  # The MNIST example only has one output, named "labels".
+  - target: y
+    name: mean_squared_error # categorical_crossentropy
+
+# The "include" section in "mnist.yml" is magical, and will merge this section
+# into the section in "mnist.yml".
+train:
+  # Let's include checksums for all of the data we download.
+  data:
+    - xy:
+        x:
+          checksum:
+          path: "/Users/Natsume/Documents/kur_experiment/LIE_examples/Morvan_keras_tutorials/tutorial1/x_train"
+        y:
+          checksum:
+          path: "/Users/Natsume/Documents/kur_experiment/LIE_examples/Morvan_keras_tutorials/tutorial1/y_train"
+
+  # As we discuss in "Examples" in the documentation, we only train on the first
+  # batches each epoch. This is just to make getting through the MNIST example
+  # nice and quick on slow/CPU-only machines. If you have a GPU, feel free to
+  # remove the "provider:" section entirely.
+  provider:
+    batch_size: # empty or None is default 32 samples as a batch
+    num_batches: 1
+  log: ../../Morvan_keras_folders/xy-mnist-log # remember if don't set log, your model won't build on previous runs
+
+  # How many epochs to train for.
+  epochs:
+    number: 2
+    mode: additional
+  stop_when:
+    epochs: 3 # null or infinite : to train forever
+    elapsed:
+      minutes: 10
+      hours: 0
+      days: 0
+      clock: all # (time spend on all things) or all | train | validate | batch
+    mode: additional # additional | total, if set total, then elapsed above define total training time in history added
+  weights: # the folders below are prepared automatically?
+    initial: ../../Morvan_keras_folders/xy.mnist.best.valid.w
+    best: ../../Morvan_keras_folders/xy.mnist.best.train.w
+    last: ../../Morvan_keras_folders/xy.mnist.last.w
+
+
+# Here, we use the MNIST test set as a validation set (more generally, you'll
+# want train, validation, and test sets; but we ignore this for the MNIST
+# example). The funky "&validation" is just a YAML anchor, so we can reference
+# this section later.
+validate: &validate
+  data:
+    - xy:
+        x:
+          url:
+          checksum:
+          path: "/Users/Natsume/Documents/kur_experiment/LIE_examples/Morvan_keras_tutorials/tutorial1/x_valid"
+        y:
+          url:
+          checksum:
+          path: "/Users/Natsume/Documents/kur_experiment/LIE_examples/Morvan_keras_tutorials/tutorial1/y_valid"
+
+  # Let's also use less data for validation, just to speed it along.
+  provider:
+    num_batches: 1
+
+  # Where to save the model weights that have the lowest validation loss.
+  weights: ../../Morvan_keras_folders/xy.mnist.best.valid.w
+
+# Let's define the test set, used if you execute something like:
+# $ kur test mnist.yml
+# The funky "*validation" is just a YAML alias, so we basically are setting the
+# "test" section" to be the same as the "validate" section.
+test: *validate
+
+# This is the evaluation section, used during `kur evaluate mnist.yml`.
+# The funky "<<: *validate" is just YAML, and basically means "copy all of the
+# keys from 'validate', and then add/replace the
+evaluate:
+  <<: *validate
+
+  # Use the entire testing set for evaluation.
+  provider:
+    num_batches: null
+
+  # Where do we want to store the output file?
+  # Here, we are just storing it as a Python pickle.
+  destination: ../../Morvan_keras_folders/xy.mnist.results.pkl
+
+  # This is a list of post-processing hooks. Here, we want to produce the
+  # digit-by-digit accuracy table (just called "mnist").
+  # hooks:
+  #   - mnist
+...

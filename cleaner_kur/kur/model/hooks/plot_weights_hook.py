@@ -1,3 +1,10 @@
+################################
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule, getfullargspec, getargvalues
+# to write multiple lines inside pdb
+# !import code; code.interact(local=vars())
 """
 Copyright 2017 Deepgram
 
@@ -46,12 +53,15 @@ class PlotWeightsHook(TrainingHook):
 		return 'plot_weights'
 
 	###########################################################################
-	def __init__(self, plot_directory, weight_file, with_weights, plot_every_n_epochs, *args, **kwargs):
+	# added layer_index
+	def __init__(self, layer_index, plot_directory, weight_file, with_weights, plot_every_n_epochs, *args, **kwargs):
 		""" Creates a new plot_weights hook, get weights filenames, path for saving plots, keywords for selecting layer-weights, num_epochs before plotting, and matplotlib ready.
 		"""
 
 		super().__init__(*args, **kwargs)
 
+		# added self.layer_idx
+		self.layer_idx = layer_index
 		self.directory = plot_directory
 		if not os.path.exists(self.directory):
 			os.makedirs(self.directory)
@@ -109,6 +119,45 @@ class PlotWeightsHook(TrainingHook):
 
 		model.save(weight_path)
 
+
+
+				# image is an image sampe data
+		def plot_conv_layer(layer_out, layer_name):
+
+
+			values = layer_out
+		    # Number of filters used in the conv. layer.
+			num_filters = values.shape[3]
+
+		    # Number of grids to plot.
+		    # Rounded-up, square-root of the number of filters.
+			num_grids = math.ceil(math.sqrt(num_filters))
+
+		    # Create figure with a grid of sub-plots.
+			fig, axes = plt.subplots(num_grids, num_grids)
+
+		    # Plot the output images of all the filters.
+			for i, ax in enumerate(axes.flat):
+		        # Only plot the images for valid filters.
+				if i<num_filters:
+		            # Get the output image of using the i'th filter.
+		            # See new_conv_layer() for details on the format
+		            # of this 4-dim tensor.
+					img = values[0, :, :, i]
+		            # 0 cos there is only one image
+		            # i refers to index of output channels/images of this convol layer
+
+		            # Plot image.
+					ax.imshow(img, interpolation='nearest', cmap='binary')
+
+		        # Remove ticks from the plot.
+				ax.set_xticks([])
+				ax.set_yticks([])
+
+		    # if we plot while training, we can't save it
+			# plt.show()
+			# save figure with a nicer name
+			plt.savefig('{}/{}_epoch_{}.png'.format(self.directory, layer_name, info['epoch']))
 
 		# borrowed from https://hyp.is/MKzd7C4eEeeWlPvso_EWdg/nbviewer.jupyter.org/github/Hvass-Labs/TensorFlow-Tutorials/blob/master/01_Simple_Linear_Model.ipynb
 		def plot_weights(kernel_filename):
@@ -191,7 +240,6 @@ class PlotWeightsHook(TrainingHook):
 			if s1 > s4:
 				w = w.reshape((s3, s4, s2, s1))
 
-			# set_trace()
 			# Number of filters used in the conv. layer.
 			num_filters = w.shape[3]
 
@@ -260,4 +308,23 @@ class PlotWeightsHook(TrainingHook):
 							plot_weights(this_file)
 
 
-			# save validation_loss on the plotting
+			# plot a layer
+			# add inside `notify()`
+			# added created layer output
+			model_keras = model.compiled['raw']
+
+			from keras import backend as K
+
+			for index in self.layer_idx:
+
+				layer_output = K.function([model_keras.layers[0].input],
+							[model_keras.layers[index].output])
+				layer_name = model_keras.layers[index].name
+
+				input_dim = model_keras.layers[0].input._keras_shape
+				img_dim = (1,) + input_dim[1:]
+				sample_img = info['sample'].reshape(img_dim)
+				# layer is a numpy.array
+
+				layer_out = layer_output([sample_img])[0]
+				plot_conv_layer(layer_out, layer_name)

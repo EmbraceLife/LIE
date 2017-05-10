@@ -1,6 +1,8 @@
 ########################################################################
 """
 # Experiment: get outcome of every layer
+# do it in pytorch below
+# do it in keras (see LIE_examples/kerasTUT/5-classifier_example.py)
 """
 #######################################################
 # a batch is ready from above

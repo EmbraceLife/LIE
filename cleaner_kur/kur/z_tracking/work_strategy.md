@@ -1,32 +1,15 @@
 
 # Goals
-- Making kur my primary experiment tool of deep learning
+- match kurfile to keras, pytorch, tensorflow seamlessly
+	- tutorials, examples dissected
+	- write them with kur
+	- write flexible techniques of keras, pytorch, tensorflow into kur
 
-## Experiment kur inside out
-- pytorch minimum (done)
-- keras minimum (....)
-	- how to make a keras.Tensor?
-- experiment on demos (working on)
-- basic features in separate files
-	- logger, examiner, pytorch import (done)
-	- every layer output codes (done)
-		- use pytorch to access each layer's output (done)
-		- see Adam's suggestions (asked, and waiting)
-	- plot_images (done)
-	- plot_weights_hooks (done)
-	- adding new activations:
-		- how args of activation is passed from kurfile to source code 
-		- leaky_relu (done)
-	- Understand the workflow of MnistSupplier supplier and BatchProvider
-		- write down the workflow
-		- make catsdogs dataset using this style
+## Features and techniques written into kur
+- work done stored in kur/z_tracking/added_features
+- plot_layers in kur (working)
 
 
-## Kur official upcoming feature list
-- more activations
-- build multiple models for gans
-	- asked for more suggestions
--
 
 ## Write a 100 new kur examples
 - fast.ai course
