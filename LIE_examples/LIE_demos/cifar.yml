@@ -66,6 +66,7 @@ train:
 
   hooks:
     - plot_weights:
+        layer_index: [1,2,3,4]
         plot_every_n_epochs: 1
         plot_directory: ../LIE_cifar_folders/cifar_plot_weights
         weight_file: ../LIE_cifar_folders/cifar.best.valid.w

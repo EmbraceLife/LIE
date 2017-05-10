@@ -26,7 +26,9 @@ from keras.optimizers import Adam
 # X shape (60,000 28x28), y shape (10,000, )
 (X_train, y_train), (X_test, y_test) = mnist.load_data()
 
+
 # data pre-processing
+# explain num_channels https://youtu.be/zHop6Oq757Y?list=PLXO45tsB95cKhCSIgTgIfjtG5y0Bf_TIY&t=121
 X_train = X_train.reshape(-1, 1,28, 28)/255.
 X_test = X_test.reshape(-1, 1,28, 28)/255.
 y_train = np_utils.to_categorical(y_train, num_classes=10)
@@ -35,6 +37,7 @@ y_test = np_utils.to_categorical(y_test, num_classes=10)
 # Another way to build your CNN
 model = Sequential()
 
+# here explain the meaning and effects of number of filters  https://youtu.be/zHop6Oq757Y?list=PLXO45tsB95cKhCSIgTgIfjtG5y0Bf_TIY&t=250
 # Conv layer 1 output shape (32, 28, 28)
 model.add(Convolution2D(
     nb_filter=32,
@@ -88,5 +91,3 @@ loss, accuracy = model.evaluate(X_test, y_test)
 
 print('\ntest loss: ', loss)
 print('\ntest accuracy: ', accuracy)
-
-
