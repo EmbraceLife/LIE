@@ -53,15 +53,15 @@ class PlotWeightsHook(TrainingHook):
 		return 'plot_weights'
 
 	###########################################################################
-	# added layer_index
-	def __init__(self, layer_index=None, plot_directory=None, weight_file=None, with_weights=None, plot_every_n_epochs=None, *args, **kwargs):
+	# added layer_names for plot layers
+	def __init__(self, layer_names=None, plot_directory=None, weight_file=None, with_weights=None, plot_every_n_epochs=None, *args, **kwargs):
 		""" Creates a new plot_weights hook, get weights filenames, path for saving plots, keywords for selecting layer-weights, num_epochs before plotting, and matplotlib ready.
 		"""
 
 		super().__init__(*args, **kwargs)
 
-		# added self.layer_idx
-		self.layer_idx = layer_index
+		# added self.layer_names
+		self.layer_names = layer_names
 		self.directory = plot_directory
 		if not os.path.exists(self.directory):
 			os.makedirs(self.directory)
@@ -261,6 +261,7 @@ class PlotWeightsHook(TrainingHook):
 					ax.imshow(img, vmin=w_min, vmax=w_max, interpolation='nearest', cmap='seismic')
 
 				if i == 0:
+
 					# plot loss on the first image
 					ax.set_title("validation_loss: {}".format(round(info['Validation loss'][None]['labels'], 3)))
 				# Remove ticks from the plot.
@@ -311,24 +312,46 @@ class PlotWeightsHook(TrainingHook):
 			# plot a layer
 			# add inside `notify()`
 			# added created layer output
-			model_keras = model.compiled['raw']
 
-			# if not required to plot convol layer, just return without running the code below 
-			if self.layer_idx is None:
+
+			# if not required to plot convol layer, just return without running the code below
+			if self.layer_names is None:
 				return
+			# set_trace()
+			for layer_name in self.layer_names:
+				output = info['inter_layers_outputs'][layer_name][0]
 
-			from keras import backend as K
+				img_dim = (1,) + output.shape
 
-			for index in self.layer_idx:
+				output_reshape = output.reshape(img_dim)
 
-				layer_output = K.function([model_keras.layers[0].input],
-							[model_keras.layers[index].output])
-				layer_name = model_keras.layers[index].name
+				plot_conv_layer(output_reshape, layer_name)
 
-				input_dim = model_keras.layers[0].input._keras_shape
-				img_dim = (1,) + input_dim[1:]
-				sample_img = info['sample'].reshape(img_dim)
-				# layer is a numpy.array
-
-				layer_out = layer_output([sample_img])[0]
-				plot_conv_layer(layer_out, layer_name)
+			# conv_layer1_output1 = info['inter_layers_outputs'][self.layer_names[0]][0]
+			# conv_layer2_output1 = info['inter_layers_outputs'][self.layer_names[1]][0]
+			#
+			# img_dim1 = (1,) + conv_layer1_output1.shape
+			# img_dim2 = (1,) + conv_layer2_output1.shape
+			#
+			# conv_layer1_output1 = conv_layer1_output1.reshape(img_dim1)
+			# conv_layer2_output1 = conv_layer2_output1.reshape(img_dim2)
+			#
+			# plot_conv_layer(conv_layer1_output1, self.layer_names[0])
+			# plot_conv_layer(conv_layer2_output1, self.layer_names[1])
+			#
+			# model_keras = model.compiled['raw']
+			# from keras import backend as K
+			#
+			# for index in self.layer_names:
+			#
+			# 	layer_output = K.function([model_keras.layers[0].input],
+			# 				[model_keras.layers[index].output])
+			# 	layer_name = model_keras.layers[index].name
+			#
+			# 	input_dim = model_keras.layers[0].input._keras_shape
+			# 	img_dim = (1,) + input_dim[1:]
+			# 	sample_img = info['sample'].reshape(img_dim)
+			# 	# layer is a numpy.array
+			#
+			# 	layer_out = layer_output([sample_img])[0]
+			# 	plot_conv_layer(layer_out, layer_name)

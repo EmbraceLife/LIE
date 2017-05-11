@@ -178,6 +178,7 @@ class Executor:
 		loss = {}
 		counts = {}
 		for k, provider in providers.items():
+
 			n_entries, test_loss = self.test_with_provider(
 				provider,
 				name=k if len(providers) > 1 else None,
@@ -189,6 +190,8 @@ class Executor:
 			#	test_loss['total'] = sum(test_loss.values())
 			loss[k] = test_loss
 			counts[k] = n_entries
+
+
 
 		total_count = sum(counts.values())
 		average = {}
@@ -224,6 +227,8 @@ class Executor:
 		test_loss = None
 		n_entries = 0
 		first_batch = None
+
+
 		test_func = self.retry(
 			self.model.backend.test,
 			self.auto_retry
@@ -262,6 +267,7 @@ class Executor:
 				#	else sum(loss.values())
 
 				new_entries = n_entries + batch_size
+
 
 				if test_loss is None:
 					test_loss = batch_loss
@@ -390,6 +396,7 @@ class Executor:
 					validating=True,
 					hooks=validation_hooks
 				)
+
 			finally:
 				if num_batches is not None:
 					for provider in validation.values():
@@ -492,7 +499,8 @@ class Executor:
 				'total_epochs' : epochs,
 				'Training loss' : cur_train_loss,
 				# added a single image data sample
-				'sample': sample
+				# 'sample': sample,
+				'inter_layers_outputs': prediction
 			}
 			if validation is not None:
 				info['Validation loss'] = validation_loss
@@ -771,12 +779,12 @@ class Executor:
 
 		#######################################################################
 		# prepare a single image sample data
-		sample = None
-		for batch in provider:
-			values = [v for v in batch.values()]
-			if len(values[0].shape) > len(values[1].shape):
-				sample = values[0][0]#.reshape(1,28,28,1)
-				break
+		# sample = None
+		# for batch in provider:
+		# 	values = [v for v in batch.values()]
+		# 	if len(values[0].shape) > len(values[1].shape):
+		# 		sample = values[0][0]#.reshape(1,28,28,1)
+		# 		break
 
 
 		# Main training loop.
@@ -815,6 +823,7 @@ class Executor:
 
 					timers['batch'].resume()
 					try:
+						# if more intermediate layers are required to output, they are all stored inside prediction as dict
 						prediction, batch_loss = train_func(
 							model=self.model, data=batch)
 					except RetryException:

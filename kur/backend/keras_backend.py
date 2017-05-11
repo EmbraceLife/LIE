@@ -583,10 +583,10 @@ class KerasBackend(Backend):
 		if isinstance(loss, Loss):
 			loss = [loss]
 
-		if len(loss) != len(model.outputs):
-			raise ValueError('Model has {} outputs, but only {} loss '
-				'functions were specified.'
-				.format(len(model.outputs), len(loss)))
+		# if len(loss) != len(model.outputs):
+		# 	raise ValueError('Model has {} outputs, but only {} loss '
+		# 		'functions were specified.'
+		# 		.format(len(model.outputs), len(loss)))
 
 		if isinstance(loss, (list, tuple)):
 			loss = dict(zip(model.outputs, loss))
@@ -660,6 +660,7 @@ class KerasBackend(Backend):
 
 			loss_inputs = loss_outputs = {}
 			if not assemble_only:
+
 				func = K.function(
 					compiled.inputs + \
 						[K.learning_phase()],
@@ -696,6 +697,8 @@ class KerasBackend(Backend):
 			)
 
 			if not assemble_only:
+				# set_trace()
+				# How to universally cover theano and tensorflow to access all output layers (2 or 4 or more)
 				func = K.function(
 					compiled.inputs + \
 						list(loss_inputs.values()) + \
@@ -810,6 +813,7 @@ class KerasBackend(Backend):
 			else:
 				return data
 
+
 		inputs = [
 			coerce_shape(
 				batch[model.get_data_name_by_layer_name(batch, name)],
@@ -821,6 +825,8 @@ class KerasBackend(Backend):
 			)
 		] + [is_train]
 
+		# it can be 2 outputs (predictions and loss)
+		# it can also be 4 or more by adding sink, name on other layers (2 layers added in this case)
 		outputs = compiled['func'](inputs)
 		num_outputs = len(raw.outputs)
 		metrics = {

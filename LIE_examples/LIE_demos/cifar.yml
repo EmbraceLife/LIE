@@ -6,7 +6,7 @@ settings:
   cifar: &cifar
     url: "https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz"
     checksum: "6d958be074577803d12ecdefd02955f39262c83c16fe9348329d7fe0b5c001ce"
-    path: "~/kur"
+    path: "/Users/Natsume/Downloads/data_for_all/cifar"
 
   # Backend to use
   backend:
@@ -25,18 +25,42 @@ settings:
 # This is parsed immediately after the "parameters" block.
 model:
   - input: images
-  - for:
-      range: "{{ cnn.kernels|length }}"
-      iterate:
-        - convolution:
-            kernels: "{{ cnn.kernels[index] }}"
-            size: "{{ cnn.size }}"
-            strides: "{{ cnn.strides }}"
-            border: valid
-        - activation:
-            name: relu
-            # name: leakyrelu # leakyrelu # relu
-            # alpha: 0.7 # if alpha not exist or empty as None, default value is 0.3
+  # - for:
+  #     range: "{{ cnn.kernels|length }}"
+  #     iterate:
+  #       - convolution:
+  #           kernels: "{{ cnn.kernels[index] }}"
+  #           size: "{{ cnn.size }}"
+  #           strides: "{{ cnn.strides }}"
+  #           border: valid
+  #       - activation:
+  #           # name: relu
+  #           type: leakyrelu # leakyrelu # relu
+  #           alpha: 0.01 # if alpha not exist or empty as None, default value is 0.3
+  #       - output: ???
+  - convolution:
+      kernels: 64
+      size: [2,2]
+      strides: [1,1]
+      border: valid
+  - activation:
+      # name: relu
+      type: leakyrelu # leakyrelu # relu
+      alpha: 0.01 # if alpha not exist or empty as None, default value is 0.3
+    sink: yes
+    name: conv_layer1
+  - convolution:
+      kernels: 32
+      size: [2,2]
+      strides: [1,1]
+      border: valid
+  - activation: # interest hierarchy, go trace activation object
+  # check container.parse(), _parse_core() for details of set up `sink`, `name`
+      # name: relu
+      type: leakyrelu # leakyrelu # relu
+      alpha: 0.01 # if alpha not exist or empty as None, default value is 0.3
+    sink: yes
+    name: conv_layer2
   - flatten:
   - dense: 10
   - activation: softmax
@@ -51,7 +75,7 @@ train:
   provider:
     batch_size: 32
     num_batches: 1
-  log: ../LIE_cifar_folders/cifar-log
+  log: /Users/Natsume/Downloads/temp_folders/demo_cifar/cifar-log
   epochs:
     number: 2
     mode: additional
@@ -66,25 +90,25 @@ train:
 
   hooks:
     - plot_weights:
-        layer_index: [1,2,3,4]
+        layer_names: [conv_layer1, conv_layer2] # work on keras so far
         plot_every_n_epochs: 1
-        plot_directory: ../LIE_cifar_folders/cifar_plot_weights
-        weight_file: ../LIE_cifar_folders/cifar.best.valid.w
+        plot_directory: /Users/Natsume/Downloads/temp_folders/demo_cifar/cifar_plot_weights
+        weight_file: /Users/Natsume/Downloads/temp_folders/demo_cifar/cifar.best.valid.w
         with_weights:
           - ["convolution", "kernel"]
           - ["convolution", "weight"]
         #   - ["dense", "kernel"]
         #   - ["dense", "weight"]
     - plot: # the folder must be prepared first
-        loss_per_batch: ../LIE_cifar_folders/plot1.png
-        loss_per_time: ../LIE_cifar_folders/plot2.png
-        throughput_per_time: ../LIE_cifar_folders/plot3.png
+        loss_per_batch: /Users/Natsume/Downloads/temp_folders/demo_cifar/plot1.png
+        loss_per_time: /Users/Natsume/Downloads/temp_folders/demo_cifar/plot2.png
+        throughput_per_time: /Users/Natsume/Downloads/temp_folders/demo_cifar/plot3.png
   weights: # the folders below are prepared automatically?
-    initial: ../LIE_cifar_folders/cifar.best.valid.w
-    best: ../LIE_cifar_folders/cifar.best.train.w
-    last: ../LIE_cifar_folders/cifar.last.w
+    initial: /Users/Natsume/Downloads/temp_folders/demo_cifar/cifar.best.valid.w
+    best: /Users/Natsume/Downloads/temp_folders/demo_cifar/cifar.best.train.w
+    last: /Users/Natsume/Downloads/temp_folders/demo_cifar/cifar.last.w
   checkpoint:
-    path: ../LIE_cifar_folders/cifar-checkpoint
+    path: /Users/Natsume/Downloads/temp_folders/demo_cifar/cifar-checkpoint
     batches: 500 # batches, samples, epochs, minutes if present, must be an integer, not a string, not null, not None
     samples: 1000
     epochs: 1
@@ -101,10 +125,10 @@ validate:
        parts: 5
   provider:
     num_batches: 1
-  weights: ../LIE_cifar_folders/cifar.best.valid.w
+  weights: /Users/Natsume/Downloads/temp_folders/demo_cifar/cifar.best.valid.w
   hooks:
     - output: # folder and file must be prepared first
-        path: ../LIE_cifar_folders/output.pkl
+        path: /Users/Natsume/Downloads/temp_folders/demo_cifar/output.pkl
         format: pickle
 
 
@@ -113,13 +137,13 @@ test: &test
     - cifar:
        <<: *cifar
        parts: test
-  weights: ../LIE_cifar_folders/cifar.best.valid.w
+  weights: /Users/Natsume/Downloads/temp_folders/demo_cifar/cifar.best.valid.w
   provider:
     num_batches: 10
 
 evaluate:
   <<: *test
-  destination: ../LIE_cifar_folders/cifar.results.pkl
+  destination: /Users/Natsume/Downloads/temp_folders/demo_cifar/cifar.results.pkl
 
 
 loss:

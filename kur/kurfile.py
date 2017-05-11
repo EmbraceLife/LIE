@@ -604,6 +604,7 @@ class Kurfile:
 				'functions.')
 
 		result = {}
+
 		for entry in spec:
 			entry = dict(entry)
 			target = entry.pop('target', None)

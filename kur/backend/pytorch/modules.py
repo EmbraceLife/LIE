@@ -1,3 +1,10 @@
+################################
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule, getfullargspec, getargvalues
+# to write multiple lines inside pdb
+# !import code; code.interact(local=vars())
 """
 Copyright 2017 Deepgram
 
@@ -234,10 +241,17 @@ class TorchModel:
 			loss_inputs = [x[1](None, *inputs) for x in loss[0]]
 			return loss[1](loss_inputs, prediction)
 
-		losses = [
-			get_loss(loss[output], P)
-			for output, P in zip(self.outputs, predictions)
-		]
+
+		# losses = [
+		# 	get_loss(loss[output], P)
+		# 	for output, P in zip(self.outputs, predictions)
+		# ]
+		# Added for plot layers
+		losses = []
+		for output_name, P in zip(self.outputs, predictions):
+			for loss_name in loss:
+				if output_name == loss_name:
+					losses.append(get_loss(loss[output_name], P))
 
 		return predictions, losses
 

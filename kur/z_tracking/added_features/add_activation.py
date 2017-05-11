@@ -114,7 +114,8 @@ class Activation(Layer):				# pylint: disable=too-few-public-methods
 				'tanh' : F.tanh,
 				'sigmoid' : F.sigmoid,
 				'softmax' : F.log_softmax,
-				'leakyrelu' : F.leaky_relu
+				# added args 'alpha' for leakyrelu
+				'leakyrelu' : (lambda x: F.leaky_relu(x, negative_slope=self.alpha))
 			}.get(self.type.lower())
 			if func is None:
 				raise ValueError('Unsupported activation function "{}" for '

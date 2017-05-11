@@ -16,12 +16,6 @@
 - siraj examples
 - paper implementation
 
-### work to do now
-- LIE_demo: cifar (to be cleaned for better)
-- Writing Morvan's tutorials (keras) to kur
-- note-taking for shiffman AI
-- update new features to official kur (continue)
-
 ```python
 # experiment start #######################
 sample = None
@@ -32,3 +26,12 @@ for batch in provider:
 
 act = self.model.compiled['train']
 ```
+
+### work to do now
+- improve my PR (...)
+- new PR (leakyrelu, plot_convol_layer,
+- access output of intermediate layer directly in kur: (...)
+- LIE_demo: cifar (to be cleaned for better): (done today)
+- update new features to official kur (continue)
+- Writing Morvan's tutorials (keras) to kur (continue)
+- note-taking for shiffman AI (continue)

@@ -54,6 +54,7 @@ class Activation(Layer):				# pylint: disable=too-few-public-methods
 		      type: leakyrelu # softmax
 		      alpha: 100
 		"""
+
 		super().__init__(*args, **kwargs)
 		# introduce a new attribute to Activation class
 		# a new attribute like self.type1 can be introduced inside other methods of Activation class too, not has to be here.
@@ -114,7 +115,7 @@ class Activation(Layer):				# pylint: disable=too-few-public-methods
 				'tanh' : F.tanh,
 				'sigmoid' : F.sigmoid,
 				'softmax' : F.log_softmax,
-				'leakyrelu' : F.leaky_relu
+				'leakyrelu' : (lambda x: F.leaky_relu(x, negative_slope=self.alpha))
 			}.get(self.type.lower())
 			if func is None:
 				raise ValueError('Unsupported activation function "{}" for '
@@ -136,6 +137,7 @@ class Activation(Layer):				# pylint: disable=too-few-public-methods
 		else:
 			raise ValueError(
 				'Unknown or unsupported backend: {}'.format(backend))
+
 
 	###########################################################################
 	def shape(self, input_shapes):

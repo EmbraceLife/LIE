@@ -1,3 +1,10 @@
+################################
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule, getfullargspec, getargvalues
+# to write multiple lines inside pdb
+# !import code; code.interact(local=vars())
 """
 Copyright 2017 Deepgram
 
@@ -263,10 +270,10 @@ class PyTorchBackend(Backend):
 		if isinstance(loss, Loss):
 			loss = [loss]
 
-		if len(loss) != len(model.outputs):
-			raise ValueError('Model has {} outputs, but only {} loss '
-				'functions were specified.'
-				.format(len(model.outputs), len(loss)))
+		# if len(loss) != len(model.outputs):
+		# 	raise ValueError('Model has {} outputs, but only {} loss '
+		# 		'functions were specified.'
+		# 		.format(len(model.outputs), len(loss)))
 
 		if isinstance(loss, (list, tuple)):
 			loss = dict(zip(model.outputs, loss))
@@ -547,12 +554,23 @@ class PyTorchBackend(Backend):
 		torch_model = model.compiled['test']['model']
 		losses = model.compiled['test']['loss']
 
+		# added for plot layers: get loss_name from losses
+		loss_name = None
+		for loss in losses:
+			loss_name = loss
+
 		predictions, losses = torch_model.test(data, losses)
 
-		metrics = {
-			k : loss.data.cpu().numpy().squeeze(-1)
-			for k, loss in zip(model.outputs, losses)
-		}
+		# # loss_name and output_name should match
+		# metrics = {
+		# 	k : loss.data.cpu().numpy().squeeze(-1)
+		# 	for k, loss in zip(model.outputs, losses)
+		# }
+		# added for plot layers
+		metrics = {}
+		for k in model.outputs:
+			if k == loss_name:
+				metrics[k] = losses[0].data.cpu().numpy().squeeze(-1)
 
 		predictions = {
 			k : v.data.cpu().numpy() for k, v in zip(model.outputs, predictions)
