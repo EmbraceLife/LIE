@@ -44,7 +44,6 @@ model:
       strides: [1,1]
       border: valid
   - activation:
-      # name: relu
       type: leakyrelu # leakyrelu # relu
       alpha: 0.01 # if alpha not exist or empty as None, default value is 0.3
     sink: yes
@@ -56,7 +55,7 @@ model:
       border: valid
   - activation: # interest hierarchy, go trace activation object
   # check container.parse(), _parse_core() for details of set up `sink`, `name`
-      # name: relu
+
       type: leakyrelu # leakyrelu # relu
       alpha: 0.01 # if alpha not exist or empty as None, default value is 0.3
     sink: yes
@@ -97,8 +96,8 @@ train:
         with_weights:
           - ["convolution", "kernel"]
           - ["convolution", "weight"]
-        #   - ["dense", "kernel"]
-        #   - ["dense", "weight"]
+          - ["dense", "kernel"]
+          - ["dense", "weight"]
     - plot: # the folder must be prepared first
         loss_per_batch: /Users/Natsume/Downloads/temp_folders/demo_cifar/plot1.png
         loss_per_time: /Users/Natsume/Downloads/temp_folders/demo_cifar/plot2.png

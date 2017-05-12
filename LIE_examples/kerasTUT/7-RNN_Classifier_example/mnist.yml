@@ -3,7 +3,7 @@ settings:
 
   backend:
     name: keras
-    # backend: tensorflow
+    backend: tensorflow
     # name: pytorch
 
 train:
@@ -16,10 +16,16 @@ train:
 
 model:
   - input: images
-  - flatten:
-  - dense: 25 # to plot in a image like, needs to be x^2
-  - activation: relu
-  - dense: 10
+    #   shape: [28, 28, 1]
+    # name: images
+  - recurrent:
+      size: 50
+      type: gru
+      sequence: true
+      bidirectional: false
+    #   merge: concat
+    #   outer_activation: relu
+  - dense: 10 # to plot in a image like, needs to be x^2
   - activation: softmax
     name: labels
 

@@ -50,7 +50,7 @@ model.add(SimpleRNN(
     # for batch_input_shape, if using tensorflow as the backend, we have to put None for the batch_size.
     # Otherwise, model.evaluate() will get error.
     batch_input_shape=(None, TIME_STEPS, INPUT_SIZE),       # Or: input_dim=INPUT_SIZE, input_length=TIME_STEPS,
-    output_dim=CELL_SIZE,
+    units=CELL_SIZE,
     unroll=True,
 ))
 
@@ -76,7 +76,3 @@ for step in range(4001):
     if step % 500 == 0:
         cost, accuracy = model.evaluate(X_test, y_test, batch_size=y_test.shape[0], verbose=False)
         print('test cost: ', cost, 'test accuracy: ', accuracy)
-
-
-
-

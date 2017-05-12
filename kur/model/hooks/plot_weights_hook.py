@@ -159,10 +159,10 @@ class PlotWeightsHook(TrainingHook):
 			# save figure with a nicer name
 			plt.savefig('{}/{}_epoch_{}.png'.format(self.directory, layer_name, info['epoch']))
 
-		# borrowed from https://hyp.is/MKzd7C4eEeeWlPvso_EWdg/nbviewer.jupyter.org/github/Hvass-Labs/TensorFlow-Tutorials/blob/master/01_Simple_Linear_Model.ipynb
+
 		def plot_weights(kernel_filename):
 			# designed to plot weights of a single dense (2 dims) layer model on recognising images of single color
-
+			filename_cut_dir = kernel_filename[kernel_filename.find("dense") :]
 			# load weights from weight files in idx format
 			w = idx.load(kernel_filename)
 
@@ -191,19 +191,17 @@ class PlotWeightsHook(TrainingHook):
 			# fig, axes = plt.subplots(3, 4)
 			fig.subplots_adjust(hspace=0.3, wspace=0.3)
 
-
 			for i, ax in enumerate(axes.flat):
 				# Only use the weights for the first 10 sub-plots.
 				if i<num_classes:
 
-					image = w[:, i].reshape((width_pixels, width_pixels))
+					try:
+						image = w[:, i].reshape((width_pixels, width_pixels))
+					except ValueError:
+						logger.error("\nweights ({}), its first dim must be a square of an positive integer, but current weights first dim is {}. So no plotting for this weights.\n\n".format(filename_cut_dir, w.shape[0]))
+						return
 
-
-					# Set the label for the sub-plot.
-					ax.set_xlabel("Weights: {0}".format(i))
-
-
-					# Plot the image.
+					ax.set_xlabel("W_column: {0}".format(i))
 					ax.imshow(image, vmin=w_min, vmax=w_max, cmap='seismic')
 
 				if i == 0:
@@ -218,24 +216,20 @@ class PlotWeightsHook(TrainingHook):
 
 
 			# cut the filename part before 'dense': this is working for both with and without a given weight folder, like mnist.best.valid.w
-			filename_cut_dir = kernel_filename[kernel_filename.find("dense") :]
+
 			# save figure with a nicer name
 			plt.savefig('{}/{}_epoch_{}.png'.format(self.directory, filename_cut_dir, info['epoch']))
 
-		# borrowed from  https://hyp.is/4mtFzjBSEeeNikfkfV9o4w/nbviewer.jupyter.org/github/Hvass-Labs/TensorFlow-Tutorials/blob/master/02_Convolutional_Neural_Network.ipynb
+
 		def plot_conv_weights(kernel_filename, input_channel=0):
 
 			# load weights from weight files in idx format
 			w = idx.load(kernel_filename)
 
-			# Get the lowest and highest values for the weights.
-			# This is used to correct the colour intensity across
-			# the images so they can be compared with each other.
+
 			w_min = np.min(w)
 			w_max = np.max(w)
 
-			# add this block, because in pytorch, convolution for cifar dataset, dimension order is different from keras
-			# this way below can handle both pytorch and keras when plotting cifar images
 			s1, s2, s3, s4 = w.shape
 			if s1 > s4:
 				w = w.reshape((s3, s4, s2, s1))
@@ -278,35 +272,52 @@ class PlotWeightsHook(TrainingHook):
 			plt.savefig('{}/{}_epoch_{}.png'.format(self.directory, filename_cut_dir, info['epoch']))
 
 
+		def plot_rnn_weights(kernel_filename):
+
+			w = idx.load(kernel_filename)
+
+			w_min = np.min(w)
+			w_max = np.max(w)
+			plt.imshow(w, vmin=w_min, vmax=w_max, cmap='seismic')
+			plt.title("validation_loss: {}".format(round(info['Validation loss'][None]['out_char'], 3)))
+
+			# plt.show()
+
+			filename_cut_dir = kernel_filename[kernel_filename.find("recurrent") :]
+
+			plt.savefig('{}/{}_epoch_{}.png'.format(self.directory, filename_cut_dir, info['epoch']))
+
+
 
 		if info['epoch'] == 1 or info['epoch'] % self.plot_every_n_epochs == 0:
-			# save weights plots
-			# logger.critical("\n\nLet's print weights at epoch idx 1 or every %s epochs\n\n", self.plot_every_n_epochs)
 
-
-			# get all the validation weights names
 			valid_weights_filenames = []
 
 			if self.weight_file is None:
 				self.weight_file = weight_path
 
-			for dirpath, _, filenames in os.walk(self.weight_file): # mnist or cifar
-
+			for dirpath, _, filenames in os.walk(self.weight_file):
 				for this_file in filenames:
 					valid_weights_filenames.append(dirpath+"/"+this_file)
 
-			# find two layers-weights with selected keywords, and plot their weights, either single dense layer model or covolutional layer weights
 			for this_file in valid_weights_filenames:
 				for weight_keywords in self.with_weights:
 
 					if this_file.find(weight_keywords[0]) > -1 and this_file.find(weight_keywords[1]) > -1:
 
-						if weight_keywords[0].find("convol") > -1 or weight_keywords[1].find("convol") > -1:
+						if weight_keywords[0].find("recurrent") > -1 or weight_keywords[1].find("recurrent") > -1:
+							plot_rnn_weights(this_file)
 
+						if weight_keywords[0].find("convol") > -1 or weight_keywords[1].find("convol") > -1:
 							plot_conv_weights(this_file)
 
-						else:
+						if weight_keywords[0].find("dense") > -1 or weight_keywords[1].find("dense") > -1:
 							plot_weights(this_file)
+
+
+
+
+
 
 
 			# plot a layer
@@ -317,7 +328,7 @@ class PlotWeightsHook(TrainingHook):
 			# if not required to plot convol layer, just return without running the code below
 			if self.layer_names is None:
 				return
-			# set_trace()
+
 			for layer_name in self.layer_names:
 				output = info['inter_layers_outputs'][layer_name][0]
 

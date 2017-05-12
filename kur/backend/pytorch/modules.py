@@ -247,11 +247,17 @@ class TorchModel:
 		# 	for output, P in zip(self.outputs, predictions)
 		# ]
 		# Added for plot layers
-		losses = []
-		for output_name, P in zip(self.outputs, predictions):
-			for loss_name in loss:
-				if output_name == loss_name:
-					losses.append(get_loss(loss[output_name], P))
+		# losses = []
+		# for output_name, P in zip(self.outputs, predictions):
+		# 	for loss_name in loss:
+		# 		if output_name == loss_name:
+		# 			losses.append(get_loss(loss[output_name], P))
+
+		# new official changes
+		losses = [
+			get_loss(loss[output], P)
+			for output, P in zip(self.outputs, predictions) if output in loss
+		]
 
 		return predictions, losses
 

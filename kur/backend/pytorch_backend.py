@@ -30,7 +30,7 @@ from collections import OrderedDict
 
 from . import Backend
 from ..utils import can_import, idx, DisableLogging
-from ..loss import Loss
+# from ..loss import Loss
 from ..providers import BatchProvider
 
 logger = logging.getLogger(__name__)
@@ -257,41 +257,50 @@ class PyTorchBackend(Backend):
 			loss: Loss instance, list/tuple of Loss instances, or a dictionary
 				of model layer names mapped to Loss instances.
 		"""
-		if loss is None:
-			num_outputs = len(model.outputs)
-			logger.error('You are trying to construct a training/validation'
-				'/testing model, but you haven\'t specified any loss '
-				'functions. Your model has %d outputs: %s. You need to '
-				'specify %d loss functions, one for each output.',
-				num_outputs, ', '.join(model.outputs), num_outputs)
-			raise ValueError('No loss functions were specified, but are '
-				'required for training, testing, and validation.')
-
-		if isinstance(loss, Loss):
-			loss = [loss]
-
-		# if len(loss) != len(model.outputs):
-		# 	raise ValueError('Model has {} outputs, but only {} loss '
-		# 		'functions were specified.'
-		# 		.format(len(model.outputs), len(loss)))
-
-		if isinstance(loss, (list, tuple)):
-			loss = dict(zip(model.outputs, loss))
-
-		if not isinstance(loss, (dict, OrderedDict)):
-			raise ValueError('Loss functions given to "compile" should be '
-				'a list/tuple, a dictionary, or a single Loss instance. '
-				'Instead we received this: {} (type={})'
-				.format(loss, type(loss)))
+		# if loss is None:
+		# 	num_outputs = len(model.outputs)
+		# 	logger.error('You are trying to construct a training/validation'
+		# 		'/testing model, but you haven\'t specified any loss '
+		# 		'functions. Your model has %d outputs: %s. You need to '
+		# 		'specify %d loss functions, one for each output.',
+		# 		num_outputs, ', '.join(model.outputs), num_outputs)
+		# 	raise ValueError('No loss functions were specified, but are '
+		# 		'required for training, testing, and validation.')
+		#
+		# if isinstance(loss, Loss):
+		# 	loss = [loss]
+		#
+		# # I commented it out previously
+		# # if len(loss) != len(model.outputs):
+		# # 	raise ValueError('Model has {} outputs, but only {} loss '
+		# # 		'functions were specified.'
+		# # 		.format(len(model.outputs), len(loss)))
+		#
+		# if isinstance(loss, (list, tuple)):
+		# 	loss = dict(zip(model.outputs, loss))
+		#
+		# if not isinstance(loss, (dict, OrderedDict)):
+		# 	raise ValueError('Loss functions given to "compile" should be '
+		# 		'a list/tuple, a dictionary, or a single Loss instance. '
+		# 		'Instead we received this: {} (type={})'
+		# 		.format(loss, type(loss)))
+		#
+		# return OrderedDict(
+		# 	(
+		# 		target,
+		# 		this_loss.get_loss(model, target, model.outputs[target].value)
+		# 	)
+		# 	for target, this_loss in loss.items()
+		# )
+		loss_with_names = self.preprocess_loss(model, loss)
 
 		return OrderedDict(
 			(
 				target,
 				this_loss.get_loss(model, target, model.outputs[target].value)
 			)
-			for target, this_loss in loss.items()
+			for target, this_loss in loss_with_names
 		)
-
 	###########################################################################
 	def compile(self, model, loss=None, optimizer=None, blocking=True,
 		assemble_only=False):
@@ -488,14 +497,14 @@ class PyTorchBackend(Backend):
 		"""
 
 		torch_model = model.compiled['train']['model']
-		losses = model.compiled['train']['loss']
+		loss = model.compiled['train']['loss']
 		optimizer = model.compiled['train']['optimizer']
 		kur_optimizer = model.compiled['train']['kur_optimizer']
 
 		if optimizer:
 			optimizer.zero_grad()
 
-		predictions, losses = torch_model.test(data, losses)
+		predictions, losses = torch_model.test(data, loss)
 
 		if optimizer:
 			torch_model.backprop(losses)
@@ -524,8 +533,8 @@ class PyTorchBackend(Backend):
 				optimizer.step()
 
 		metrics = {
-			k : loss.data.cpu().numpy().squeeze(-1)
-			for k, loss in zip(model.outputs, losses)
+			k : L.data.cpu().numpy().squeeze(-1)
+			for k, L in zip(loss, losses)
 		}
 
 		predictions = {
@@ -552,14 +561,14 @@ class PyTorchBackend(Backend):
 			single, global loss value can be returned instead.
 		"""
 		torch_model = model.compiled['test']['model']
-		losses = model.compiled['test']['loss']
+		loss = model.compiled['test']['loss']
 
 		# added for plot layers: get loss_name from losses
-		loss_name = None
-		for loss in losses:
-			loss_name = loss
+		# loss_name = None
+		# for loss in losses:
+		# 	loss_name = loss
 
-		predictions, losses = torch_model.test(data, losses)
+		predictions, losses = torch_model.test(data, loss)
 
 		# # loss_name and output_name should match
 		# metrics = {
@@ -567,10 +576,14 @@ class PyTorchBackend(Backend):
 		# 	for k, loss in zip(model.outputs, losses)
 		# }
 		# added for plot layers
-		metrics = {}
-		for k in model.outputs:
-			if k == loss_name:
-				metrics[k] = losses[0].data.cpu().numpy().squeeze(-1)
+		# metrics = {}
+		# for k in model.outputs:
+		# 	if k == loss_name:
+		# 		metrics[k] = losses[0].data.cpu().numpy().squeeze(-1)
+		metrics = {
+			k : L.data.cpu().numpy().squeeze(-1)
+			for k, L in zip(loss, losses)
+		}
 
 		predictions = {
 			k : v.data.cpu().numpy() for k, v in zip(model.outputs, predictions)

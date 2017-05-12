@@ -67,6 +67,7 @@ class Container:
 
 	# Used for generating unique names.
 	counter = {}
+	PREFIX = '..'
 
 	###########################################################################
 	@classmethod
@@ -93,7 +94,7 @@ class Container:
 		else:
 			val = 0
 		Container.counter[cls] = val + 1
-		return '..{}.{}'.format(cls.get_container_name(), val)
+		return '{}{}.{}'.format(cls.PREFIX, cls.get_container_name(), val)
 
 	###########################################################################
 	@staticmethod

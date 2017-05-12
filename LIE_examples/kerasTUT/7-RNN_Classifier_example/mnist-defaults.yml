@@ -16,6 +16,9 @@ train:
 
   provider:
     num_batches: 1
+  optimizer:
+      name: adam
+      learning_rate: 0.001
   log: /Users/Natsume/Downloads/temp_folders/5_classifier_example/mnist-log # remember if don't set log, your model won't build on previous runs
   # How many epochs to train for.
   epochs:
@@ -35,7 +38,7 @@ train:
           - ["kernel", "dense"]
           - ["weight", "dense"]
         # we can't plot relu weights, cos it does not have weights
-        # but we can plot relu's layer output 
+        # but we can plot relu's layer output
         #   - ["weight", "relu"]
         #   - ["kernel", "relu"]
 

@@ -58,7 +58,7 @@ from collections import OrderedDict
 import numpy
 from . import Backend
 from .. import __homepage__
-from ..loss import Loss
+# from ..loss import Loss
 from ..utils import can_import, EnvironmentalVariable, redirect_stderr, \
 	idx, DisableLogging
 from ..providers import BatchProvider
@@ -569,37 +569,38 @@ class KerasBackend(Backend):
 				of model layer names mapped to Loss instances.
 		"""
 		import keras.backend as K				# pylint: disable=import-error
-
-		if loss is None:
-			num_outputs = len(model.outputs)
-			logger.error('You are trying to construct a training/validation'
-				'/testing model, but you haven\'t specified any loss '
-				'functions. Your model has %d outputs: %s. You need to '
-				'specify %d loss functions, one for each output.',
-				num_outputs, ', '.join(model.outputs), num_outputs)
-			raise ValueError('No loss functions were specified, but are '
-				'required for training, testing, and validation.')
-
-		if isinstance(loss, Loss):
-			loss = [loss]
-
-		# if len(loss) != len(model.outputs):
-		# 	raise ValueError('Model has {} outputs, but only {} loss '
-		# 		'functions were specified.'
-		# 		.format(len(model.outputs), len(loss)))
-
-		if isinstance(loss, (list, tuple)):
-			loss = dict(zip(model.outputs, loss))
-
-		if not isinstance(loss, (dict, OrderedDict)):
-			raise ValueError('Loss functions given to "compile" should be '
-				'a list/tuple, a dictionary, or a single Loss instance. '
-				'Instead we received this: {} (type={})'
-				.format(loss, type(loss)))
+		loss_with_names = self.preprocess_loss(model, loss)
+		#
+		# if loss is None:
+		# 	num_outputs = len(model.outputs)
+		# 	logger.error('You are trying to construct a training/validation'
+		# 		'/testing model, but you haven\'t specified any loss '
+		# 		'functions. Your model has %d outputs: %s. You need to '
+		# 		'specify %d loss functions, one for each output.',
+		# 		num_outputs, ', '.join(model.outputs), num_outputs)
+		# 	raise ValueError('No loss functions were specified, but are '
+		# 		'required for training, testing, and validation.')
+		#
+		# if isinstance(loss, Loss):
+		# 	loss = [loss]
+		#
+		# # if len(loss) != len(model.outputs):
+		# # 	raise ValueError('Model has {} outputs, but only {} loss '
+		# # 		'functions were specified.'
+		# # 		.format(len(model.outputs), len(loss)))
+		#
+		# if isinstance(loss, (list, tuple)):
+		# 	loss = dict(zip(model.outputs, loss))
+		#
+		# if not isinstance(loss, (dict, OrderedDict)):
+		# 	raise ValueError('Loss functions given to "compile" should be '
+		# 		'a list/tuple, a dictionary, or a single Loss instance. '
+		# 		'Instead we received this: {} (type={})'
+		# 		.format(loss, type(loss)))
 
 		loss_inputs = OrderedDict()
 		loss_outputs = OrderedDict()
-		for target, this_loss in loss.items():
+		for target, this_loss in loss_with_names:
 			ins, out = this_loss.get_loss(
 				model,
 				target,
@@ -835,7 +836,11 @@ class KerasBackend(Backend):
 				outputs[num_outputs:]
 			)
 		}
-		predictions = {name : data for name, data in zip(model.outputs, outputs[:num_outputs])}
+		predictions = {
+			name : data for name, data in zip(
+				model.outputs, outputs[:num_outputs]
+			)
+		}
 		return predictions, metrics
 
 	###########################################################################

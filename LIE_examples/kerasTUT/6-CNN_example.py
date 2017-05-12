@@ -14,12 +14,21 @@ Thank you for supporting!
 # import os
 # os.environ['KERAS_BACKEND']='tensorflow'
 
+################################
+# prepare examine tools
+from pdb import set_trace
+from pprint import pprint
+from inspect import getdoc, getmembers, getsourcelines, getmodule, getfullargspec, getargvalues
+# to write multiple lines inside pdb
+# !import code; code.interact(local=vars())
+
+
 import numpy as np
 np.random.seed(1337)  # for reproducibility
 from keras.datasets import mnist
 from keras.utils import np_utils
 from keras.models import Sequential
-from keras.layers import Dense, Activation, Convolution2D, MaxPooling2D, Flatten
+from keras.layers import Dense, Activation, Conv2D, MaxPooling2D, Flatten
 from keras.optimizers import Adam
 
 # download the mnist to the path '~/.keras/datasets/' if it is the first time to be called
@@ -39,30 +48,32 @@ model = Sequential()
 
 # here explain the meaning and effects of number of filters  https://youtu.be/zHop6Oq757Y?list=PLXO45tsB95cKhCSIgTgIfjtG5y0Bf_TIY&t=250
 # Conv layer 1 output shape (32, 28, 28)
-model.add(Convolution2D(
-    nb_filter=32,
-    nb_row=5,
-    nb_col=5,
-    border_mode='same',     # Padding method
+model.add(Conv2D(
+    filters=32,
+	# data_format='channels_first',
+    kernel_size=(5,5),
+    padding='same',     # Padding method
     dim_ordering='th',      # if use tensorflow, to set the input dimension order to theano ("th") style, but you can change it.
     input_shape=(1,         # channels
                  28, 28,)    # height & width
 ))
+
 model.add(Activation('relu'))
 
 # Pooling layer 1 (max pooling) output shape (32, 14, 14)
 model.add(MaxPooling2D(
     pool_size=(2, 2),
     strides=(2, 2),
-    border_mode='same',    # Padding method
+    padding='same'   # Padding method
 ))
 
+
 # Conv layer 2 output shape (64, 14, 14)
-model.add(Convolution2D(64, 5, 5, border_mode='same'))
+model.add(Conv2D(64, 5, 5, padding='same'))
 model.add(Activation('relu'))
 
 # Pooling layer 2 (max pooling) output shape (64, 7, 7)
-model.add(MaxPooling2D(pool_size=(2, 2), border_mode='same'))
+model.add(MaxPooling2D(pool_size=(2, 2), padding='same'))
 
 # Fully connected layer 1 input shape (64 * 7 * 7) = (3136), output shape (1024)
 model.add(Flatten())

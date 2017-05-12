@@ -38,6 +38,17 @@ train:
     initial: /Users/Natsume/Downloads/temp_folders/4_regressor_example/xy.mnist.best.valid.w
     best: /Users/Natsume/Downloads/temp_folders/4_regressor_example/xy.mnist.best.train.w
     last: /Users/Natsume/Downloads/temp_folders/4_regressor_example/xy.mnist.last.w
+  hooks:
+    - plot_weights:
+        # layer_names: [conv_layer1, conv_layer2] # work on keras so far
+        plot_every_n_epochs: 1
+        plot_directory: /Users/Natsume/Downloads/temp_folders/4_regressor_example/plot_weights
+        weight_file: /Users/Natsume/Downloads/temp_folders/4_regressor_example/xy.mnist.best.valid.w
+        with_weights:
+        #   - ["recurrent", "kernel"]
+        #   - ["recurrent", "weight"]
+          - ["dense", "kernel"]
+          - ["dense", "weight"]
 
 
 
