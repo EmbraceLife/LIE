@@ -13,14 +13,11 @@ How to use the cutting edge kur?
 3. `source activate your-env` and run `pip install -e .`
 Now, you have the latest kur to use
 
-How to run an example?
-1. cd kur/example
-2. kur -vv data|build mnist.yml
+## Roadmap
+1. Experiment new features on a demo kurfile
+2. Convert examples (from simple to advance) to kur
+3. Adding new features as they become necessary in examples above
 
-How to create checksum for a dataset file?
-1. `cksum filename/file_path` [check out](http://www.computerhope.com/unix/ucksum.htm)
-2. or `sha256sum FILE` for linux
-3. `shasum -a256 FILE` for macOS
 
 ## Accumulation
 1. `LIE`: my roadmap (check issues)
