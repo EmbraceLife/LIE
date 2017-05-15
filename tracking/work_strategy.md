@@ -28,10 +28,14 @@ act = self.model.compiled['train']
 ```
 
 ### work to do now
+- this morning's work has stashed 
+- plot input layers like current layers plotting
 - layer animation
 	- plot layers for the same image
 	- 2 files to learn start with each_layer...md here
 	- using plot_layer_same_image branch in kur
+- `kur animate -layer 1 cifar.yml`
+
 
 
 - improve my PR (...)

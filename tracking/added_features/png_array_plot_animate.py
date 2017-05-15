@@ -23,7 +23,7 @@ import numpy as np
 
 ##########################################
 # image (png) to numpy array
-img=mpimg.imread('/Users/Natsume/Downloads/morvan_tutorials/片头.png')
+img=mpimg.imread('/Users/Natsume/Downloads/temp_folders/demo_cifar/cifar_plot_weights/conv_layer1_epoch_1.png')
 img.shape
 pprint(img.shape)
 
@@ -32,7 +32,7 @@ pprint(img.shape)
 # numpy array to plotting in python
 imgplot = plt.imshow(img)
 # pprint(imgplot.__dict__.keys())
-# plt.show()
+plt.show()
 
 
 ##########################################
