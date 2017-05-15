@@ -28,20 +28,13 @@ act = self.model.compiled['train']
 ```
 
 ### work to do now
-- this morning's work has stashed 
-- plot input layers like current layers plotting
-- layer animation
-	- plot layers for the same image
-	- 2 files to learn start with each_layer...md here
-	- using plot_layer_same_image branch in kur
-- `kur animate -layer 1 cifar.yml`
+- matplotlib
+	- datacamp https://www.datacamp.com/courses/introduction-to-data-visualization-with-python
+	- morvan: https://www.youtube.com/watch?v=4Y7f0znUT6E&index=3&list=PLXO45tsB95cKiBRXYqNNCw8AUo6tYen3l
+	- boken: https://www.datacamp.com/courses/interactive-data-visualization-with-bokeh
+- dive into kur inner workings through cifar deom
 
-
-
-- improve my PR (...)
-- new PR (leakyrelu, plot_convol_layer,
-- access output of intermediate layer directly in kur: (...)
-- LIE_demo: cifar (to be cleaned for better): (done today)
-- update new features to official kur (continue)
-- Writing Morvan's tutorials (keras) to kur (continue)
-- note-taking for shiffman AI (continue)
+### Kur inner working exploration
+- access not only input, weights, activations, but also output layer ?
+- every n epoch, use latest model run on the same data sample
+	- restore the current model and apply a new data, like `kur evaluate|test` on the same data every n epoch

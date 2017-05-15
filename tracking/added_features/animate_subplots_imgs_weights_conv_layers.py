@@ -10,7 +10,6 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import matplotlib.image as mpimg
 from matplotlib import animation
-from matplotlib.widgets import Slider
 import numpy as np
 import os
 
@@ -83,8 +82,8 @@ def animate(i):
 	# dirpath is a global variable from above
 	dirpath = "/Users/Natsume/Downloads/temp_folders/demo_cifar/cifar_plot_weights"
 
-	# make an ordered list of layers to plot
-	layer_order = [['images'], ['convolution_0'], ['conv_layer1'], ['convolution_1'], ['conv_layer2']]
+	# # make an ordered list of layers to plot
+	# layer_order = [['images'], ['convolution_0'], ['conv_layer1'], ['convolution_1'], ['conv_layer2']]
 
 	# define how many rows of subplots we need
 	num_cols = len(layer_order)
@@ -105,12 +104,12 @@ def animate(i):
 
 				# search all filenames with a row's keywords
 				# "epoch"+str(i+1): make sure all layers in one figure share the same epoch
-				if filename.find(layer_order[col][0]) > -1 and filename.find(str(i+1)+".png")> -1:
+				if filename.find(layer_order[col]) > -1 and filename.find(str(i+1)+".png")> -1:
 					img_file = dirpath + '/' + filename
 					img=mpimg.imread(img_file)
 
 					ax = plt.subplot2grid((3, num_cols), (0, col), rowspan=3, colspan=1)
-					ax.set_title(layer_order[col][0] + "_epoch_" + str(i+1))
+					ax.set_title(layer_order[col] + "_epoch_" + str(i+1))
 					ax.imshow(img)
 	# plt.show() can plot all subplots, meaning all subplots are stored inside plt
 	return plt
@@ -120,8 +119,8 @@ def init():
 	# dirpath is a global variable from above
 	dirpath = "/Users/Natsume/Downloads/temp_folders/demo_cifar/cifar_plot_weights"
 
-	# make an ordered list of layers to plot
-	layer_order = [['images'], ['convolution_0'], ['conv_layer1'], ['convolution_1'], ['conv_layer2']]
+	# # make an ordered list of layers to plot
+	# layer_order = [['images'], ['convolution_0'], ['conv_layer1'], ['convolution_1'], ['conv_layer2']]
 
 	# define how many rows of subplots we need
 	num_cols = len(layer_order)
@@ -142,35 +141,35 @@ def init():
 
 				# search all filenames with a col's keywords
 				# "epoch"+str(i+1): make sure all layers in one figure share the same epoch
-				if filename.find(layer_order[col][0]) > -1 and filename.find(str(epoch_idx)+".png")> -1:
+				if filename.find(layer_order[col]) > -1 and filename.find(str(epoch_idx)+".png")> -1:
 					img_file = dirpath + '/' + filename
 					img=mpimg.imread(img_file)
 
-					# set num_rows and num_cols 
+					# set num_rows and num_cols
 					ax = plt.subplot2grid((3, num_cols), (0, col), rowspan=3, colspan=1)
-					ax.autoscale(True)
-					ax.set_title(layer_order[col][0] + "_epoch_" + str(epoch_idx))
+					ax.set_xmargin(0.1)
+					ax.set_title(layer_order[col] + "_epoch_" + str(epoch_idx))
 					ax.imshow(img)
 
-	# plt.subplots_adjust(left=0.25, bottom=0.25)
-	axframe = plt.axes([0, 0, 0.5, 0.3])
-	sframe = Slider(axframe, 'Frame', 0, 99, valinit=0,valfmt='%d')
+
 	# plt.show() can plot all subplots, meaning all subplots are stored inside plt
 	return plt
 
 
-# call the animator.  blit=True means only re-draw the parts that have changed.
-# blit=True dose not work on Mac, set blit=False
-# interval= update frequency
-fig = plt.figure(figsize=(20, 3))
+# make an ordered list of layers to plot
+# layer_order = [['images'], ['convolution_0'], ['conv_layer1'], ['convolution_1'], ['conv_layer2']]
+# layer_order = [['images'],  ['conv_layer1'], ['conv_layer2']]
+layer_order = ['images', 'conv_layer1', 'conv_layer2']
+# create the figure
+fig = plt.figure(figsize=(20, 6))
 
 ani = animation.FuncAnimation(fig=fig, func=animate, frames=10000, init_func=init,
                               interval=5000, blit=False)
 
 plt.show()
-
-
 set_trace()
+
+
 
 
 # method 1: subplot2grid
