@@ -76,3 +76,12 @@ ani = animation.FuncAnimation(fig=fig, func=animate, frames=1000, init_func=init
 # set_trace()
 
 plt.show()
+
+
+"""
+- what learnt today
+	- plt.clf(): avoid plots interfere with each other
+	- plt.imshow(): take only 2-d array
+	- plot_weights_hook.py: can plot uneven weights and uneven layers for their shape to be 1 or 2 dim at this moment
+
+"""
