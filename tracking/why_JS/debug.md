@@ -117,5 +117,19 @@ var c = a + b;
 - pre-debugging tools
 	- "use strict": must use standard syntax
 
+### have sources and console at the same time
+- in `Sources` panel, press `esc`
+
+### keyboard shortcut for `step over`
+- cmd + '
+
+### clear up console
+- cmd + k
+
+
 ### other resources
 https://youtu.be/-q1z8BPFItw?t=3634
+
+
+### Great examples of DL and JS
+http://cs.stanford.edu/people/karpathy/convnetjs/
