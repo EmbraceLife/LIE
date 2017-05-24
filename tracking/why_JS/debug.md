@@ -14,6 +14,10 @@ method2:
 - `atom .`
 - package, http-server, start or stop
 
+### Latest debug tools
+- write functions inside console without hold 'shift'
+- inline breakpoints
+
 ### breakpoint: Normal
 - click a line in source code
 - Continue: symbol or F8
