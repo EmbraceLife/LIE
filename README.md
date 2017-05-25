@@ -5,7 +5,7 @@ Do you believe in LIE?
 Step by step, this repo's history (see history commits) will testify LIE.
 
 **LIE**
-Learning how to use NeuralNets by primarily diving in working examples and source codes, not reading blogs or papers. 
+Learning how to use NeuralNets by primarily diving in working examples and source codes, not reading blogs or papers.
 
 ## Road Map
 1. experiment on `kur`:
@@ -17,4 +17,12 @@ Learning how to use NeuralNets by primarily diving in working examples and sourc
 	- apply `kur` style of `argparse`
 	- save, load, re-train models
 	- visualize every step of training
+		- it does help understanding
 	- [visit my source](https://github.com/EmbraceLife/PyTorch-Tutorial/tree/my_progress)
+
+## Examples
+High speed gif can help see the changes of weights and layers during training
+1. regression
+![](/Users/Natsume/Downloads/temp_folders/301/out_up.gif)
+2. classification
+![](/Users/Natsume/Downloads/temp_folders/302/out_up.gif))
