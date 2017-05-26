@@ -23,6 +23,8 @@ Learning how to use NeuralNets by primarily diving in working examples and sourc
 ## Examples
 High speed gif can help see the changes of weights and layers during training
 1. regression
-![](/Users/Natsume/Downloads/temp_folders/301/out_up.gif)
+![](/Users/Natsume/Desktop/LIE/gifs/out_up301.gif)
 2. classification
-![](/Users/Natsume/Downloads/temp_folders/302/out_up.gif))
+![](/Users/Natsume/Desktop/LIE/gifs/out_up302.gif)
+3. cnn
+![](/Users/Natsume/Desktop/LIE/gifs/out_down401.gif)
