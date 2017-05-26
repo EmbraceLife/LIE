@@ -22,9 +22,15 @@ Learning how to use NeuralNets by primarily diving in working examples and sourc
 
 ## Examples
 High speed gif can help see the changes of weights and layers during training
-1. regression
+
+1. regression:     
+
 ![](https://github.com/EmbraceLife/LIE/blob/master/gifs/out_up301.gif?raw=true)
-2. classification
+
+2. classification:     
+
 ![](https://github.com/EmbraceLife/LIE/blob/master/gifs/out_up302.gif?raw=true)
-3. cnn
+
+3. cnn:    
+
 ![](https://github.com/EmbraceLife/LIE/blob/master/gifs/out_down401.gif?raw=true)
