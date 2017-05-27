@@ -31,6 +31,10 @@ High speed gif can help see the changes of weights and layers during training
 
 ![](https://github.com/EmbraceLife/LIE/blob/master/gifs/out_up302.gif?raw=true)
 
-3. cnn on mnist dataset:    
+3. cnn on mnist:    
 
 ![](https://github.com/EmbraceLife/LIE/blob/master/gifs/out_down401.gif?raw=true)
+
+4. rnn on mnist:
+need tensorboard to see model structure
+![]()
