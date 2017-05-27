@@ -37,4 +37,4 @@ High speed gif can help see the changes of weights and layers during training
 
 4. rnn on mnist:
 need tensorboard to see model structure
-![]()
+![](https://github.com/EmbraceLife/LIE/blob/master/gifs/out_down402.gif?raw=true)
