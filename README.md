@@ -23,6 +23,9 @@ Learning how to use NeuralNets by primarily diving in working examples and sourc
 ## Examples
 High speed gif can help see the changes of weights and layers during training
 
+1. torch Variables: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/202_variable.py)
+![](https://github.com/EmbraceLife/LIE/blob/master/gifs/202_variable.png)
+
 1. torch.tensor vs numpy: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/201_torch_numpy.py)
 ![](https://github.com/EmbraceLife/LIE/blob/master/gifs/201_torch_numpy.png)
 
