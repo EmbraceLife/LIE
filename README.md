@@ -22,6 +22,10 @@ Learning how to use NeuralNets by primarily diving in working examples and sourc
 
 ## Examples
 High speed gif can help see the changes of weights and layers during training
+
+1. how to use pdb: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/152528672306f2868568d7b65dfefb1da6900986/tutorial-contents/101_pdb.md)
+![](https://github.com/EmbraceLife/LIE/blob/master/gifs/101_pdb.png)
+
 1. often used git commands: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/101_git_tools.md)
 ![](https://github.com/EmbraceLife/LIE/blob/master/gifs/git_dn.gif)
 
