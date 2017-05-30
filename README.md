@@ -22,6 +22,8 @@ Learning how to use NeuralNets by primarily diving in working examples and sourc
 
 ## Examples
 High speed gif can help see the changes of weights and layers during training
+1. often used git commands: [source]()
+![]()
 
 1. regression on fake 1d dataset:     
 
