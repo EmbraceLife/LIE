@@ -23,6 +23,9 @@ Learning how to use NeuralNets by primarily diving in working examples and sourc
 ## Examples
 High speed gif can help see the changes of weights and layers during training
 
+1. torch.tensor vs numpy: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/201_torch_numpy.py)
+![](https://github.com/EmbraceLife/LIE/blob/master/gifs/201_torch_numpy.png)
+
 1. how to use pdb: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/152528672306f2868568d7b65dfefb1da6900986/tutorial-contents/101_pdb.md)
 ![](https://github.com/EmbraceLife/LIE/blob/master/gifs/101_pdb.png)
 
