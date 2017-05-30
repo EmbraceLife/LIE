@@ -23,6 +23,10 @@ Learning how to use NeuralNets by primarily diving in working examples and sourc
 ## Examples
 High speed gif can help see the changes of weights and layers during training
 
+1. prepareData: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/401_prepare_mnist.py)
+![](https://github.com/EmbraceLife/LIE/blob/master/gifs/401_prepare_mnist_1.png)
+![](https://github.com/EmbraceLife/LIE/blob/master/gifs/401_prepare_mnist_2.png)
+
 1. torch activations and subplot 4 lines: [sources](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/203_activation.py)
 ![](https://github.com/EmbraceLife/LIE/blob/master/gifs/203_activation.png)
 
