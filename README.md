@@ -23,6 +23,13 @@ Learning how to use NeuralNets by primarily diving in working examples and sourc
 ## Examples
 High speed gif can help see the changes of weights and layers during training
 
+1. build cnn net: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/4de896983074400d5775c890d373aa54569378c9/tutorial-contents/401_build_cnn.py)
+![](https://github.com/EmbraceLife/LIE/blob/master/gifs/401_build_cnn_1.png)
+![](https://github.com/EmbraceLife/LIE/blob/master/gifs/401_build_cnn_2.png)
+
+1. 100 exercises to numpy: [source](https://github.com/rougier/numpy-100/blob/master/100%20Numpy%20exercises.md)
+pandas exercises: [source](https://github.com/guipsamora/pandas_exercises)
+
 1. prepareData: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/401_prepare_mnist.py)
 ![](https://github.com/EmbraceLife/LIE/blob/master/gifs/401_prepare_mnist_1.png)
 ![](https://github.com/EmbraceLife/LIE/blob/master/gifs/401_prepare_mnist_2.png)
