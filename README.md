@@ -25,6 +25,9 @@ High speed gif can help see the changes of weights and layers during training
 1. often used git commands: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/101_git_tools.md)
 ![](https://github.com/EmbraceLife/LIE/blob/master/gifs/git_dn.gif)
 
+1. make gif out of images: [source]()
+![]()
+
 1. regression on fake 1d dataset:     
 
 ![](https://github.com/EmbraceLife/LIE/blob/master/gifs/out_up301.gif?raw=true)
