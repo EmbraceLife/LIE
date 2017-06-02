@@ -46,8 +46,8 @@ pandas exercises: [source](https://github.com/guipsamora/pandas_exercises)
 1. how to stock csv with date (csv to vec object, date formatter): [source](https://github.com/EmbraceLife/tutorials/blob/my_project/matplotlibTUT/plt16.1_date_index_formatter.py)
 
 1. how to reverse a list or numpy array?
-- `list(reversed(your_list))`
-- `your_array[::-1]`
+	- `list(reversed(your_list))`
+	- `your_array[::-1]`
 
 1. how to gridsubplot (stock chart like subplots): [source](https://github.com/EmbraceLife/tutorials/blob/my_project/matplotlibTUT/plt16_grid_subplot.py)
 
