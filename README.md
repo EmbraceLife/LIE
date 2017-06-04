@@ -8,17 +8,8 @@ Step by step, this repo's history (see history commits) will testify LIE.
 Learning how to use NeuralNets by primarily diving in working examples and source codes, not reading blogs or papers.
 
 ## Road Map
-1. experiment on `kur`:
-	- use of `pdb`, `inspect`
-	- read and contribute to source code of library
-	- create visualization features for kur
-	- [visit my source](https://github.com/EmbraceLife/kur/tree/dive_source_kur)
-2. apply my learning in `kur` to Morvan's Pytorch tutorials
-	- apply `kur` style of `argparse`
-	- save, load, re-train models
-	- visualize every step of training
-		- it does help understanding
-	- [visit my source](https://github.com/EmbraceLife/PyTorch-Tutorial/tree/my_progress)
+- Now: stuck at fast.ai VGG model not working on py3.5
+	- learn more about tensorflow and keras to dive into VGG model application
 
 ## Examples
 High speed gif can help see the changes of weights and layers during training
@@ -39,7 +30,36 @@ pandas exercises: [source](https://github.com/guipsamora/pandas_exercises)
 
 1. prepare_mnist: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/prepare_mnist.py)
 
-1. (tf) how to use `sess`, `graph`, `tensorboard` on basics: [source](https://github.com/EmbraceLife/tf-stanford-tutorials/blob/my_progress/examples/01_sess_graph_tensorboard.py)
+1. how to apply VGG to catsdogs problem: [fast.ai](https://youtu.be/Th_ckFbc6bI?t=5679)
+
+1. why do batch training: [fast.ai](https://youtu.be/Th_ckFbc6bI?t=5462)
+
+1. (kr) how to switch from theano to tf backend, and switch cpu and gpu in theano: [fast.ai](https://youtu.be/Th_ckFbc6bI?t=5235)
+
+1. why study state-of-art models like VGG: [fast.ai](https://youtu.be/Th_ckFbc6bI?t=4515)
+
+1. how to organize catsdogs dataset in folders for experiment, train, test: [notebook](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/nbs/dogs_cats_folder_organise.ipynb)
+
+1. how to count number of files in a folder: `ls folder/ | wc -l`
+
+1. how to unzip a zip file: `unzip -q data.zip`
+
+1. how to check python version: `which python`
+
+1. how to organize dataset before training: [source]()
+	- train, test, sample folder
+	- sample: train, valid, test subfolders
+	- experiment codes on sample dataset
+
+1. how to use kaggle cli to download and submit: [source](http://wiki.fast.ai/index.php/Kaggle_CLI)
+
+1. (tf) how to make a sequence with `tf.linspace`, `tf.range`: [source](https://github.com/EmbraceLife/tf-stanford-tutorials/blob/my_progress/examples/01_make_sequence.py)
+
+1. (tf) how to use `tf.ones`, `tf.ones_like`, `tf.zeros`, `tf.zeros_like`, `tf.fill`: [source](https://github.com/EmbraceLife/tf-stanford-tutorials/blob/my_progress/examples/01_tensor_fills.py)
+
+1. (tf) how to use `tf.constant` and tricks: [source](https://github.com/EmbraceLife/tf-stanford-tutorials/blob/my_progress/examples/01_tf.constant.py)
+
+1. (tf) how to use `sess`, `graph`, to display ops in `tensorboard`: [source](https://github.com/EmbraceLife/tf-stanford-tutorials/blob/my_progress/examples/01_sess_graph_tensorboard.py)
 
 1. how to do subplots without space in between: [source](https://github.com/EmbraceLife/tutorials/blob/my_project/matplotlibTUT/plt16.3_subplots_no_space_between.py)
 
@@ -85,11 +105,16 @@ pandas exercises: [source](https://github.com/guipsamora/pandas_exercises)
 
 1. how to use pdb: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/152528672306f2868568d7b65dfefb1da6900986/tutorial-contents/pdb.md)
 
+1. most used conda command: [source]()
 
 1. often used git commands: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/git_tools.md)
 
-
 1. make gif out of images: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/img2gif.py)
+
+1. how to install keras from source:
+	- fork keras and add remote official url
+	- go inside keras folder
+	- `python setup.py install`
 
 1. how to install tenforflow from source: [see stackoverflow](https://stackoverflow.com/questions/43364264/how-to-installing-tensorflow-from-source-for-mac-solved/44299779#44299779)
 
