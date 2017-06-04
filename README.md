@@ -8,8 +8,8 @@ Step by step, this repo's history (see history commits) will testify LIE.
 Learning how to use NeuralNets by primarily diving in working examples and source codes, not reading blogs or papers.
 
 ## Road Map
-- Now: stuck at fast.ai VGG model not working on py3.5
-	- learn more about tensorflow and keras to dive into VGG model application
+- fast.ai: apply advanced | useful models like VGG using keras, theano
+- to understand and implement VGG model, low details is unavoidable
 
 ## Examples
 High speed gif can help see the changes of weights and layers during training
@@ -51,9 +51,19 @@ pandas exercises: [source](https://github.com/guipsamora/pandas_exercises)
 	- sample: train, valid, test subfolders
 	- experiment codes on sample dataset
 
+1. how to check the first few files of a folder: `ls folder/ | head`
+
+1. how to submit to kaggle: [fast.ai](https://youtu.be/e3aM6XTekJc?t=1386)
+
 1. how to use kaggle cli to download and submit: [source](http://wiki.fast.ai/index.php/Kaggle_CLI)
 
+
+
+1. (tf) how to create random dataset: [source](https://github.com/EmbraceLife/tf-stanford-tutorials/blob/my_progress/examples/01_create_random.py)
+
 1. (tf) how to make a sequence with `tf.linspace`, `tf.range`: [source](https://github.com/EmbraceLife/tf-stanford-tutorials/blob/my_progress/examples/01_make_sequence.py)
+	- `np.linspace` and `range` can do iterations
+	- not for `tf.linspace`, `tf.range`
 
 1. (tf) how to use `tf.ones`, `tf.ones_like`, `tf.zeros`, `tf.zeros_like`, `tf.fill`: [source](https://github.com/EmbraceLife/tf-stanford-tutorials/blob/my_progress/examples/01_tensor_fills.py)
 
@@ -105,7 +115,7 @@ pandas exercises: [source](https://github.com/guipsamora/pandas_exercises)
 
 1. how to use pdb: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/152528672306f2868568d7b65dfefb1da6900986/tutorial-contents/pdb.md)
 
-1. most used conda command: [source]()
+1. most used conda command: [source](https://github.com/EmbraceLife/LIE/blob/master/conda_commands.md)
 
 1. often used git commands: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/git_tools.md)
 
