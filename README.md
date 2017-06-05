@@ -31,18 +31,39 @@ pandas exercises: [source](https://github.com/guipsamora/pandas_exercises)
 
 1. prepare_mnist: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/prepare_mnist.py)
 
+## Learning based on fast.ai course
+### vgg16 on dogscats
+
+1. how to organize catsdogs dataset in folders for experiment, train, test: [notebook](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/nbs/dogs_cats_folder_organise.ipynb)
+
+1. (tf) how to create vgg16 model instance: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_tf_kr.py)
+
+1. (tf) how to turn folders of images into batches of datasets: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_iterator_from_directory.py)
+
+1. (tf) how to finetune vgg16 model for dogscats problem: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_finetune.py)
+
+1. (tf) how to train or fit vgg16 model: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_fit_fit_generator.py)
+
+1. (tf) how to build model with Sequential: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/sequential_keras.py)
+
+----
+
+1. (tf) how vgg16 decode prediction percentage: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_decode_prediction.py)
+
+1. (tf) how to process image dataset for vgg16? [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_preprocess_input.py)
+
+----
+
+1. how to finetune vgg16 with new set of classes [fast.ai source](https://hyp.is/3ADedEmxEeeVW2OZ6Z3UbQ/github.com/fastai/courses/blob/master/deeplearning1/nbs/vgg16.py)
+
+1. how to build, finetune, fit, predict vgg16 with a new final dense layer: [keras==1.2](https://hyp.is/kbiBKEmxEeephr_zfBr6qQ/github.com/fastai/courses/blob/master/deeplearning1/nbs/vgg16.py)
+
+
+### vgg16 on dogscats with lesson notes
 1. most noble goal of fast ai course: [fast.ai.wiki](https://hyp.is/nHYjZEmhEeeYtDv9sRdakg/wiki.fast.ai/index.php/Lesson_1_Notes)
-
-1. how vgg16 decode prediction percentage: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_decode_prediction.py)
-
-1. how to process image dataset for vgg16? [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_preprocess_input.py)
 
 1. why VGG16 preprocess images that way: [fast.ai.forum](https://hyp.is/ytuVFEmbEeeHzVsjpaDKoQ/forums.fast.ai/t/why-reshape-3-224-224-in-vgg16-py/812)
 	- mean and order of RGB are prefixed
-
-1. `tf.contrib.keras.applications.vgg16.VGG16()` internals: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/tf_kr_vgg16.py)
-
-1. `keras.models.Sequential` internals: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/sequential_keras.py)
 
 1. how to apply VGG to catsdogs problem: [fast.ai](https://youtu.be/Th_ckFbc6bI?t=5679)
 
@@ -52,14 +73,6 @@ pandas exercises: [source](https://github.com/guipsamora/pandas_exercises)
 
 1. why study state-of-art models like VGG: [fast.ai](https://youtu.be/Th_ckFbc6bI?t=4515)
 
-1. (tf) how to create batches of data from image folders for vgg16: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_iterator_from_directory.py)
-
-1. (tf) how to train or fit vgg16 model: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_fit.py)
-
-1. how to finetune vgg16 with new set of classes [fast.ai source](https://hyp.is/3ADedEmxEeeVW2OZ6Z3UbQ/github.com/fastai/courses/blob/master/deeplearning1/nbs/vgg16.py)
-
-1. how to finetune vgg16 with a new final dense layer: [fast ai source](https://hyp.is/kbiBKEmxEeephr_zfBr6qQ/github.com/fastai/courses/blob/master/deeplearning1/nbs/vgg16.py)
-
 1. 7 steps to recognize basic images using vgg16: [fast.ai](https://hyp.is/Ug37DkmqEeerDXOvDvoDZQ/wiki.fast.ai/index.php/Lesson_1_Notes)
 
 1. how to see limit and bias of a pretrained model like vgg16: [fast.ai](https://hyp.is/rY8HNkmoEeeVVXvlY3irxg/wiki.fast.ai/index.php/Lesson_1_Notes)
@@ -68,7 +81,7 @@ pandas exercises: [source](https://github.com/guipsamora/pandas_exercises)
 
 1. Why create a sample/train,valid,test folders from full dataset? [fast.ai](https://hyp.is/B91f6EmlEee5c79f2cNwEQ/wiki.fast.ai/index.php/Lesson_1_Notes)
 
-1. how to organize catsdogs dataset in folders for experiment, train, test: [notebook](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/nbs/dogs_cats_folder_organise.ipynb)
+
 
 1. how to count number of files in a folder: `ls folder/ | wc -l`
 
@@ -87,6 +100,10 @@ pandas exercises: [source](https://github.com/guipsamora/pandas_exercises)
 
 1. how to use kaggle cli to download and submit #@F: [source](http://wiki.fast.ai/index.php/Kaggle_CLI)
 
+----
+
+## Stanford Tensorflow for Deep Learning Research
+
 1. (tf) how to use math ops: [source](https://github.com/EmbraceLife/tf-stanford-tutorials/blob/my_progress/examples/01_tf_math_ops.py)
 
 1. how to create histogram plot: [source](https://github.com/EmbraceLife/tf-stanford-tutorials/blob/my_progress/examples/01_plot_histogram_random.py)
@@ -102,6 +119,10 @@ pandas exercises: [source](https://github.com/guipsamora/pandas_exercises)
 1. (tf) how to use `tf.constant` and tricks: [source](https://github.com/EmbraceLife/tf-stanford-tutorials/blob/my_progress/examples/01_tf.constant.py)
 
 1. (tf) how to use `sess`, `graph`, to display ops in `tensorboard`: [source](https://github.com/EmbraceLife/tf-stanford-tutorials/blob/my_progress/examples/01_sess_graph_tensorboard.py)
+
+----
+
+## matplotlib
 
 1. how to do subplots without space in between: [source](https://github.com/EmbraceLife/tutorials/blob/my_project/matplotlibTUT/plt16.3_subplots_no_space_between.py)
 
@@ -137,11 +158,19 @@ pandas exercises: [source](https://github.com/guipsamora/pandas_exercises)
 
 1. how to plot subplots of 4 activation lines: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/subplots_4_activationlines.py)
 
+----
+
+## Pytorch
+
 1. torch activations [sources](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/activation.py)
 
 1. torch Variables: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/variable.py)
 
 1. torch.tensor vs numpy: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/torch_numpy.py)
+
+----
+
+## Generally useful
 
 1. how to make alias in `.bash_profile` and `.pdbrc`: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/bash_profile-pdbrc.md)
 
@@ -178,6 +207,11 @@ pandas exercises: [source](https://github.com/guipsamora/pandas_exercises)
 	- `export CMAKE_PREFIX_PATH=[anaconda root directory]`: my case miniconda root path: /Users/Natsume/miniconda2
 	- `conda install numpy pyyaml setuptools cmake cffi`
 	- `MACOSX_DEPLOYMENT_TARGET=10.9 CC=clang CXX=clang++ python setup.py install`
+
+----
+
+
+## Visualize convolution
 
 1. regression on fake 1d dataset:     
 
