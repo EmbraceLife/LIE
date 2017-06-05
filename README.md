@@ -31,6 +31,8 @@ pandas exercises: [source](https://github.com/guipsamora/pandas_exercises)
 
 1. prepare_mnist: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/prepare_mnist.py)
 
+1. most noble goal of fast ai course: [fast.ai.wiki](https://hyp.is/nHYjZEmhEeeYtDv9sRdakg/wiki.fast.ai/index.php/Lesson_1_Notes)
+
 1. how vgg16 decode prediction percentage: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_decode_prediction.py)
 
 1. how to process image dataset for vgg16? [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_preprocess_input.py)
@@ -49,6 +51,14 @@ pandas exercises: [source](https://github.com/guipsamora/pandas_exercises)
 1. (kr) how to switch from theano to tf backend, and switch cpu and gpu in theano: [fast.ai](https://youtu.be/Th_ckFbc6bI?t=5235)
 
 1. why study state-of-art models like VGG: [fast.ai](https://youtu.be/Th_ckFbc6bI?t=4515)
+
+1. 7 steps to recognize basic images using vgg16: [fast.ai](https://hyp.is/Ug37DkmqEeerDXOvDvoDZQ/wiki.fast.ai/index.php/Lesson_1_Notes)
+
+1. how to see limit and bias of a pretrained model like vgg16: [fast.ai](https://hyp.is/rY8HNkmoEeeVVXvlY3irxg/wiki.fast.ai/index.php/Lesson_1_Notes)
+
+1. What is finetune to a pretrained model like vgg16? [fast.ai](http://wiki.fast.ai/index.php/Fine_tuning)
+
+1. Why create a sample/train,valid,test folders from full dataset? [fast.ai](https://hyp.is/B91f6EmlEee5c79f2cNwEQ/wiki.fast.ai/index.php/Lesson_1_Notes)
 
 1. how to organize catsdogs dataset in folders for experiment, train, test: [notebook](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/nbs/dogs_cats_folder_organise.ipynb)
 
