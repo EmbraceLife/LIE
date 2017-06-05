@@ -31,7 +31,7 @@ pandas exercises: [source](https://github.com/guipsamora/pandas_exercises)
 
 1. prepare_mnist: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/prepare_mnist.py)
 
-1. how vgg16 decode prediction percentage: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_decode_predictions.py)
+1. how vgg16 decode prediction percentage: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_decode_prediction.py)
 
 1. how to process image dataset for vgg16? [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_preprocess_input.py)
 
