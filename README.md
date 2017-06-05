@@ -10,6 +10,7 @@ Learning how to use NeuralNets by primarily diving in working examples and sourc
 ## Road Map
 - fast.ai: apply advanced | useful models like VGG using keras, theano
 - to understand and implement VGG model, low details is unavoidable
+- how to build vgg from scratch in keras raw, tf.keras.application, tf.slim?
 
 ## Examples
 High speed gif can help see the changes of weights and layers during training
@@ -29,6 +30,10 @@ High speed gif can help see the changes of weights and layers during training
 pandas exercises: [source](https://github.com/guipsamora/pandas_exercises)
 
 1. prepare_mnist: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/prepare_mnist.py)
+
+1. `tf.contrib.keras.applications.vgg16.VGG16()` internals: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/tf_kr_vgg16.py)
+
+1. keras.models.Sequential internals: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/sequential_keras.py)
 
 1. how to apply VGG to catsdogs problem: [fast.ai](https://youtu.be/Th_ckFbc6bI?t=5679)
 
@@ -55,9 +60,11 @@ pandas exercises: [source](https://github.com/guipsamora/pandas_exercises)
 
 1. how to submit to kaggle: [fast.ai](https://youtu.be/e3aM6XTekJc?t=1386)
 
-1. how to use kaggle cli to download and submit: [source](http://wiki.fast.ai/index.php/Kaggle_CLI)
+1. how to use kaggle cli to download and submit #@F: [source](http://wiki.fast.ai/index.php/Kaggle_CLI)
 
+1. (tf) how to use math ops: [source](https://github.com/EmbraceLife/tf-stanford-tutorials/blob/my_progress/examples/01_tf_math_ops.py)
 
+1. how to create histogram plot: [source](https://github.com/EmbraceLife/tf-stanford-tutorials/blob/my_progress/examples/01_plot_histogram_random.py)
 
 1. (tf) how to create random dataset: [source](https://github.com/EmbraceLife/tf-stanford-tutorials/blob/my_progress/examples/01_create_random.py)
 
@@ -120,6 +127,19 @@ pandas exercises: [source](https://github.com/guipsamora/pandas_exercises)
 1. often used git commands: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/git_tools.md)
 
 1. make gif out of images: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/img2gif.py)
+
+1. relationship between keras and tensorflow: [google I/O](https://youtu.be/UeheTiBJ0Io?t=133)
+	- best practices are set as default in keras [same video](https://youtu.be/UeheTiBJ0Io?t=820)
+
+1. how to best access library internals:
+	- not through ipython `keras.` and tab, but some submodules and methods somehow are hidden
+	- best: use `pdb`, `pdbpp`, and alias to access all internals
+
+1. how to install ealier version of keras: `pip install keras==1.2`
+
+1. how to update tensorflow to the latest release:
+	- download nightly binary whl from [tf repo](https://github.com/tensorflow/tensorflow#installation)
+	- install to upgrade `pip install --upgrade tensorflow-1.2.0rc1-py3-none-any.whl`
 
 1. how to install keras from source:
 	- fork keras and add remote official url

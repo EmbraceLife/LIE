@@ -1,7 +1,10 @@
+
+1. [tensorflow models on image recognition](http://nbviewer.jupyter.org/github/tensorflow/models/tree/master/slim/)
+1. [matplotlib examples](https://matplotlib.org/gallery.html)
 1. [course.fast.ai](http://course.fast.ai/)
 	- wiki link: http://wiki.fast.ai/index.php/Main_Page
  	- hands on, assume no theoretical background
-	- but stuck at getting code and version to work
+	- [notebooks viewer](http://nbviewer.jupyter.org/github/fastai/courses/tree/master/deeplearning1/nbs/)
 1. [stanford tf for deep learning research](https://github.com/chiphuyen/tf-stanford-tutorials)
 	- [videos](https://www.youtube.com/channel/UCMq6IdbXar_KtYixMS_wHcQ)
 1. experiment on `kur`:
