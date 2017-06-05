@@ -52,6 +52,10 @@ pandas exercises: [source](https://github.com/guipsamora/pandas_exercises)
 
 1. why study state-of-art models like VGG: [fast.ai](https://youtu.be/Th_ckFbc6bI?t=4515)
 
+1. how to finetune vgg16 with new set of classes [fast.ai source](https://hyp.is/3ADedEmxEeeVW2OZ6Z3UbQ/github.com/fastai/courses/blob/master/deeplearning1/nbs/vgg16.py)
+
+1. how to finetune vgg16 with a new final dense layer: [fast ai source](https://hyp.is/kbiBKEmxEeephr_zfBr6qQ/github.com/fastai/courses/blob/master/deeplearning1/nbs/vgg16.py)
+
 1. 7 steps to recognize basic images using vgg16: [fast.ai](https://hyp.is/Ug37DkmqEeerDXOvDvoDZQ/wiki.fast.ai/index.php/Lesson_1_Notes)
 
 1. how to see limit and bias of a pretrained model like vgg16: [fast.ai](https://hyp.is/rY8HNkmoEeeVVXvlY3irxg/wiki.fast.ai/index.php/Lesson_1_Notes)
