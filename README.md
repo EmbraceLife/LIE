@@ -52,6 +52,10 @@ pandas exercises: [source](https://github.com/guipsamora/pandas_exercises)
 
 1. why study state-of-art models like VGG: [fast.ai](https://youtu.be/Th_ckFbc6bI?t=4515)
 
+1. (tf) how to create batches of data from image folders for vgg16: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_iterator_from_directory.py)
+
+1. (tf) how to train or fit vgg16 model: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_fit.py)
+
 1. how to finetune vgg16 with new set of classes [fast.ai source](https://hyp.is/3ADedEmxEeeVW2OZ6Z3UbQ/github.com/fastai/courses/blob/master/deeplearning1/nbs/vgg16.py)
 
 1. how to finetune vgg16 with a new final dense layer: [fast ai source](https://hyp.is/kbiBKEmxEeephr_zfBr6qQ/github.com/fastai/courses/blob/master/deeplearning1/nbs/vgg16.py)
