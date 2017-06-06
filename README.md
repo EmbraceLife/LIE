@@ -122,6 +122,40 @@ High speed gif can help see the changes of weights and layers during training
 
 1. why clip the final predictions for better log loss measurement? [wiki](http://wiki.fast.ai/index.php/Lesson_2_Notes#Dealing_with_Log_Loss)
 
+1. what does CNNs learn [fast.ai video](https://youtu.be/e3aM6XTekJc?t=3283)
+	- beautifully explained
+	- it seems very useful to view all layers and weights of vgg16
+		- (todo) check forum for similar questions
+		- (todo) do it myself with my own prewritten functions
+
+1. how deep learning work in excel? [fast.ai video](https://youtu.be/e3aM6XTekJc?t=3810)
+	- (todo) display in excel how input layer and weights layer create output | activation layer
+	- (todo) display how to do Axier initialization on weights
+
+1. how to visualize SGD gradually optimize weights to plot the correct line? [fast.ai video](https://youtu.be/e3aM6XTekJc?t=4448)
+	- (todo) rewrite to numpy code
+	- (todo) keras on linear model with SGD
+
+1. how to efficient save and load large arrays; save, load, plot from images files in folders; do one_hot encoding [fast.ai video](https://youtu.be/e3aM6XTekJc?t=4448)
+	- (todo) use `bcolz` to efficiently save and load predictions array
+	- (todo) get batches of images loaded from folders into proper arrays
+	- (todo) save, load, plot those arrays into images
+	- (todo) do one_hot encoding
+
+1. how to use a single dense network with Vgg16 model's power? [fast.ai video](https://youtu.be/e3aM6XTekJc?t=4448)
+	- (todo) use keras Sequential, Dense and vgg16's outputs
+
+1. power of activation layer - non-linear function [fast.ai video](https://youtu.be/e3aM6XTekJc?t=6252)
+	- input dot weights == linear model
+	- activation function == non-linear model
+	- activation func make deep learning powerful
+
+1. challenges:
+	- (todo) dissect every line of `vgg16()`
+
+
+
+
 ## Stanford Tensorflow for Deep Learning Research
 
 1. (tf) how to use math ops: [source](https://github.com/EmbraceLife/tf-stanford-tutorials/blob/my_progress/examples/01_tf_math_ops.py)
