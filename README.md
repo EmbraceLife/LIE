@@ -15,21 +15,13 @@ Learning how to use NeuralNets by primarily diving in working examples and sourc
 ## Examples
 High speed gif can help see the changes of weights and layers during training
 
-1. read stocks csv: [source]()
-![]()
 
-1. train cnn net: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/train_cnn.py)
 
-1. train rnn net: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/train_rnn.py)
-
-1. build rnn net: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/build_rnn.py)
-
-1. build cnn net: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/build_cnn.py)
-
+## Numpy
 1. 100 exercises to numpy: [source](https://github.com/rougier/numpy-100/blob/master/100%20Numpy%20exercises.md)
-pandas exercises: [source](https://github.com/guipsamora/pandas_exercises)
+1. pandas exercises: [source](https://github.com/guipsamora/pandas_exercises)
 
-1. prepare_mnist: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/prepare_mnist.py)
+1. how to save and load numpy arrays with numpy: [doc example](https://docs.scipy.org/doc/numpy/reference/generated/numpy.save.html)
 
 ## Learning based on fast.ai course
 ### vgg16 on dogscats
@@ -44,22 +36,39 @@ pandas exercises: [source](https://github.com/guipsamora/pandas_exercises)
 
 1. (tf) how to train or fit vgg16 model: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_fit_fit_generator.py)
 
+1. (tf) how to save vgg16 model: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_save_load.py)
+
+1. (tf) how to load vgg16 model, predict with test batches, and save preds: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_test_predict.py)
+
+1. (tf) how to load, train_again, and save vgg16 model: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_train_again.py)
+
 1. (tf) how to build model with Sequential: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/sequential_keras.py)
 
-----
+1. (tf) how vgg16 decode preds for 1000 classes: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_decode_prediction.py)
 
-1. (tf) how vgg16 decode prediction percentage: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_decode_prediction.py)
 
 1. (tf) how to process image dataset for vgg16? [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_preprocess_input.py)
 
 ----
+1. (todo) how to save-load model+weights, save-load model, save-load weights, load old and make new model, load weights to a new model: [keras pseudo code](https://keras.io/getting-started/faq/#how-can-i-save-a-keras-model)
 
-1. how to finetune vgg16 with new set of classes [fast.ai source](https://hyp.is/3ADedEmxEeeVW2OZ6Z3UbQ/github.com/fastai/courses/blob/master/deeplearning1/nbs/vgg16.py)
+1. (todo) how to clip the edges of predictions, how to get the filename of each images files, how to stack img_id and predictions into one array? [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_clip_submit.py)
 
-1. how to build, finetune, fit, predict vgg16 with a new final dense layer: [keras==1.2](https://hyp.is/kbiBKEmxEeephr_zfBr6qQ/github.com/fastai/courses/blob/master/deeplearning1/nbs/vgg16.py)
+1. (todo) how to plot [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_visualize_preds.py)
+	- A few correct labels at random
+	- A few incorrect labels at random
+	- The most correct labels of each class (ie those with highest probability that are correct)
+	- The most incorrect labels of each class (ie those with highest probability that are incorrect)
+	- The most uncertain labels (ie those with probability closest to 0.5).
+	- confusion matrix
+----
+
+1. (kr1.2) how to finetune vgg16 with new set of classes [fast.ai source](https://hyp.is/3ADedEmxEeeVW2OZ6Z3UbQ/github.com/fastai/courses/blob/master/deeplearning1/nbs/vgg16.py)
 
 
-### vgg16 on dogscats with lesson notes
+
+### fast.ai Lesson notes
+#### Lesson1: vgg16 on dogscats
 1. most noble goal of fast ai course: [fast.ai.wiki](https://hyp.is/nHYjZEmhEeeYtDv9sRdakg/wiki.fast.ai/index.php/Lesson_1_Notes)
 
 1. why VGG16 preprocess images that way: [fast.ai.forum](https://hyp.is/ytuVFEmbEeeHzVsjpaDKoQ/forums.fast.ai/t/why-reshape-3-224-224-in-vgg16-py/812)
@@ -81,8 +90,6 @@ pandas exercises: [source](https://github.com/guipsamora/pandas_exercises)
 
 1. Why create a sample/train,valid,test folders from full dataset? [fast.ai](https://hyp.is/B91f6EmlEee5c79f2cNwEQ/wiki.fast.ai/index.php/Lesson_1_Notes)
 
-
-
 1. how to count number of files in a folder: `ls folder/ | wc -l`
 
 1. how to unzip a zip file: `unzip -q data.zip`
@@ -101,6 +108,19 @@ pandas exercises: [source](https://github.com/guipsamora/pandas_exercises)
 1. how to use kaggle cli to download and submit #@F: [source](http://wiki.fast.ai/index.php/Kaggle_CLI)
 
 ----
+
+#### Lesson2: vgg16 on dogscats
+
+1. make a todo list before working on any project or problem
+
+1. how to prepare data after downloaded from kaggle? [fast.ai.wiki](http://wiki.fast.ai/index.php/Lesson_2_Notes#Preparing_the_Data)
+
+1. why we need save weights other than save model?
+	- Answer: with save, load empty model, save and load only weights, we can load weights to the same or even a different model [keras doc](https://keras.io/getting-started/faq/#how-can-i-save-a-keras-model)
+
+1. how to submit to kaggle using `keras.predict_generator` and `FileLink`: [wiki](http://wiki.fast.ai/index.php/Lesson_2_Notes#Submitting_Results)
+
+1. why clip the final predictions for better log loss measurement? [wiki](http://wiki.fast.ai/index.php/Lesson_2_Notes#Dealing_with_Log_Loss)
 
 ## Stanford Tensorflow for Deep Learning Research
 
@@ -167,6 +187,18 @@ pandas exercises: [source](https://github.com/guipsamora/pandas_exercises)
 1. torch Variables: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/variable.py)
 
 1. torch.tensor vs numpy: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/torch_numpy.py)
+
+1. read stocks csv:
+
+1. train cnn net: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/train_cnn.py)
+
+1. train rnn net: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/train_rnn.py)
+
+1. build rnn net: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/build_rnn.py)
+
+1. build cnn net: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/build_cnn.py)
+
+1. prepare_mnist: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/prepare_mnist.py)
 
 ----
 
