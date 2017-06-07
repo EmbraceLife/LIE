@@ -115,7 +115,7 @@ High speed gif can help see the changes of weights and layers during training
 
 1. how to prepare data after downloaded from kaggle? [fast.ai.wiki](http://wiki.fast.ai/index.php/Lesson_2_Notes#Preparing_the_Data)
 
-1. why we need save weights other than save model?
+1. (todo) why we need save weights other than save model?
 	- Answer: with save, load empty model, save and load only weights, we can load weights to the same or even a different model [keras doc](https://keras.io/getting-started/faq/#how-can-i-save-a-keras-model)
 
 1. how to submit to kaggle using `keras.predict_generator` and `FileLink`: [wiki](http://wiki.fast.ai/index.php/Lesson_2_Notes#Submitting_Results)
@@ -150,11 +150,102 @@ High speed gif can help see the changes of weights and layers during training
 	- activation function == non-linear model
 	- activation func make deep learning powerful
 
+1. (todo) how to visualize model as dots: [forum](http://forums.fast.ai/t/model-and-training-visualization/234)
+	- [source]([source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_pydot_viz.py))
+		- not useful at all, `model.summary()` can do a better job, seemingly
+
 1. challenges:
 	- (todo) dissect every line of `vgg16()`
 
+----
+
+#### Lesson 3 fast.ai part1
+1. how to experiment the notebook [video](https://youtu.be/6kwQEBMandw?t=10)
+	- write the source code
+	- experiment for 30 minutes,, check questions and answers on wiki and forum
+	- then ask questions on forum
+
+1. better explain the usage of deep viz toolbox [video](https://youtu.be/6kwQEBMandw?t=528)
+	- (todo) install and try as the video do
+	- (todo) can this apply to RNN? and other neuralnets?
+	- (todo later) there are vis tools on RNN too
+
+1. understand cnn with spreadsheet and notebook: [video](https://youtu.be/6kwQEBMandw?t=791)
+	- (todo) spreadsheet: compare Dense with Conv on create activation layer
+	- (todo) notebook: explain Conv, Pad, and Pool in steps
+	- (todo) convert notebook to spreadshee: spreadsheet is more intuitive displaying
+
+1. review VGG: [video](https://youtu.be/6kwQEBMandw?t=1594)
+	- (todo) demo the above todo task with vgg16 model example
+
+1. maxpooling, padding: [video](https://youtu.be/6kwQEBMandw?t=1813)
+	- (todo) spreadsheet and notebook: maxpool lose pixel, and layer goes deep, filter shrink size further, but activation layer becomes more high concept recognisable images?
+	- how to make sense of it all
+
+1. softmax with spreadshee: [video](https://youtu.be/6kwQEBMandw?t=2640)
+	- (todo)
+
+1. review SGD notebook: [video](https://youtu.be/6kwQEBMandw?t=3071)
+	- (todo) intuition: how sgd or derivative help update weight, bias to the optimal weight and bias of target
+	- (todo) convert notebook to spreadsheet?
+
+1. how to decide on filter size and num_fitlers: [video](https://youtu.be/6kwQEBMandw?t=3321)
+	- practically, filter size (3,3)
+	- num_fitlers: not yet finalized
+	- how to deal with much larger images:
+		- not yet finalized: help from attention with LSTM to mimic how actual eye work?
+
+1. how to retrain vgg16 with more layers? [video](https://youtu.be/6kwQEBMandw?t=3839)
+	- (todo) how many layers to make trainable?
+		- intuition: knowing which layer does what through weights vis
+		- experiment to see what works better
+		- vgg16 retain 1 dense layer for dogscats, retain 3 dense layers for statefarm dataset, as CNN layers are positional invariance oriented.
+
+1. understand under and overfitting: [wiki](http://wiki.fast.ai/index.php/Lesson_3_Notes#Training_a_Better_Model)
+	- underfitting: use linear model to do vgg16's job, use far too less parameters to take on more complex problems, in the end error for both training and validation are still very high
+	- overfitting: use too many parameters to take on relatively simpler problems, in the end training loss is very low, but val_loss is higher
+
+1. what dropout layer do: [video](https://youtu.be/6kwQEBMandw?t=4524) and [wiki](http://wiki.fast.ai/index.php/Lesson_3_Notes#Dropout)
+	- drop out 50% neurons, model won't get overfit even though model has a huge number of neurons
+	- in vgg16 dogscats case, 50% is too much, and made model underfitting, so drop 50% to 10% maybe can avoid underfitting
+	- dropout: like ensemble, is to create many smaller but different models
+
+1. split vgg16 into 2 models: [video](https://youtu.be/6kwQEBMandw?t=4876)
+	- (todo) split to a cnn model
+		- don't change anything in cnn model, as it is expensive to train cnn model weights
+	- (todo) split to a dense model: do change dense model as you like, it is cheaper to train
+
+1. how to do data augumentation: [video](https://youtu.be/6kwQEBMandw?t=5523)
+	- help reduce overfitting
+	- how to rotate or augumentation on your dataset
+	- (todo) make it your own
+
+1. how to do batch normalization: [video](https://youtu.be/6kwQEBMandw?t=6018)
+	- why normalize inputs:
+	 	- cos if inputs have different scales, it is harder to train and loss can mess up and too high, so ALWAYS normalize your inputs
+	- why do batch normalization:
+		- 10 faster
+		- reduce overfitting
+	- what is batch normalization:
+		- normalize not inputs but intermediate layers
+		- apply two trainable parameters to each layer: arbitrary std and mean
+	- (todo) cnn inputs + dense model + batch_normalization and train this new model
+
+1. (todo) end-to-end model building process with mnist: [video](https://youtu.be/6kwQEBMandw?t=6530)
+	- load mnist dataset
+	- onehot label
+	- normalize inputs
+	- single dense model, 1-hidden dense model on mnist
+	- vgg-style simple cnn model [video](https://youtu.be/6kwQEBMandw?t=6811)
+	- make sure the model is capable of some overfitting, then try to reduce overfitting
+	- data augmentation, batch_normalization on every layer(do understand the source), dropout
+	- ensembling
+
+1. challenge: statefarm solutions
 
 
+
+----
 
 ## Stanford Tensorflow for Deep Learning Research
 
@@ -245,6 +336,7 @@ High speed gif can help see the changes of weights and layers during training
 1. most used conda command: [source](https://github.com/EmbraceLife/LIE/blob/master/conda_commands.md)
 
 1. often used git commands: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/git_tools.md)
+	- how to make multiple PR: build multiple branches for each PR
 
 1. make gif out of images: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/img2gif.py)
 
