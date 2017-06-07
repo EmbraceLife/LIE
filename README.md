@@ -32,11 +32,13 @@ High speed gif can help see the changes of weights and layers during training
 
 1. (tf) how to turn folders of images into batches of datasets: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_iterator_from_directory.py)
 
-1. (tf) how to finetune vgg16 model for dogscats problem: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_finetune.py)
+1. (tf) how to finetune vgg16 model replace the last layer: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_finetune.py)
+
+1. (tf) how to finetune vgg16 model replace the last layer and add a dense layer before the last layer: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_finetune2.py)
 
 1. (tf) how to train or fit vgg16 model: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_fit_fit_generator.py)
 
-1. (tf) how to save vgg16 model: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_save_load.py)
+1. (tf) how to save-load model+weights, save-load model, save-load weights, load old and make new model, load weights to a new model: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_save_load.py)
 
 1. (tf) how to load vgg16 model, predict with test batches, and save preds: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_test_predict.py)
 
@@ -50,7 +52,7 @@ High speed gif can help see the changes of weights and layers during training
 1. (tf) how to process image dataset for vgg16? [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_preprocess_input.py)
 
 ----
-1. (todo) how to save-load model+weights, save-load model, save-load weights, load old and make new model, load weights to a new model: [keras pseudo code](https://keras.io/getting-started/faq/#how-can-i-save-a-keras-model)
+
 
 1. (todo) how to clip the edges of predictions, how to get the filename of each images files, how to stack img_id and predictions into one array? [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_clip_submit.py)
 
