@@ -38,9 +38,14 @@ High speed gif can help see the changes of weights and layers during training
 
 1. (tf) how to train or fit vgg16 model: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_fit_fit_generator.py)
 
-1. (tf) how to save-load model+weights, save-load model, save-load weights, load old and make new model, load weights to a new model: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_save_load.py)
+1. (tf) how to save-load model+weights, save-load model, save-load weights, load old and make new model, load weights to a new model: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_save_load_models_weights.py)
+
+1. (np) how to save large arrays with maximum memory efficiency: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/save_load_large_array.py)
+	- for the same large array to be saved, `bcolz` can shrink its size by 4 times smaller than file saved by `numpy`, `pickle`, `torch`, `kur.idx`
 
 1. (tf) how to load vgg16 model, predict with test batches, and save preds: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_test_predict.py)
+
+1. (np) how to clip prediction for better log_loss calc: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/np_clip_dogscats.py)
 
 1. (tf) how to load, train_again, and save vgg16 model: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_train_again.py)
 
@@ -52,9 +57,9 @@ High speed gif can help see the changes of weights and layers during training
 1. (tf) how to process image dataset for vgg16? [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_preprocess_input.py)
 
 ----
+1. how to call a keras function manually to test it? [forum](http://forums.fast.ai/t/lesson-10-discussion/1807/17?u=daniel)
 
-
-1. (todo) how to clip the edges of predictions, how to get the filename of each images files, how to stack img_id and predictions into one array? [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_clip_submit.py)
+1. (todo) how to clip the edges of predictions, how to get the filename of each images files, how to stack img_id and predictions into one array? [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/np_clip_dogscats.py)
 
 1. (todo) how to plot [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_visualize_preds.py)
 	- A few correct labels at random
@@ -117,7 +122,7 @@ High speed gif can help see the changes of weights and layers during training
 
 1. how to prepare data after downloaded from kaggle? [fast.ai.wiki](http://wiki.fast.ai/index.php/Lesson_2_Notes#Preparing_the_Data)
 
-1. (todo) why we need save weights other than save model?
+1. why we need save weights other than save model?
 	- Answer: with save, load empty model, save and load only weights, we can load weights to the same or even a different model [keras doc](https://keras.io/getting-started/faq/#how-can-i-save-a-keras-model)
 
 1. how to submit to kaggle using `keras.predict_generator` and `FileLink`: [wiki](http://wiki.fast.ai/index.php/Lesson_2_Notes#Submitting_Results)
