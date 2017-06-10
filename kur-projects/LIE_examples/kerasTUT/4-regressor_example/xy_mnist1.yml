@@ -1,0 +1,29 @@
+---
+include:
+  - xy_mnist_default.yml
+
+
+
+settings:
+
+  backend:
+    name: keras
+    # backend: tensorflow
+    # name: pytorch
+
+
+train:
+  data:
+    - xy:
+        x:
+          url:
+        y:
+          url:
+
+model:
+  - input: x
+  - dense: 1
+  - output: y
+
+
+...

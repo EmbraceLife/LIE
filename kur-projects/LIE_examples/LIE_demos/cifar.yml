@@ -1,0 +1,151 @@
+---
+
+settings:
+
+  # Where to get the data
+  cifar: &cifar
+    url: "https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz"
+    checksum: "6d958be074577803d12ecdefd02955f39262c83c16fe9348329d7fe0b5c001ce"
+    path: "/Users/Natsume/Downloads/data_for_all/cifar"
+
+  # Backend to use
+  backend:
+    # name: keras
+    # backend: tensorflow
+    name: pytorch
+    # there is a problem with receptive fields size being even and 'same' border for pytorch convolution
+
+  # Hyperparameters
+  cnn:
+    kernels: [64, 32]
+    size: [2, 2]
+    strides: [1, 1]
+
+# The model itself.
+# This is parsed immediately after the "parameters" block.
+model:
+  - input: images
+  # - for:
+  #     range: "{{ cnn.kernels|length }}"
+  #     iterate:
+  #       - convolution:
+  #           kernels: "{{ cnn.kernels[index] }}"
+  #           size: "{{ cnn.size }}"
+  #           strides: "{{ cnn.strides }}"
+  #           border: valid
+  #       - activation:
+  #           # name: relu
+  #           type: leakyrelu # leakyrelu # relu
+  #           alpha: 0.01 # if alpha not exist or empty as None, default value is 0.3
+  #       - output: ???
+  - convolution:
+      kernels: 64
+      size: [2,2]
+      strides: [1,1]
+      border: valid
+  - activation:
+      type: leakyrelu # leakyrelu # relu
+      alpha: 0.01 # if alpha not exist or empty as None, default value is 0.3
+    sink: yes
+    name: conv_layer1
+  - convolution:
+      kernels: 32
+      size: [2,2]
+      strides: [1,1]
+      border: valid
+  - activation: # interest hierarchy, go trace activation object
+  # check container.parse(), _parse_core() for details of set up `sink`, `name`
+
+      type: leakyrelu # leakyrelu # relu
+      alpha: 0.01 # if alpha not exist or empty as None, default value is 0.3
+    sink: yes
+    name: conv_layer2
+  - flatten:
+  - dense: 10
+  - activation: softmax
+    #   name: softmax
+    name: labels # this is output rather than labels of inputs???
+
+train:
+  data:
+    - cifar:
+        <<: *cifar
+        parts: [1, 2, 3, 4]
+  provider:
+    batch_size: 32
+    num_batches: 1
+  log: /Users/Natsume/Downloads/temp_folders/demo_cifar/cifar-log
+  epochs:
+    number: 2
+    mode: additional
+  stop_when:
+    epochs: 1 # null or infinite : to train forever
+    elapsed:
+      minutes: 10
+      hours: 0
+      days: 0
+      clock: all # (time spend on all things) or all | train | validate | batch
+    mode: additional # additional | total, if set total, then elapsed above define total training time in history added
+
+  hooks:
+    - plot_weights:
+        layer_names: [conv_layer1, conv_layer2] # work on keras so far
+        plot_every_n_epochs: 1
+        plot_directory: /Users/Natsume/Downloads/temp_folders/demo_cifar/cifar_plot_weights
+        weight_file: /Users/Natsume/Downloads/temp_folders/demo_cifar/cifar.best.valid.w
+        with_weights:
+          - ["convolution", "kernel"]
+          - ["convolution", "weight"]
+          - ["dense", "kernel"]
+          - ["dense", "weight"]
+    - plot: # the folder must be prepared first
+        loss_per_batch: /Users/Natsume/Downloads/temp_folders/demo_cifar/plot1.png
+        loss_per_time: /Users/Natsume/Downloads/temp_folders/demo_cifar/plot2.png
+        throughput_per_time: /Users/Natsume/Downloads/temp_folders/demo_cifar/plot3.png
+  weights: # the folders below are prepared automatically?
+    initial: /Users/Natsume/Downloads/temp_folders/demo_cifar/cifar.best.valid.w
+    best: /Users/Natsume/Downloads/temp_folders/demo_cifar/cifar.best.train.w
+    last: /Users/Natsume/Downloads/temp_folders/demo_cifar/cifar.last.w
+  checkpoint:
+    path: /Users/Natsume/Downloads/temp_folders/demo_cifar/cifar-checkpoint
+    batches: 500 # batches, samples, epochs, minutes if present, must be an integer, not a string, not null, not None
+    samples: 1000
+    epochs: 1
+    minutes: 1000
+    validation: no
+  optimizer:
+    name: adam
+    learning_rate: 0.001
+
+validate:
+  data:
+    - cifar:
+       <<: *cifar
+       parts: 5
+  provider:
+    num_batches: 1
+  weights: /Users/Natsume/Downloads/temp_folders/demo_cifar/cifar.best.valid.w
+  hooks:
+    - output: # folder and file must be prepared first
+        path: /Users/Natsume/Downloads/temp_folders/demo_cifar/output.pkl
+        format: pickle
+
+
+test: &test
+  data:
+    - cifar:
+       <<: *cifar
+       parts: test
+  weights: /Users/Natsume/Downloads/temp_folders/demo_cifar/cifar.best.valid.w
+  provider:
+    num_batches: 10
+
+evaluate:
+  <<: *test
+  destination: /Users/Natsume/Downloads/temp_folders/demo_cifar/cifar.results.pkl
+
+
+loss:
+  - target: labels
+    name: categorical_crossentropy
+...
