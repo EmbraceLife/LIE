@@ -1,7 +1,0 @@
-batches: 1
-clocks: {all: 0.9822631989954971, batch: 0.11029252200387418, train: 0.5481357890093932,
-  validate: 0.4258628170064185}
-epochs: 1
-samples: 32
-sessions: 1
-version: 3

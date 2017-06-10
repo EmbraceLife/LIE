@@ -7,59 +7,92 @@ Step by step, this repo's history (see history commits) will testify LIE.
 **LIE**
 Learning how to use NeuralNets by primarily diving in working examples and source codes, not reading blogs or papers.
 
-## Road Map
-- fast.ai: apply advanced | useful models like VGG using keras, theano
-- to understand and implement VGG model, low details is unavoidable
-- how to build vgg from scratch in keras raw, tf.keras.application, tf.slim?
 
-## Examples
-High speed gif can help see the changes of weights and layers during training
+# transfer learning based on VGG16
+
+## Understanding the nature of transfer learning
+- uniqueness about imagenet datasets for this task
+	- one central object in each image
+	- rest is background or environment
+- nature of the problem:
+	- inputs:lots of images, each contain a central object
+	- return: an object-name of 1000 object-names
+- VGG16 use many layers of filters to screen the same image with different features (of different depths and focus)
+- weights and layers are to capture the correlation between inputs and output
 
 
+### borrow on VGG16
+when you don't have large images datasets and huge GPU computing power
+- prepare data
+- build model
+- load weights
+### make it work for you
+when you have a small datasets of your own (correctly labeled for training)
+- finetune
+- train
+- predict
+### interactive visualization of CNN model
+what if there is no readily labeled datasets, but unlabeled images and videos
+- find useful weights or layers (e.g. weights or layers to detect vertically flying object)
+- build model using those specific weights and layers
+- use model to filter out interesting images
 
-## Numpy
-1. 100 exercises to numpy: [source](https://github.com/rougier/numpy-100/blob/master/100%20Numpy%20exercises.md)
-1. pandas exercises: [source](https://github.com/guipsamora/pandas_exercises)
+----
 
-1. how to save and load numpy arrays with numpy: [doc example](https://docs.scipy.org/doc/numpy/reference/generated/numpy.save.html)
+## prepare data
+- how to prepare images into train, valid, test, sample folders
+[notebook](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/nbs/dogs_cats_folder_organise.ipynb)
 
-## Learning based on fast.ai course
-### vgg16 on dogscats
+- convert train|valid|test|sample folder into batch_iterator objects [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_iterator_from_directory.py)
 
-1. how to organize catsdogs dataset in folders for experiment, train, test: [notebook](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/nbs/dogs_cats_folder_organise.ipynb)
+----
 
-1. (tf) how to create vgg16 model instance: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_tf_kr.py)
+## build model
+- how to create vgg16 model instance from `tf.contrib.keras` [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_tf_kr.py)
 
-1. (tf) how to turn folders of images into batches of datasets: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_iterator_from_directory.py)
+----
 
-1. (tf) how to finetune vgg16 model replace the last layer: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_finetune.py)
+## Fine_tuning vgg16 model
+- fine_tune1: just replace the last layer: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_finetune.py)
 
-1. (tf) how to finetune vgg16 model replace the last layer and add a dense layer before the last layer: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_finetune2.py)
+- fine_tune2: replace the last layer and add an additional dense layer before the last layer [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_finetune2.py)
 
-1. (tf) how to train or fit vgg16 model: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_fit_fit_generator.py)
 
-1. (tf) how to save-load model+weights, save-load model, save-load weights, load old and make new model, load weights to a new model: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_save_load_models_weights.py)
+----
 
-1. (np) how to save large arrays with maximum memory efficiency: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/save_load_large_array.py)
+## train fine-tuned model
+- train or fit vgg16 model: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_fit_fit_generator.py)
+
+- save-load model+weights, save-load model, save-load weights, load old and make new model, load weights to a new model: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_save_load_models_weights.py)
+
+- load, train_again, and save vgg16 model: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_train_again.py)
+
+- save large arrays with maximum memory efficiency: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/save_load_large_array.py)
 	- for the same large array to be saved, `bcolz` can shrink its size by 4 times smaller than file saved by `numpy`, `pickle`, `torch`, `kur.idx`
 
-1. (tf) how to load vgg16 model, predict with test batches, and save preds: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_test_predict.py)
+----
 
-1. (np) how to clip prediction for better log_loss calc: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/np_clip_dogscats.py)
+## predict or test models
+- load vgg16 model, predict with test batches, and save preds: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_test_predict.py)
 
-1. (tf) how to load, train_again, and save vgg16 model: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_train_again.py)
+- `np.clip`, `log-loss`, `ids-pred` array:  [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/np_clip_dogscats.py)
+	- why and how to clip predictions
+	- extract image ids and cbind ids with predictions
+	- how log-loss or cross-entropy behave against predictions
 
-1. (tf) how to build model with Sequential: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/sequential_keras.py)
 
-1. (tf) how vgg16 decode preds for 1000 classes: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_decode_prediction.py)
+----
+- build model with Sequential: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/sequential_keras.py)
+
+- vgg16 model decode preds for 1000 classes: [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_decode_prediction.py)
 
 
-1. (tf) how to process image dataset for vgg16? [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_preprocess_input.py)
+- process image dataset for vgg16? [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_preprocess_input.py)
 
 ----
 1. how to call a keras function manually to test it? [forum](http://forums.fast.ai/t/lesson-10-discussion/1807/17?u=daniel)
 
-1. (todo) how to clip the edges of predictions, how to get the filename of each images files, how to stack img_id and predictions into one array? [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/np_clip_dogscats.py)
+
 
 1. (todo) how to plot [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_visualize_preds.py)
 	- A few correct labels at random
@@ -354,11 +387,14 @@ High speed gif can help see the changes of weights and layers during training
 	- not through ipython `keras.` and tab, but some submodules and methods somehow are hidden
 	- best: use `pdb`, `pdbpp`, and alias to access all internals
 
+1. how to install ipython for python2 and python3: [doc](https://ipython.readthedocs.io/en/stable/install/kernel_install.html#kernels-for-python-2-and-3)
+
 1. how to install ealier version of keras: `pip install keras==1.2`
 
 1. how to update tensorflow to the latest release:
 	- download nightly binary whl from [tf repo](https://github.com/tensorflow/tensorflow#installation)
-	- install to upgrade `pip install --upgrade tensorflow-1.2.0rc1-py3-none-any.whl`
+	- install to upgrade `sudo pip install --upgrade tensorflow-1.2.0rc1-py3-none-any.whl`
+	- use `sudo` if necessary
 
 1. how to install keras from source:
 	- fork keras and add remote official url
@@ -374,6 +410,11 @@ High speed gif can help see the changes of weights and layers during training
 	- `MACOSX_DEPLOYMENT_TARGET=10.9 CC=clang CXX=clang++ python setup.py install`
 
 ----
+## Numpy
+1. 100 exercises to numpy: [source](https://github.com/rougier/numpy-100/blob/master/100%20Numpy%20exercises.md)
+1. pandas exercises: [source](https://github.com/guipsamora/pandas_exercises)
+
+1. how to save and load numpy arrays with numpy: [doc example](https://docs.scipy.org/doc/numpy/reference/generated/numpy.save.html)
 
 
 ## Visualize convolution
