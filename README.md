@@ -9,8 +9,14 @@ Learning how to use NeuralNets by primarily diving in working examples and sourc
 
 
 # transfer learning based on VGG16
+- Notebook to show process [example by fast.ai](https://www.youtube.com/watch?v=V2h3IOBDvrA&t=1529s)
+	- process of image data going through each filter or layer
+	- process of weights update through running each sample
+	- process of effects of small and large learning rate
+- core tf.contrib.keras building VGG16
 
-## Understanding the nature of transfer learning
+
+# Understanding the nature of transfer learning
 - uniqueness about imagenet datasets for this task
 	- one central object in each image
 	- rest is background or environment
@@ -20,7 +26,7 @@ Learning how to use NeuralNets by primarily diving in working examples and sourc
 - VGG16 use many layers of filters to screen the same image with different features (of different depths and focus)
 - weights and layers are to capture the correlation between inputs and output
 
-
+# how to use VGG16 to transfer learning
 ### borrow on VGG16
 when you don't have large images datasets and huge GPU computing power
 - prepare data
@@ -38,12 +44,15 @@ what if there is no readily labeled datasets, but unlabeled images and videos
 - use model to filter out interesting images
 
 ----
+# workflow
 
 ## prepare data
 - how to prepare images into train, valid, test, sample folders
 [notebook](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/nbs/dogs_cats_folder_organise.ipynb)
 
 - convert train|valid|test|sample folder into batch_iterator objects [source](https://github.com/EmbraceLife/courses/blob/my_progress/deeplearning1/keras_internals/vgg16_iterator_from_directory.py)
+
+- convert images in folders to batches then to a large array: [source](vgg16_02_array_from_batches_from_folder.py)
 
 ----
 
@@ -385,6 +394,7 @@ what if there is no readily labeled datasets, but unlabeled images and videos
 
 1. how to best access library internals:
 	- not through ipython `keras.` and tab, but some submodules and methods somehow are hidden
+	- run code in ipython: `%doctest_mode`
 	- best: use `pdb`, `pdbpp`, and alias to access all internals
 
 1. how to install ipython for python2 and python3: [doc](https://ipython.readthedocs.io/en/stable/install/kernel_install.html#kernels-for-python-2-and-3)
@@ -394,7 +404,8 @@ what if there is no readily labeled datasets, but unlabeled images and videos
 1. how to update tensorflow to the latest release:
 	- download nightly binary whl from [tf repo](https://github.com/tensorflow/tensorflow#installation)
 	- install to upgrade `sudo pip install --upgrade tensorflow-1.2.0rc1-py3-none-any.whl`
-	- use `sudo` if necessary
+	- or simply `sudo pip install tensorflow-1.2.0rc2-py3-none-any.whl`
+	- try both if one is not working 
 
 1. how to install keras from source:
 	- fork keras and add remote official url

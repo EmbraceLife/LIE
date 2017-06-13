@@ -14,3 +14,4 @@
 2. create identical env list: `conda list --explicit > spec-file.txt`
 2. create such an identical env: `conda create --name MyEnvironment --file spec-file.txt`
 2. add new libraries to an existing env: `conda install --name MyEnvironment --file spec-file.txt`
+2. how to copy an env?
