@@ -109,7 +109,7 @@ def VGG16(include_top=True,
   if weights == 'imagenet' and include_top and classes != 1000:
     raise ValueError('If using `weights` as imagenet with `include_top`'
                      ' as true, `classes` should be 1000')
-  # Determine proper input shape
+  # default input shape for VGG16 model
   input_shape = _obtain_input_shape(
       input_shape,
       default_size=224,
@@ -118,6 +118,7 @@ def VGG16(include_top=True,
       include_top=include_top)
 
   if input_tensor is None:
+	# create input tensor placeholder
     img_input = Input(shape=input_shape)
   else:
     img_input = Input(tensor=input_tensor, shape=input_shape)
@@ -126,14 +127,23 @@ def VGG16(include_top=True,
   x = Conv2D(
       64, (3, 3), activation='relu', padding='same',
       name='block1_conv1')(img_input)
+
+  ## how to access weights of each layer
   block1_conv1 = x
+  block1_conv1_bias=block1_conv1.graph._collections['trainable_variables'][-1] # bias
+  block1_conv1_kernel=block1_conv1.graph._collections['trainable_variables'][-2] # kernel
 
   x = Conv2D(
       64, (3, 3), activation='relu', padding='same', name='block1_conv2')(x)
   block1_conv2 = x
+  block1_conv2_bias=block1_conv2.graph._collections['trainable_variables'][-1] # bias
+  block1_conv2_kernel=block1_conv2.graph._collections['trainable_variables'][-2] # kernel
 
   x = MaxPooling2D((2, 2), strides=(2, 2), name='block1_pool')(x)
   block1_pool = x
+  # access trainable_variables or weights with biases
+  block1_pool.graph._collections['variables'][-1] # bias
+  block1_pool.graph._collections['variables'][-2] # kernel
 
   # Block 2
   x = Conv2D(
@@ -205,7 +215,7 @@ def VGG16(include_top=True,
     fc2 = x
     x = Dense(classes, activation='softmax', name='predictions')(x)
     predictions = x
-	
+
   else:
     if pooling == 'avg':
       x = GlobalAveragePooling2D()(x)

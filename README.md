@@ -9,12 +9,17 @@ Learning how to use NeuralNets by primarily diving in working examples and sourc
 
 
 # transfer learning based on VGG16
+- learn source codes of tf with example on VGG16
+	- minimum comment on source codes
 - Notebook to show process [example by fast.ai](https://www.youtube.com/watch?v=V2h3IOBDvrA&t=1529s)
 	- process of image data going through each filter or layer
 	- process of weights update through running each sample
 	- process of effects of small and large learning rate
 - core tf.contrib.keras building VGG16
 
+# pandas and finance
+- https://www.datacamp.com/community/tutorials/finance-python-trading#gs.vBkZrk0
+- http://training.tpq.io/
 
 # Understanding the nature of transfer learning
 - uniqueness about imagenet datasets for this task
@@ -378,6 +383,10 @@ what if there is no readily labeled datasets, but unlabeled images and videos
 
 ## Generally useful
 
+1. how to do folding in atom: [source](http://flight-manual.atom.io/using-atom/sections/folding/)
+	- `option+cmd+shift+[` and `]`: to fold and unfold all
+	- `option+cmd+ [` and `]` : to fold and unfold where mouse is at
+
 1. how to make alias in `.bash_profile` and `.pdbrc`: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/bash_profile-pdbrc.md)
 
 1. how to use pdb: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/152528672306f2868568d7b65dfefb1da6900986/tutorial-contents/pdb.md)
@@ -405,7 +414,7 @@ what if there is no readily labeled datasets, but unlabeled images and videos
 	- download nightly binary whl from [tf repo](https://github.com/tensorflow/tensorflow#installation)
 	- install to upgrade `sudo pip install --upgrade tensorflow-1.2.0rc1-py3-none-any.whl`
 	- or simply `sudo pip install tensorflow-1.2.0rc2-py3-none-any.whl`
-	- try both if one is not working 
+	- try both if one is not working
 
 1. how to install keras from source:
 	- fork keras and add remote official url

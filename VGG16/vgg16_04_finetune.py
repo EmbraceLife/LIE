@@ -55,3 +55,5 @@ def ft(vgg16, num, lr = 0.001):
 						# correpond to DirectoryIterator's args
 						 # set num=1, class_mode='binary'
 vgg16 = ft(vgg16, num=2) # if num = 2, class_mode="categorical"
+
+# have VGG16 compiled? 
