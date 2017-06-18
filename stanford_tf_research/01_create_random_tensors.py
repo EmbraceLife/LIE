@@ -16,6 +16,9 @@ g_user = tf.Graph()
 
 # access the default graph
 g = tf.get_default_graph()
+c = tf.constant(4.0)
+c.graph == g # true
+c.graph == g_user # false
 
 # use default graph for adding ops and tensor below
 with g.as_default():
@@ -53,3 +56,6 @@ with tf.Session(graph=g) as sess:
 	sess.run(crop_rand)
 
 writer.close()
+
+
+# tensorboard --logdir log/01_create_random

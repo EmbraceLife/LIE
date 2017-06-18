@@ -2,6 +2,8 @@
 ## __init__.py
 class __init___py:
 	"""The Keras API.
+
+		with the following codes, we can access for example `activations` directly from `tensorflow.contrib.keras.activations` rather than from `tensorflow.contrib.keras.python.keras.activations`
 	"""
 	from __future__ import absolute_import
 	from __future__ import division
@@ -33,6 +35,7 @@ class activations_py:
 	"""Keras built-in activation functions.
 	"""
 	def import_libs():
+		# so that python 2.7 and python 3 can both use the following functions
 		from __future__ import absolute_import
 		from __future__ import division
 		from __future__ import print_function
@@ -133,7 +136,6 @@ class activations_py:
 
 ## backend.py
 class backend_py:
-	# Copyright 2015 The TensorFlow Authors. All Rights Reserved.
 
 	"""Keras backend API.
 	"""
