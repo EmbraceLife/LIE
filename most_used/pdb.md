@@ -34,3 +34,4 @@ https://pypi.python.org/pypi/pdbpp/ official doc for `pdb++`
 - `interact`: build upon the current env, and build functions even classes with python codes upon it, and check all variables or expressions
 - `pm`: how to use it?
 - `a`: print out list of current function?
+- `!dt`: when a variable called `dt` is in conflict with alias `dt`

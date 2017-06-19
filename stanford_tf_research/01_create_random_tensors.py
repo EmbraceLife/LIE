@@ -57,5 +57,10 @@ with tf.Session(graph=g) as sess:
 
 writer.close()
 
+# sess = tf.Session(graph=g)
+# writer = tf.summary.FileWriter("log/01_create_random", sess.graph)
+# sess.run(crop_rand)
+# sess.close()
+# writer.close()
 
 # tensorboard --logdir log/01_create_random

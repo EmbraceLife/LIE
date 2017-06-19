@@ -8,9 +8,10 @@ from tensorflow.contrib.keras.python.keras.preprocessing.image import ImageDataG
 
 
 import numpy as np
-# turn DirectoryIterator into arrays
+# turn images in folders to DirectoryIterator then to arrays
 def iterator2array(data_dir):
-	# turn iterators into arrays
+
+	# turn images of folders into batch iterators
     batch_iterator = DirectoryIterator(
             directory = data_dir,
             image_data_generator=ImageDataGenerator(),

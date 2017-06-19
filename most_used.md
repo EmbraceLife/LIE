@@ -1,6 +1,13 @@
 
 ## Generally useful
 
+1. how to install talib: [link](https://mrjbq7.github.io/ta-lib/install.html)
+
+1. how to use `pdb` and `atom` to experiment and write up codes?
+	- use `pdb` to test out codes and refresh usage of classes and functions
+	- add codes onto `atom`, and `c` or `r` to continue and refresh `codes` in `pdb` mode
+	- this way, there is no need to exit and re-enter `pdb` mode
+
 1. how to do folding in atom: [source](http://flight-manual.atom.io/using-atom/sections/folding/)
 	- `option+cmd+shift+[` and `]`: to fold and unfold all
 	- `option+cmd+ [` and `]` : to fold and unfold where mouse is at
