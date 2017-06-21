@@ -9923,7 +9923,7 @@ class preprocessing_folder:
 		    raise ValueError('Unsupported image shape: ', x.shape)
 		  return x
 
-
+		# load image file into array with a given target_size rather than original size of image
 		def load_img(path, grayscale=False, target_size=None):
 		  """Loads an image into PIL format.
 
@@ -10346,7 +10346,7 @@ class preprocessing_folder:
 		      shuffle: Boolean, whether to shuffle the data between epochs.
 		      seed: Random seeding for data shuffling.
 		  """
-
+		  # create attributes including index_generator for each batch's sample indices
 		  def __init__(self, n, batch_size, shuffle, seed):
 		    self.n = n
 		    self.batch_size = batch_size
@@ -10359,6 +10359,7 @@ class preprocessing_folder:
 		  def reset(self):
 		    self.batch_index = 0
 
+			# 1. get index of all samples; 2. randomize index; 3. get current_index and batch_size to extract a batch of samples; 4. handle the last batch less than a batch_size
 		  def _flow_index(self, n, batch_size=32, shuffle=False, seed=None):
 		    # Ensure self.batch_index is 0.
 		    self.reset()
@@ -10389,7 +10390,8 @@ class preprocessing_folder:
 		  def __next__(self, *args, **kwargs):
 		    return self.next(*args, **kwargs)
 
-
+		# __init__: convert arrays into batch_iterator
+		# next: throw out a batch, in array
 		class NumpyArrayIterator(Iterator):
 		  """Iterator yielding data from a Numpy array.
 
@@ -10492,11 +10494,12 @@ class preprocessing_folder:
 		    batch_y = self.y[index_array]
 		    return batch_x, batch_y
 
-
+		# __init__: convert images of folders into batch_iterator
+		# next: throw out a batch, in array
 		class DirectoryIterator(Iterator):
 		  """Iterator capable of reading images from a directory on disk.
 
-		  Arguments:
+		  Arguments: # important to read
 		      directory: Path to the directory to read images from.
 		          Each subdirectory in this directory will be
 		          considered to contain images from one class,
@@ -10529,7 +10532,7 @@ class preprocessing_folder:
 		      save_format: Format to use for saving sample images
 		          (if `save_to_dir` is set).
 		  """
-
+		  # create a number of attributes and added Iterator super-class attributes
 		  def __init__(self,
 		               directory,
 		               image_data_generator,
@@ -10629,6 +10632,7 @@ class preprocessing_folder:
 		    super(DirectoryIterator, self).__init__(self.samples, batch_size, shuffle,
 		                                            seed)
 
+		  # 1. extract index for each batch samples, and current batch_size; 2. create empty batch (0s) with correct shape for batch_x; 3. get image data based on filename and index, and convert image data to array; 4. transform image array data with image_data_generator; 5. create batch_y based on 4 options: input, binary, sparse, categorical; 6. return batch_y, batch_x.
 		  def next(self):
 		    """For python 2.x.
 
@@ -12140,7 +12144,11 @@ class layers_folder:
 		    base_config = super(Conv1D, self).get_config()
 		    return dict(list(base_config.items()) + list(config.items()))
 
-
+		# 1. Layer of tf: access graph and create other attributes
+		# 2. Layer of tf.keras: many other attributes
+		# 3. Conv of tf: attributes
+		# 4. Conv2D of tf: more attributes
+		# 5. Conv2D of tf.keras: many more attributes
 		class Conv2D(tf_convolutional_layers.Conv2D, Layer):
 		  """2D convolution layer (e.g. spatial convolution over images).
 
@@ -17993,6 +18001,7 @@ class layers_folder:
 # applications
 class applications_folder:
 
+	# in order to conveniently access VGG16 directly from tensorflow.contrib.keras.applications.VGG16
 	class __init__py:
 
 		"""Keras Applications: models with automatic loading of pre-trained weights.
@@ -18810,7 +18819,8 @@ class applications_folder:
 		    model.load_weights(weights_path)
 		  return model
 
-
+	# 1. import libs
+	# 2. method VGG16() instantiate a vgg16 model, not compiled though
 	class vgg16_py:
 
 		# pylint: disable=invalid-name
@@ -18849,25 +18859,28 @@ class applications_folder:
 		WEIGHTS_PATH = 'https://github.com/fchollet/deep-learning-models/releases/download/v0.1/vgg16_weights_tf_dim_ordering_tf_kernels.h5'
 		WEIGHTS_PATH_NO_TOP = 'https://github.com/fchollet/deep-learning-models/releases/download/v0.1/vgg16_weights_tf_dim_ordering_tf_kernels_notop.h5'
 
-
+		# 1. create layers and tensors onto graph, from first to the last
+		# 2. construct a model using first (input tensor) and last tensor
+		# 3. load selected weights to the model
+		# 4. return this model
 		def VGG16(include_top=True,
 		          weights='imagenet',
 		          input_tensor=None,
 		          input_shape=None,
 		          pooling=None,
 		          classes=1000):
-		  """Instantiates the VGG16 architecture.
+		  """
+		  Instantiates the VGG16 architecture:
+		  	Optionally loads weights pre-trained
+		  	on ImageNet. Note that when using TensorFlow,
+		  	for best performance you should set
+		  	`image_data_format="channels_last"` in your Keras config
+		  	at ~/.keras/keras.json.
 
-		  Optionally loads weights pre-trained
-		  on ImageNet. Note that when using TensorFlow,
-		  for best performance you should set
-		  `image_data_format="channels_last"` in your Keras config
-		  at ~/.keras/keras.json.
-
-		  The model and the weights are compatible with both
-		  TensorFlow and Theano. The data format
-		  convention used by the model is the one
-		  specified in your Keras config file.
+		  	The model and the weights are compatible with both
+		  	TensorFlow and Theano. The data format
+		  	convention used by the model is the one
+		  	specified in your Keras config file.
 
 		  Arguments:
 		      include_top: whether to include the 3 fully-connected
@@ -18913,7 +18926,8 @@ class applications_folder:
 		  if weights == 'imagenet' and include_top and classes != 1000:
 		    raise ValueError('If using `weights` as imagenet with `include_top`'
 		                     ' as true, `classes` should be 1000')
-		  # Determine proper input shape
+
+		  # Determine proper input shape for imagenet dataset
 		  input_shape = _obtain_input_shape(
 		      input_shape,
 		      default_size=224,
@@ -18921,6 +18935,7 @@ class applications_folder:
 		      data_format=K.image_data_format(),
 		      include_top=include_top)
 
+		  # build Input layer and return input tensor with input_shape
 		  if input_tensor is None:
 		    img_input = Input(shape=input_shape)
 		  else:
@@ -18980,8 +18995,10 @@ class applications_folder:
 		    elif pooling == 'max':
 		      x = GlobalMaxPooling2D()(x)
 
-		  # Ensure that the model takes into account
-		  # any potential predecessors of `input_tensor`.
+		  # Ensure that the model takes into account ?
+		  # any potential predecessors of `input_tensor`.?
+
+		  # build model object with inputs tensor and final tensor
 		  if input_tensor is not None:
 		    inputs = get_source_inputs(input_tensor)
 		  else:
@@ -18989,7 +19006,8 @@ class applications_folder:
 		  # Create model.
 		  model = Model(inputs, x, name='vgg16')
 
-		  # load weights
+		  # there are 2 versions of weights (with or without last 3 dense layers)
+		  # load the selected weights to model
 		  if weights == 'imagenet':
 		    if include_top:
 		      weights_path = get_file(
@@ -19005,6 +19023,7 @@ class applications_folder:
 		    if K.backend() == 'theano':
 		      layer_utils.convert_all_kernels_in_model(model)
 
+			# prepare the model if image shape (channel, width, height)
 		    if K.image_data_format() == 'channels_first':
 		      if include_top:
 		        maxpool = model.get_layer(name='block5_pool')
@@ -19887,6 +19906,22 @@ class engine_folder:
 		    """
 		    return inputs
 
+		  # 0. call tf.keras.Layer.__call__() on input tensor
+		  # 1. tf Layer __call__ is called
+		  # 2. tf.keras.Conv2D.build() is called
+		  # 3. link to tf.layers.Conv2D.build is called, inside, create kernel tensor and bias tensor
+		  # 4. back to tf.keras.Conv2D.build, constraints attributes are added
+		  # 5. tf.layers.convolutional.Conv2D.call is called:
+		  		# create outputs from nn.convolution()
+				# add bias tensor onto outputs
+				# run activation on outputs
+		  # back to tf.layers.__call__():
+		  # 6. run _add_inbound_node:
+		  		# fill in inbound_layers, node_indices, input_tensors, outputs_tensors based on info from input_tensors
+				# create a node and store this node inside inbound_layer
+				# add _keras_history to output_tensors
+		  # 7. other attributes added
+
 		  def __call__(self, inputs, **kwargs):
 		    """Wrapper around self.call(), for handling internal references.
 
@@ -20547,6 +20582,7 @@ class engine_folder:
 		      batch_input_shape = tuple(batch_input_shape)
 		    self.batch_input_shape = batch_input_shape
 
+			# create a placeholder as input tensor
 		    if input_tensor is None:
 		      self.is_placeholder = True
 		      input_tensor = K.placeholder(
@@ -20556,10 +20592,12 @@ class engine_folder:
 		          name=self.name)
 		    else:
 		      self.is_placeholder = False
-		    # Create an input node to add to self.outbound_node
-		    # and set output_tensors' _keras_history.
+
+		    # save InputLayer as history inside input_tensor
 		    input_tensor._uses_learning_phase = False
 		    input_tensor._keras_history = (self, 0, 0)
+
+			# Create an input node and add to Inputlayer.outbound_node
 		    Node(
 		        self,
 		        inbound_layers=[],
@@ -20579,6 +20617,14 @@ class engine_folder:
 		    }
 		    return config
 
+		# 1. Layer of tf, build a graph and other attributes
+		# 2. Layer of tf.keras, build more attributes
+		# 3. InputLayer of tf.keras, build input tensor as placeholder, and
+		# 4. save InputLayer as content of history stored in input_tensor._keras_history
+		# 5. create an input node and store input_tensor as input-output-tensors, store InputLayer as inbound_layers, outbound_layers
+		# 6. then save this Node inside outbound_layers.inbound_nodes or inbound_layers.outbound_nodes
+		# 7. input_tensor can be accessed through InputLayer->Node->tensors
+		# 8. return input_tensor
 
 		def Input(  # pylint: disable=invalid-name
 		    shape=None,
@@ -20587,21 +20633,22 @@ class engine_folder:
 		    dtype=K.floatx(),
 		    sparse=False,
 		    tensor=None):
-		  """`Input()` is used to instantiate a Keras tensor.
+		  """
+		  `Input()` is used to instantiate a Keras tensor.
 
-		  A Keras tensor is a tensor object from the underlying backend
-		  (Theano or TensorFlow), which we augment with certain
-		  attributes that allow us to build a Keras model
-		  just by knowing the inputs and outputs of the model.
+			  A Keras tensor is a tensor object from the underlying backend
+			  (Theano or TensorFlow), which we augment with certain
+			  attributes that allow us to build a Keras model
+			  just by knowing the inputs and outputs of the model.
 
-		  For instance, if a, b and c are Keras tensors,
-		  it becomes possible to do:
-		  `model = Model(input=[a, b], output=c)`
+			  For instance, if a, b and c are Keras tensors,
+			  it becomes possible to do:
+			  `model = Model(input=[a, b], output=c)`
 
-		  The added Keras attribute is:
-		      `_keras_history`: Last layer applied to the tensor.
-		          the entire layer graph is retrievable from that layer,
-		          recursively.
+			  The added Keras attribute is:
+			      `_keras_history`: Last layer applied to the tensor.
+			          the entire layer graph is retrievable from that layer,
+			          recursively.
 
 		  Arguments:
 		      shape: A shape tuple (integer), not including the batch size.
@@ -21777,6 +21824,7 @@ class engine_folder:
 		    f.flush()
 		    f.close()
 
+		  # by_name = True, most used in transfer learning
 		  def load_weights(self, filepath, by_name=False):
 		    """Loads all layer weights from a HDF5 save file.
 
@@ -22934,7 +22982,8 @@ class engine_folder:
 		    self._stop_event = None
 		    self.queue = None
 
-
+		# 1. Model as subclass of Container, has no __init__ its own
+		# 2. to instantiate Model, is just to run Container.__init__()
 		class Model(Container):
 		  """The `Model` class adds training & evaluation routines to a `Container`.
 		  """
@@ -23441,6 +23490,12 @@ class engine_folder:
 		    callbacks.on_train_end()
 		    return self.history
 
+		  # 1. ins: list of large array shape (50, 224, 224, 3) as dataset, not iterators
+		  # 2. batches = _make_batches(samples, batch_size): split total number of samples into list of batch_ranges like [(0, 32), (32, 50)]
+		  # 3. from batch_range to batch of samples, and get predictions for this batch, shape (32, 2)
+		  # 4. create a container of 0s for all predictions, shape (50,2)
+		  # 5. fill the first batch of predictions into the container by its batch_ranges (0, 32)
+		  # 6. fill the second batch of predictions into the container by its batch_range (32, 50)
 		  def _predict_loop(self, f, ins, batch_size=32, verbose=0):
 		    """Abstract method to loop over some data in batches.
 
@@ -23840,7 +23895,7 @@ class engine_folder:
 		            or in case a stateful model receives a number of samples
 		            that is not a multiple of the batch size.
 		    """
-		    # Validate user data.
+		    # Validate user data: x[0].shape = (all_samples, width, height, channels)
 		    x = _standardize_input_data(
 		        x,
 		        self._feed_input_names,
@@ -24061,11 +24116,13 @@ class engine_folder:
 		    wait_time = 0.01  # in seconds
 		    epoch = initial_epoch
 
+			# prepare self.train_function and self.test_function
 		    do_validation = bool(validation_data)
 		    self._make_train_function()
 		    if do_validation:
 		      self._make_test_function()
 
+			# when validation_data is a generator, make sure validation_steps is set
 		    # python 2 has 'next', 3 has '__next__'
 		    # avoid any explicit version checks
 		    val_gen = (hasattr(validation_data, 'next') or
@@ -24075,11 +24132,14 @@ class engine_folder:
 		                       'you must specify a value for '
 		                       '`validation_steps`.')
 
-		    # Prepare display labels.
+		    # Prepare display labels: e.g. loss, acc, val_loss, val_acc
 		    out_labels = self._get_deduped_metrics_names()
 		    callback_metrics = out_labels + ['val_' + n for n in out_labels]
 
-		    # prepare callbacks
+		    # prepare callbacks:
+			# 1. create a keras.callbacks.History object
+			# 2. prepare a number of callback objects
+			# 3. store this group of callback objects into a single object
 		    self.history = cbks.History()
 		    callbacks = [cbks.BaseLogger()] + (callbacks or []) + [self.history]
 		    if verbose:
@@ -24087,11 +24147,14 @@ class engine_folder:
 		    callbacks = cbks.CallbackList(callbacks)
 
 		    # it's possible to callback a different model than self:
+			# our model for training may have a different model or a callback_model
 		    if hasattr(self, 'callback_model') and self.callback_model:
 		      callback_model = self.callback_model
 		    else:
 		      callback_model = self
+			# give our model to every callback objects as their attribute
 		    callbacks.set_model(callback_model)
+			# give our args or params to every callback objects as their attribute
 		    callbacks.set_params({
 		        'epochs': epochs,
 		        'steps': steps_per_epoch,
@@ -24099,6 +24162,7 @@ class engine_folder:
 		        'do_validation': do_validation,
 		        'metrics': callback_metrics,
 		    })
+			# ? this callbacks precedures above will be run at the start of training ?
 		    callbacks.on_train_begin()
 
 		    if do_validation and not val_gen:
@@ -24121,7 +24185,9 @@ class engine_folder:
 		    enqueuer = None
 
 		    try:
+			  # builds a queue out of a data generator
 		      enqueuer = GeneratorEnqueuer(generator, pickle_safe=pickle_safe)
+			  # Kicks off threads which add data from the generator into the queue
 		      enqueuer.start(max_q_size=max_q_size, workers=workers)
 
 		      callback_model.stop_training = False
@@ -24311,6 +24377,10 @@ class engine_folder:
 		            np.average([out[i] for out in all_outs], weights=batch_sizes))
 		      return averages
 
+		  # 1. if steps = 3, generator's batch_sizes = 32, a full epoch = 21 then total samples predicted is 21*3 = 63; if a full epoch = 33, then total samples = 32*3 = 96
+		  # 2. generator_output = enqueuer.queue.get() provide a batch of samples;
+		  # 3. outs = self.predict_on_batch(x), turn batch_samples to predictions
+		  # 4. return np.concatenate(all_outs[0]), to get a number of batches of predictions arrays, into a single array of predictions
 		  def predict_generator(self,
 		                        generator,
 		                        steps,

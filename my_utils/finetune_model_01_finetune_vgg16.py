@@ -11,7 +11,7 @@
 # from tensorflow.contrib.keras.python.keras.applications.vgg16 import VGG16
 
 # use vgg16 model with access to all layer output tensor
-from vgg16 import VGG16
+from build_model_01_build_vgg16 import VGG16
 vgg16=VGG16()
 # to use Model() to create models
 from tensorflow.contrib.keras.python.keras.models import Model

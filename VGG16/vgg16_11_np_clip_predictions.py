@@ -1,14 +1,34 @@
-# why and how to clip predictions
-# extract image ids and cbind with predictions
-# how log-loss or cross-entropy behave against predictions 
 
+# import plotting funcs
+from viz_01_display_n_images_together import plots_idx
 
-#############################################
 # load sample prediction array using bcolz
 from save_load_large_array import bz_load_array
-
 trained_model_path = "/Users/Natsume/Downloads/data_for_all/dogscats/results"
-preds = bz_load_array(trained_model_path+"/preds_bz")
+# load train_batches
+from vgg16_02_from_img_directory_2_iterators import train_batches
+# load the latest trained model
+# model_ft_final = load_model(trained_model_path + "train_vgg16_again_model_3.h5")
+# load test_predictions on training set total 200 samples
+preds_train = bz_load_array(trained_model_path+"/preds_train")
+
+# access true labels of training set
+true_labels = train_batches.classes
+# access filenames of training set samples
+filenames = train_batches.filenames
+# which cats and dogs number representation
+train_batches.class_mode
+
+# access predictions of training set samples
+our_predictions = preds_train[:,0]
+our_labels = np.round(1-our_predictions)
+
+#1. A few correct labels at random
+correct = np.where(our_labels==expected_labels)[0]
+print "Found %d correct labels" % len(correct)
+idx = permutation(correct)[:n_view]
+plots_idx(idx, our_predictions[idx])
+
 
 # If second column is 1, it's a dog, otherwise cat
 isdog = preds[:,1]

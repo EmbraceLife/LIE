@@ -22,7 +22,7 @@
 5. how to build a model using input tensor and last output tensor?
 	a. tf.keras.Layer
 	b. tf.keras.Container.__init__
-	
+
 6. how to compile a model?
 	c. tf.keras.Model.compile and other methods
 

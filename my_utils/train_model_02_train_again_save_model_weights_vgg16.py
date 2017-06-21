@@ -6,7 +6,7 @@
 5. save total number of epochs trained as previous_epochs
 """
 
-from vgg16_02_from_img_directory_2_iterators import train_batches, val_batches
+from prep_data_02_img_folder_2_iterators import train_batches, val_batches
 from tensorflow.contrib.keras.python.keras.models import load_model
 import numpy as np
 import os

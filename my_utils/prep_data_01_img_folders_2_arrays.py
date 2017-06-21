@@ -12,9 +12,10 @@
 from tensorflow.contrib.keras.python.keras.preprocessing.image import DirectoryIterator
 from tensorflow.contrib.keras.python.keras.preprocessing.image import ImageDataGenerator
 
-
-
 import numpy as np
+
+
+
 # turn images in folders to batch_iterator then to a single array
 def img_folders_2_array(data_dir):
 
@@ -38,6 +39,8 @@ def img_folders_2_array(data_dir):
     lab_array = np.concatenate([batch_iterator.next()[1] for i in range(batch_iterator.samples)])
 
     return img_array, lab_array
+
+
 
 ##########
 # get all images of a folder into a large array rather than batches
