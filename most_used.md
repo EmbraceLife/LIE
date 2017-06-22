@@ -53,3 +53,21 @@
 	- `export CMAKE_PREFIX_PATH=[anaconda root directory]`: my case miniconda root path: /Users/Natsume/miniconda2
 	- `conda install numpy pyyaml setuptools cmake cffi`
 	- `MACOSX_DEPLOYMENT_TARGET=10.9 CC=clang CXX=clang++ python setup.py install`
+
+
+1. how to count number of files in a folder: `ls folder/ | wc -l`
+
+1. how to unzip a zip file: `unzip -q data.zip`
+
+1. how to check python version: `which python`
+
+1. how to organize dataset before training: [source]()
+	- train, test, sample folder
+	- sample: train, valid, test subfolders
+	- experiment codes on sample dataset
+
+1. how to check the first few files of a folder: `ls folder/ | head`
+
+1. how to submit to kaggle: [fast.ai](https://youtu.be/e3aM6XTekJc?t=1386)
+
+1. how to use kaggle cli to download and submit #@F: [source](http://wiki.fast.ai/index.php/Kaggle_CLI)

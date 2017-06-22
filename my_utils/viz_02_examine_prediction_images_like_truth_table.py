@@ -9,8 +9,6 @@ trained_model_path = "/Users/Natsume/Downloads/data_for_all/dogscats/results"
 img_dir = "/Users/Natsume/Downloads/data_for_all/dogscats/sample/train/"
 # load train_batches
 from prep_data_02_img_folder_2_iterators import train_batches
-# load the latest trained model
-# model_ft_final = load_model(trained_model_path + "train_vgg16_again_model_3.h5")
 # load test_predictions on training set total 200 samples
 preds_train = bz_load_array(trained_model_path+"/preds_train")
 
