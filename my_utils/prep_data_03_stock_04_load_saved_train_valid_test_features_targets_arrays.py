@@ -1,0 +1,23 @@
+# load train_features, train_targets, valid_features, valid_targets, test_features, test_targets,
+from prep_data_98_funcs_save_load_large_arrays import bz_load_array
+import numpy as np
+# create paths for loading those arrays above
+train_features_path = "/Users/Natsume/Downloads/DeepTrade_keras/features_targets_data/train_features_path"
+train_targets_path = "/Users/Natsume/Downloads/DeepTrade_keras/features_targets_data/train_targets_path"
+
+valid_features_path = "/Users/Natsume/Downloads/DeepTrade_keras/features_targets_data/valid_features_path"
+valid_targets_path = "/Users/Natsume/Downloads/DeepTrade_keras/features_targets_data/valid_targets_path"
+
+test_features_path = "/Users/Natsume/Downloads/DeepTrade_keras/features_targets_data/test_features_path"
+test_targets_path = "/Users/Natsume/Downloads/DeepTrade_keras/features_targets_data/test_targets_path"
+
+train_features = bz_load_array(train_features_path)
+train_targets = bz_load_array(train_targets_path)
+valid_features = bz_load_array(valid_features_path)
+valid_targets = bz_load_array(valid_targets_path)
+test_features = bz_load_array(test_features_path)
+test_targets = bz_load_array(test_targets_path)
+
+train_features = np.reshape(train_features, (-1, 30, 61))
+valid_features = np.reshape(valid_features, (-1, 30, 61))
+test_features = np.reshape(test_features, (-1, 30, 61))
