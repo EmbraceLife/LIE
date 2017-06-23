@@ -1,3 +1,14 @@
+"""
+### Summary
+- use WindPuller class to create a model and compile it
+- a wp model can be imported from this source code
+
+### Steps:
+- import WindPull class
+- set hyperparameters
+- run __init__() to create and compile a model
+"""
+
 
 from build_model_03_stock_01_WindPuller_init_fit_evaluate_predict import WindPuller
 

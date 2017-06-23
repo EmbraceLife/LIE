@@ -1,3 +1,10 @@
+"""
+### Summary
+- import wp model from previous source file
+- train it with some pre-set hyperparameters
+- best model during training is saved
+"""
+
 from keras.callbacks import TensorBoard, ModelCheckpoint
 from prep_data_03_stock_04_load_saved_train_valid_test_features_targets_arrays import train_features, train_targets, valid_features, valid_targets, test_features, test_targets
 
@@ -9,9 +16,7 @@ nb_epochs = 10
 batch_size = 512
 best_model_in_training = "/Users/Natsume/Downloads/DeepTrade_keras/models_save_load/best_model_in_training"
 
-train_features = np.reshape(train_features, (-1, 30, 61))
-valid_features = np.reshape(valid_features, (-1, 30, 61))
-test_features = np.reshape(test_features, (-1, 30, 61))
+
 
 # train model, and save the best model
 wp.fit(train_features, train_targets, batch_size=batch_size,

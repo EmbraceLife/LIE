@@ -7,6 +7,11 @@ from keras.models import load_model
 from keras.initializers import Constant
 
 """
+### Summary
+- build a class with methods to create model, compile model, train model, evaluate model, predict model, save and load model
+- WindPuller class can be imported from this source code 
+
+### Steps
 1. WindPuller.__init__(): build a model and compile it
 2. WindPuller.fit(): train the model with x, y as two arrays, not iterators
 3. WindPuller.save() and WindPuller.load_model(): save and load model with model pathname

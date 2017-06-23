@@ -1,3 +1,13 @@
+"""
+### Summary
+- initiate an empty model from WindPuller
+- load the best trained model into it
+- use this model to predict training, validation, testing sets
+- save predictions and targets into a single array, and save them into files 
+"""
+
+
+
 from tensorflow.contrib.keras.python.keras.models import load_model
 from build_model_03_stock_02_build_compile_model_with_wp_init import wp
 from prep_data_03_stock_04_load_saved_train_valid_test_features_targets_arrays import train_features, train_targets, valid_features, valid_targets, test_features, test_targets

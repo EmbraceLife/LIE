@@ -1,4 +1,14 @@
-# load train_features, train_targets, valid_features, valid_targets, test_features, test_targets,
+"""
+### Summary:
+- to load is faster than to process and create features and targets from previous pyfile
+- processed ready features array and targets array for training, validation, test sets can be imported from this source file
+
+### Steps
+- load train_features, train_targets, valid_features, valid_targets, test_features, test_targets from files
+- change its shape for training and predict
+"""
+
+
 from prep_data_98_funcs_save_load_large_arrays import bz_load_array
 import numpy as np
 # create paths for loading those arrays above

@@ -1,6 +1,11 @@
 # source from https://github.com/happynoom/DeepTrade_keras
 """
-### workflow
+### Summary
+- turn a number of csv into large feature array and target array
+- split these two large arrays into training arrays, valid arrays, test arrays
+- save thses aways into their own files
+
+### Steps
 - import read_csv_2_arrays to convert csv to arrays
 - import extract_feature to convert arrays of OHLCV to features, targets arrays
 - import bz_save_array to save large arrays
@@ -62,6 +67,7 @@ for filename in os.listdir(dataset_dir):
 	    filepath = dataset_dir + "/" + filename
 	    _, _, opens, highs, lows, closes, volumes = read_csv_2_arrays(filepath)
 
+		# opens, highs, lows, closes, volumes are to be used inside extract_feature to create indicators_features, price_change_targets
 	    moving_features, moving_targets = extract_feature(selector=user_indicators)
 
 
