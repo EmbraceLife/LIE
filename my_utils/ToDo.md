@@ -1,5 +1,6 @@
 1. digest: viz_01 and viz_02 to digest
-
+1. try out all my_utils codes, working or not, every file should work directly
+1. start create small files on each tf.keras functions, comment on their usage
 
 ## matplotlib
 

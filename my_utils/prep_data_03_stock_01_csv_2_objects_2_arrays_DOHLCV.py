@@ -1,5 +1,11 @@
 # source from https://github.com/happynoom/DeepTrade_keras
 """
+Inputs:
+CSV file: /Users/Natsume/Downloads/DeepTrade_keras/dataset/000001.csv
+
+Return:
+stock_daily_objects(list of obj), dates, opens, highs, lows, closes, volumes
+
 ### workflow
 
 1. we got stock.csv
@@ -9,6 +15,8 @@
 5. take each days date, OHLCV out and make them 5 arrays of OHLCV
 6. return (the list of objects, 5 arrays of OHLCV)
 """
+
+
 import numpy as np
 
 """

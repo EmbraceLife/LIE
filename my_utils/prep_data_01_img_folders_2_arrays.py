@@ -1,13 +1,27 @@
+""""
+Inputs:
+1. image directory: include 2 or more subdirectories for images, eg. cats folder, dogs folder
+2. setting: shuffle=False, batch_size=1
 
-#############################################
-# convert images of folders to batch_iterators into large arrays
-# args1: directory contains two or more sub folders of images (cats, dogs)
-# args2: target_size as (224, 224), convert original image size to target_size as we want
-# args3: we decide color_mode: either rgb or grayscale,
-# args4: class_mode: categorical mostly
-# args5: batch_size: how many samples in each batch
-# args6: data_format: (width, height, channel) or (channel, width, height)
-# args7: shuffle: true or false, shuffle samples and then get batches
+Return:
+1. image_arrays: contain all images data
+2. label_arrays: contain all images labels
+
+### Steps
+1. DirectoryIterator: to convert folders of images to image_iterator
+2. ImageDataGenerator: to get methods for image transformations
+3. DirectoryIterator.next: tranform images and return a batch or a single image or label as array
+4. stack image array and label array on top of each other, to return a large image array and label array
+
+### Experiment args of DirectoryIterator here
+1. target_size
+2. color_mode
+3. class_mode
+4. batch_size
+5. shuffle
+6. data_format
+"""
+
 
 from tensorflow.contrib.keras.python.keras.preprocessing.image import DirectoryIterator
 from tensorflow.contrib.keras.python.keras.preprocessing.image import ImageDataGenerator
@@ -25,14 +39,14 @@ def img_folders_2_array(data_dir):
             image_data_generator=ImageDataGenerator(),
             target_size=(224, 224),
             color_mode = "rgb", # add up to (224,224,3)
-			#    classes=["dogs", "cats"],
+			# classes=["dogs", "cats"], # folders can handle it
             # class_mode=None, # no label is included
             # class_mode='binary', # label 1D is included
             class_mode='categorical', # label 2D is included, one-hot encoding included, i think;
             batch_size=1,
-            shuffle=False, # so that images and labels order can be matched
+            shuffle=False, # so that images and labels order can be matched by its original order in folders
             seed=123,
-            data_format="channels_last")
+            data_format="channels_last") # put channel 3 at the end
 
 
     img_array = np.concatenate([batch_iterator.next()[0] for i in range(batch_iterator.samples)])

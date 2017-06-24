@@ -3,6 +3,16 @@
 """
 ### from OHLCV arrays to indicator_features array, price_change_target array
 
+Inputs:
+1. import previous code file, got OHLCV arrays on a csv file;
+2. a number of user selected indicators, which are supported internally by self.extract_by_type();
+3. set window in extract_feature(), e.g. 30 days;
+
+Return:
+1. features arrays,
+2. targets array
+
+
 - given OHLCV arrays imported as global variables
 - 30 days as window, user_selected_indicators
 - use indicators.moving_extract() to get indicator_features array, target array
@@ -10,7 +20,7 @@
 	- 5 arrays OHLCV become single array (61, 6464)
 	- use 30 days window to split this array above, we get a list of 6434 arrays of shape (61, 30)
 	- convert list to array shape (6434, 61, 30), now we got features array
-	- and flatten 61*30 for saving convenience
+	- and flatten 61*30 for saving convenience (or not)
 	- use closes array, with 30 days window, start from 30th day, we get daily price change pct as targets array (6434, )
 	- finally, return (moving_features_array, moving_targets_array)
 """

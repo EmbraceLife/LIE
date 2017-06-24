@@ -1,8 +1,12 @@
 ###########################
-# from images in folders to batch_iterators
-# inputs args1: folders for train, valid, test sets
-# inputs args2: for setting up DirectoryIterator()
+
+"""
+Inputs:
+1. images folders for train, valid, test sets
+2. settings: shuffle=True, batch_size=32
 # return: train_batches, val_batches, test_batches
+
+"""
 ###########################
 
 from tensorflow.contrib.keras.python.keras.preprocessing.image import DirectoryIterator, ImageDataGenerator

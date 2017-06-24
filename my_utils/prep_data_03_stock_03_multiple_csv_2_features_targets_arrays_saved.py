@@ -1,8 +1,13 @@
 # source from https://github.com/happynoom/DeepTrade_keras
 """
 ### Summary
-- turn a number of csv into large feature array and target array
-- split these two large arrays into training arrays, valid arrays, test arrays
+Inputs:
+- a dir_path with a number of csv files
+- a user selected indicators supported internally
+- a number of file_paths to store to-be-created features arrays and targets arrays
+
+Returns:
+- features arrays and targets arrays for training set, valid set, test set
 - save thses aways into their own files
 
 ### Steps
@@ -13,7 +18,7 @@
 - create gobal variables for storing training, validation and testing features arrays and targets arrays
 - create paths for storing those arrays above
 - user selected indicators for converting OHLCV to
-- dir_path for stock csv
+- dir_path for stock CSVs
 - count number of csv to use for creating features array and target arrays
 - loop through every csv to convert from csv to arrays OHLCV, to arrays features and targets, and concatenate features and targets of different csv files
 """
@@ -53,7 +58,7 @@ user_indicators = ["ROCP", "OROCP", "HROCP", "LROCP", "MACD", "RSI", "VROCP", "B
 dataset_dir = "/Users/Natsume/Downloads/DeepTrade_keras/dataset"
 
 # count number of csv to use for creating features array and target arrays
-total_csv_combine = 1
+total_csv_combine = 2
 current_num_csv = 0
 
 # loop through every csv to convert from csv to arrays OHLCV, to arrays features and targets, and concatenate features and targets of different csv files
@@ -63,7 +68,7 @@ for filename in os.listdir(dataset_dir):
 	# 000001.csv must be the first file accessed by program
     if filename == '000001.csv':
 
-	    print("processing file: " + filename)
+	    print("processing the first file: " + filename)
 	    filepath = dataset_dir + "/" + filename
 	    _, _, opens, highs, lows, closes, volumes = read_csv_2_arrays(filepath)
 
@@ -75,7 +80,7 @@ for filename in os.listdir(dataset_dir):
 		# valid_set: 1000 days
 		# test_set: 700 days
 		# train_set: 6434 - 1000 -700 days
-	    print("feature extraction done, start writing to file...")
+	    print("split feature array and target arrays to train, valid, test sets...")
 	    train_end_test_begin = moving_features.shape[0] - days_for_valid - days_for_test
 
 	    train_features = moving_features[0:train_end_test_begin]
@@ -88,13 +93,13 @@ for filename in os.listdir(dataset_dir):
 	    test_targets = moving_targets[train_end_test_begin+days_for_valid:train_end_test_begin+days_for_valid+days_for_test]
 
     else:
-	    print("processing file: " + filename)
+	    print("processing file (start counting from 0) no. %d: " % current_num_csv + filename)
 	    filepath = dataset_dir + "/" + filename
 	    _, _, opens, highs, lows, closes, volumes = read_csv_2_arrays(filepath)
 
 	    moving_features, moving_targets = extract_feature(selector=user_indicators)
 
-	    print("feature extraction done, start writing to file...")
+	    print("split feature array and target arrays to train, valid, test sets...")
 	    train_end_test_begin = moving_features.shape[0] - days_for_valid - days_for_test
 
 	    train_features_another = moving_features[0:train_end_test_begin]

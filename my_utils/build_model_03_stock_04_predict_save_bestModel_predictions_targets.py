@@ -1,21 +1,33 @@
 """
+Inputs:
+1. import an empty but compiled wp
+2. best_model_path
+3. paths for storing train_pos_targets, valid_pos_targets, test_pos_targets
+
+Returns:
+1. predictions with the best model on training, valid and test set (features, targets arrays)
+2. save predictions and targets into a single array and store them in files
+
 ### Summary
 - initiate an empty model from WindPuller
 - load the best trained model into it
 - use this model to predict training, validation, testing sets
-- save predictions and targets into a single array, and save them into files 
+- save predictions and targets into a single array, and save them into files
 """
 
 
 
 from tensorflow.contrib.keras.python.keras.models import load_model
-from build_model_03_stock_02_build_compile_model_with_wp_init import wp
+from build_model_03_stock_02_build_compile_model_with_WindPuller_init import wp
 from prep_data_03_stock_04_load_saved_train_valid_test_features_targets_arrays import train_features, train_targets, valid_features, valid_targets, test_features, test_targets
 import numpy as np
 
 
 # load the best model so far, using the saved best model by author, not the one trained above
 wp = wp.load_model("/Users/Natsume/Downloads/DeepTrade_keras/author_log_weights/model.30.best")
+# error on unknown layer BatchRenormalization, if use the following line
+# wp = load_model("/Users/Natsume/Downloads/DeepTrade_keras/author_log_weights/model.30.best")
+
 
 # predict with model on training, validation and test sets
 test_preds_pos = wp.predict(test_features, 1024)

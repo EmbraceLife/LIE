@@ -1,4 +1,11 @@
 """
+Inputs:
+1. file_path for feature array, target array for training, validation, test set
+
+Return:
+1. ready-to-train dataset: features arrays, targets arrays for training, validation, test set
+
+
 ### Summary:
 - to load is faster than to process and create features and targets from previous pyfile
 - processed ready features array and targets array for training, validation, test sets can be imported from this source file
