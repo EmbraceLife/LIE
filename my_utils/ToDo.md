@@ -1,6 +1,14 @@
+## keep an eye on Wechat
+1. check latest on https://medium.com/@yelin.qiu, https://mp.weixin.qq.com/debug/wxadoc/dev/
+
+## focus on
+1. tf.keras  
+1. advanced models transferring
+
+
 1. digest: viz_01 and viz_02 to digest
-1. try out all my_utils codes, working or not, every file should work directly
-1. start create small files on each tf.keras functions, comment on their usage
+1. try out rest of vgg16_catsdogs files, working or not, every file should work directly
+1. try out every layer and activation functions with vgg16_catsdogs example
 
 ## matplotlib
 

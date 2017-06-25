@@ -13,7 +13,7 @@ import numpy as np
 from prep_data_03_stock_01_csv_2_objects_2_arrays_DOHLCV import closes
 
 # import train_pos_targets, valid_pos_targets, test_pos_targets
-from prep_data_98_funcs_save_load_large_arrays import bz_load_array
+from prep_data_utils_01_save_load_large_arrays_bcolz_np_pickle_torch import bz_load_array
 train_pos_targets_path = "/Users/Natsume/Downloads/DeepTrade_keras/features_targets_data/train_pos_targets"
 valid_pos_targets_path = "/Users/Natsume/Downloads/DeepTrade_keras/features_targets_data/valid_pos_targets"
 test_pos_targets_path = "/Users/Natsume/Downloads/DeepTrade_keras/features_targets_data/test_pos_targets"
@@ -31,25 +31,27 @@ if num_csv > 0:
 
 
 full_pos_targets = np.concatenate((train_pos_targets, valid_pos_targets, test_pos_targets), axis=0)
+target_pos_price_change = full_pos_targets[-1500:]
+target_closes = closes[-1500:]
 # train_pos_targets[0]: array([ 0.62353933,  0.00433955]): next_day_pos, today's price_change_pct
 # next_day_profit =
-profit = [0]
+daily_profit = [0]
 
-for idx in range(len(full_pos_targets)):
+for idx in range(len(target_pos_price_change)):
 	# 1: start with 1 share of stock at price 1
 	# train_pos_targets[idx,0]: how many shares to keep for next day
 	# train_pos_targets[idx+1,1]: price change pct of next day
 	# following code gives us everyday's profit
-	profit.append(1*full_pos_targets[idx,0]*full_pos_targets[idx+1,1])
-	if idx+1 == len(full_pos_targets)-1:
+	daily_profit.append(1*target_pos_price_change[idx,0]*target_pos_price_change[idx,1])
+	if idx+1 == len(target_pos_price_change)-1:
 		break
 
 # accumulated profit
-accum_profit = np.cumsum(np.array(profit))
+accum_profit = np.cumsum(np.array(daily_profit))
 
 plt.figure()
 ax1 = plt.subplot2grid((5, 3), (0, 0), colspan=3, rowspan=3)  # stands for axes
-ax1.plot(closes, c='blue', label='close_price')
+ax1.plot(target_closes, c='blue', label='close_price')
 ax1.set_title('close_prices')
 ax2 = plt.subplot2grid((5, 3), (3, 0), colspan=3)
 ax2.plot(accum_profit, c='red', label='train_profit')

@@ -1,8 +1,8 @@
 #############################################
 # access save and load array functions
-from prep_data_98_funcs_save_load_large_arrays import bz_save_array, bz_load_array
+from prep_data_utils_01_save_load_large_arrays_bcolz_np_pickle_torch import bz_save_array, bz_load_array
 # access predictions on testset as array
-from test_model_01_predict_fullArray_or_Batches import preds_test_full, preds_train_full
+from predict_model_02_vgg16_catsdogs_01_predict_Batches_fullarray import preds_test_full, preds_train_full
 
 # path for saving
 trained_model_path = "/Users/Natsume/Downloads/data_for_all/dogscats/results"

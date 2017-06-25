@@ -1,35 +1,10 @@
 
 """
-1. VGG16 model for Keras
-2. with each layer's output tensor
-3. how a layer in tf.keras is constructed?
-	a. tf.Layer class __init__ : added onto graph
-	b. tf.keras.Layer class __init__
-	c. tf.Layer._Conv class __init__
-	d. tf.Layer.Conv2D class __init__
-	e. tf.keras.Conv2D class __init__
-4. how to get output tensor of this layer?
-	1. tf.keras.Layer.__call__
-	2. tf.Layer.__call__:
-		2.1. tf.keras.Conv2D.build:
-			2.1.1 tf.convolution.Conv2D.build
-				2.1.1.1. tf.layers._Conv.build: create kernel and bias variables
-	2. tf.Layer.__call__:
-		2.2. tf.convolutional._Conv.call: get outputs with nn.convolution(), kernel, and bias
-	1. tf.keras.Layer.__call__: _add_inbound_node()
-	return output
-
-5. how to build a model using input tensor and last output tensor?
-	a. tf.keras.Layer
-	b. tf.keras.Container.__init__
-
-6. how to compile a model?
-	c. tf.keras.Model.compile and other methods
-
-- [Very Deep Convolutional Networks for Large-Scale Image
-Recognition](https://arxiv.org/abs/1409.1556)
-
+Input: nothing
+Return:
+- vgg16 model loaded weights but not yet compiled
 """
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -110,24 +85,31 @@ def VGG16(include_top=True,
       ValueError: in case of invalid argument for `weights`,
           or invalid input shape.
   """
+  ### how many weights option can we be allowed
   if weights not in {'imagenet', None}:
     raise ValueError('The `weights` argument should be either '
                      '`None` (random initialization) or `imagenet` '
                      '(pre-training on ImageNet).')
 
+  ### if use imagenet weights and add last 3 dense layers, then class should be 1000
   if weights == 'imagenet' and include_top and classes != 1000:
     raise ValueError('If using `weights` as imagenet with `include_top`'
                      ' as true, `classes` should be 1000')
-  # default input shape for VGG16 model
-  input_shape = _obtain_input_shape(
-      input_shape,
-      default_size=224,
-      min_size=48,
-      data_format=K.image_data_format(),
-      include_top=include_top)
 
+  ### set input shape : (224, 224, 3)
+  # default input shape for VGG16 model, designed for imagenet dataset
+  input_shape = _obtain_input_shape(
+      input_shape, # if set must be a tuple of 3 integers (50, 50, 3)
+      default_size=224, # if input_shape set, here must be None
+      min_size=48,
+      data_format=K.image_data_format(), # 'channels_first' or 'channels_last'
+      include_top=include_top) # True, then must use 224 or False to be other number
+
+  ### Create input tensor: real tensor or container?
   if input_tensor is None:
-	# create input tensor placeholder
+	### create input tensor placeholder
+	# 1. try real tensor for Input
+	# get test_img_array;
     img_input = Input(shape=input_shape)
   else:
     img_input = Input(tensor=input_tensor, shape=input_shape)
@@ -264,3 +246,36 @@ def VGG16(include_top=True,
         layer_utils.convert_dense_weights_data_format(dense, shape,
                                                       'channels_first')
   return model
+
+vgg16 = VGG16()
+"""
+1. VGG16 model for Keras
+2. with each layer's output tensor
+3. how a layer in tf.keras is constructed?
+	a. tf.Layer class __init__ : added onto graph
+	b. tf.keras.Layer class __init__
+	c. tf.Layer._Conv class __init__
+	d. tf.Layer.Conv2D class __init__
+	e. tf.keras.Conv2D class __init__
+4. how to get output tensor of this layer?
+	1. tf.keras.Layer.__call__
+	2. tf.Layer.__call__:
+		2.1. tf.keras.Conv2D.build:
+			2.1.1 tf.convolution.Conv2D.build
+				2.1.1.1. tf.layers._Conv.build: create kernel and bias variables
+	2. tf.Layer.__call__:
+		2.2. tf.convolutional._Conv.call: get outputs with nn.convolution(), kernel, and bias
+	1. tf.keras.Layer.__call__: _add_inbound_node()
+	return output
+
+5. how to build a model using input tensor and last output tensor?
+	a. tf.keras.Layer
+	b. tf.keras.Container.__init__
+
+6. how to compile a model?
+	c. tf.keras.Model.compile and other methods
+
+- [Very Deep Convolutional Networks for Large-Scale Image
+Recognition](https://arxiv.org/abs/1409.1556)
+
+"""

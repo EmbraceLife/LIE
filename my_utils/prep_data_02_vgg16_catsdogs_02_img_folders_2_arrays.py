@@ -37,16 +37,23 @@ def img_folders_2_array(data_dir):
     batch_iterator = DirectoryIterator(
             directory = data_dir,
             image_data_generator=ImageDataGenerator(),
-            target_size=(224, 224),
-            color_mode = "rgb", # add up to (224,224,3)
+            target_size=(224, 224), # output image width, height as you like
+            color_mode = 'rgb', # "grayscale": channel 1;"rgb":channel 3
 			# classes=["dogs", "cats"], # folders can handle it
             # class_mode=None, # no label is included
             # class_mode='binary', # label 1D is included
-            class_mode='categorical', # label 2D is included, one-hot encoding included, i think;
+            class_mode= 'categorical', # when run batch_iterator.next(), we get
+			# 'categorical': 2 cols in label arrays;
+			# 'binary':1 col in label arrays, label array dtype: float32
+			# None: no label array at all
+			# 'input': batch_iterator return 2 image arrays, no label array
+			# 'sparse': 1 col in label arrays, label array dtype int32
             batch_size=1,
             shuffle=False, # so that images and labels order can be matched by its original order in folders
             seed=123,
-            data_format="channels_last") # put channel 3 at the end
+            data_format="channels_last")
+			# 'channel_first': (200, 3, 224, 224)
+			# 'channel_last': (200, 224, 224, 3)
 
 
     img_array = np.concatenate([batch_iterator.next()[0] for i in range(batch_iterator.samples)])

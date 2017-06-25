@@ -6,7 +6,8 @@
 5. save total number of epochs trained as previous_epochs
 """
 
-from prep_data_02_img_folder_2_iterators import train_batches, val_batches
+
+from prep_data_02_vgg16_catsdogs_03_img_folder_2_iterators import train_batches, val_batches
 from tensorflow.contrib.keras.python.keras.models import load_model
 import numpy as np
 import os
@@ -16,14 +17,12 @@ trained_model_path = "/Users/Natsume/Downloads/data_for_all/dogscats/results"
 # load log info: previous number of epochs
 if os.path.isfile(trained_model_path+"/previous_epochs.npy"):
 	previous_epochs = np.load(trained_model_path+"/previous_epochs.npy")[0]
+	# select the latest trained model filename
+	vgg16_again = load_model(trained_model_path+'/train_vgg16_again_model_5.h5')
 else:
 	print("no previous training epochs available, start from 0")
 	previous_epochs = 0
-
-
-# load pre-trained model with 'vgg16_ft_trained_model.h5', if it has not yet be trained again
-# select the latest trained model, if it already be trained again: 'train_vgg16_again_model_1.h5'
-vgg16_again = load_model(trained_model_path+'/train_vgg16_again_model_1.h5') # already compiled
+	vgg16_again = load_model(trained_model_path+'/vgg16_ft_trained_model.h5')
 
 
 ## check model summary
@@ -33,6 +32,7 @@ vgg16_again.summary()
 num_epochs=2
 
 for epoch in range(num_epochs):
+	print("Index iteration: %d" % epoch)
 	vgg16_again.fit_generator(
 						generator=train_batches,
 						steps_per_epoch=1,

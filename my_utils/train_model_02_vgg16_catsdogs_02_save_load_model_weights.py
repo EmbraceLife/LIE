@@ -13,7 +13,7 @@ from tensorflow.contrib.keras.python.keras.models import load_model, save_model,
 # from tensorflow.contrib.keras.python.keras.topology.Container import save, save_weights, load_weights, to_json, to_yaml
 
 # access a trained model (it will be traied for the first time and then saved later below)
-from train_model_01_train_with_fit_generator_vgg16 import vgg16_ft_trained
+from train_model_02_vgg16_catsdogs_01_fit_generator import vgg16_ft_trained
 # a model object as a subclass of tf.keras.Container has 3 class methods
 # 1. model.save or Container.save to save trained model
 # 1. trained_model_loaded = load_model() imported from tf.keras.models

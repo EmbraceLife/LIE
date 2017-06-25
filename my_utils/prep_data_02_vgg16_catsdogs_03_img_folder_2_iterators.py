@@ -4,8 +4,14 @@
 Inputs:
 1. images folders for train, valid, test sets
 2. settings: shuffle=True, batch_size=32
-# return: train_batches, val_batches, test_batches
 
+return:
+1. train_batches, val_batches, test_batches
+
+Steps:
+1. import DirectoryIterator, ImageDataGenerator
+2. get image folders ready
+3. set target_size, color_mode, class_mode, batch_size, shuffle, data_format
 """
 ###########################
 
@@ -28,7 +34,7 @@ train_batches = DirectoryIterator(directory = data_path_train,
 							#    save_prefix
 							#    save_format
 							   )
-# img, lab = train_batches.next()
+
 
 data_path_val = "/Users/Natsume/Downloads/data_for_all/dogscats/sample/valid"
 val_batches = DirectoryIterator(directory = data_path_val,
@@ -61,3 +67,6 @@ test_batches = DirectoryIterator(directory = data_path_test,
 							#    save_prefix
 							#    save_format
 							   )
+
+
+# img, lab = train_batches.next()
