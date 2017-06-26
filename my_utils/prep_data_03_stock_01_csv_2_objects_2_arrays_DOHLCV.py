@@ -81,9 +81,9 @@ def read_csv_2_arrays(path):
     return (sorted_data, dates, opens, highs, lows, closes, volumes)
 
 ################### try it out
-stock_path = "/Users/Natsume/Downloads/DeepTrade_keras/dataset/000001.csv"
+stock_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices/000001.csv"
 stock_daily_objects, dates, opens, highs, lows, closes, volumes = read_csv_2_arrays(stock_path)
-# stock_daily_objects.__len__()
+stock_daily_objects.__len__()
 # stock_daily_objects[0].date
 # stock_daily_objects[-1].date
 # dates[0]

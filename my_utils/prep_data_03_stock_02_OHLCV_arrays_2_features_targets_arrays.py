@@ -302,4 +302,4 @@ user_indicators = ["ROCP", "OROCP", "HROCP", "LROCP", "MACD", "RSI", "VROCP", "B
 # get features array and target array
 moving_indicators_features, moving_real_price_changes = extract_feature(selector=user_indicators)
 
-# moving_real_price_changes.shape
+moving_real_price_changes.shape

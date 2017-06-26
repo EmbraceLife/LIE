@@ -7,6 +7,7 @@ Inputs:
 - a number of file_paths to store to-be-created features arrays and targets arrays
 
 Returns:
+- convert multiple indices csv into large features arrays and target arrays
 - features arrays and targets arrays for training set, valid set, test set
 - save thses aways into their own files
 
@@ -27,7 +28,7 @@ import os
 from prep_data_03_stock_01_csv_2_objects_2_arrays_DOHLCV import read_csv_2_arrays
 from prep_data_03_stock_02_OHLCV_arrays_2_features_targets_arrays import extract_feature
 import numpy as np
-from prep_data_98_funcs_save_load_large_arrays import bz_save_array
+from prep_data_utils_01_save_load_large_arrays_bcolz_np_pickle_torch import bz_save_array
 
 # set days for training, validation and testing
 days_for_valid = 1000
@@ -44,21 +45,21 @@ test_features = None
 test_targets = None
 
 # create paths for storing those arrays above
-train_features_path = "/Users/Natsume/Downloads/DeepTrade_keras/features_targets_data/train_features_path"
-valid_targets_path = "/Users/Natsume/Downloads/DeepTrade_keras/features_targets_data/valid_targets_path"
-valid_features_path = "/Users/Natsume/Downloads/DeepTrade_keras/features_targets_data/valid_features_path"
-train_targets_path = "/Users/Natsume/Downloads/DeepTrade_keras/features_targets_data/train_targets_path"
-test_features_path = "/Users/Natsume/Downloads/DeepTrade_keras/features_targets_data/test_features_path"
-test_targets_path = "/Users/Natsume/Downloads/DeepTrade_keras/features_targets_data/test_targets_path"
+train_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/train_features_path"
+valid_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/valid_targets_path"
+valid_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/valid_features_path"
+train_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/train_targets_path"
+test_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/test_features_path"
+test_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/test_targets_path"
 
 # user selected indicators for converting OHLCV to
 user_indicators = ["ROCP", "OROCP", "HROCP", "LROCP", "MACD", "RSI", "VROCP", "BOLL", "MA", "VMA", "PRICE_VOLUME"]
 
 # dir_path for stock csv
-dataset_dir = "/Users/Natsume/Downloads/DeepTrade_keras/dataset"
+dataset_dir = "/Users/Natsume/Downloads/data_for_all/stocks/indices"
 
 # count number of csv to use for creating features array and target arrays
-total_csv_combine = 2
+total_csv_combine = 1
 current_num_csv = 0
 
 # loop through every csv to convert from csv to arrays OHLCV, to arrays features and targets, and concatenate features and targets of different csv files

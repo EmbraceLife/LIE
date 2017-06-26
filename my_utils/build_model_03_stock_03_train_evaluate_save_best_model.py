@@ -25,7 +25,7 @@ import numpy as np
 # input_shape (window, num_indicators)
 nb_epochs = 10
 batch_size = 512
-best_model_in_training = "/Users/Natsume/Downloads/DeepTrade_keras/models_save_load/best_model_in_training"
+best_model_in_training = "/Users/Natsume/Downloads/data_for_all/stocks/best_model_during_training/best_model_in_training.h5"
 
 
 
