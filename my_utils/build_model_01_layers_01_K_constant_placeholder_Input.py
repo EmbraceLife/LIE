@@ -1,12 +1,10 @@
+
+
 """
-  'def Input(  # pylint: disable=invalid-name\n',
-  '    shape=None,\n',
-  '    batch_shape=None,\n',
-  '    name=None,\n',
-  '    dtype=K.floatx(),\n',
-  '    sparse=False,\n',
-  '    tensor=None):\n',
-  '`Input()` is used to instantiate a Keras tensor.
+Goals: How to use the following
+1. K.constant()
+2. K.placeholder()
+3. Input()
 """
 
 from tensorflow.contrib.keras.python.keras.layers import Input
