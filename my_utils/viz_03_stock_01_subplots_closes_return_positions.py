@@ -39,41 +39,36 @@ target_closes = closes[-700:]
 daily_profit = []
 target_closes = target_closes/target_closes[0]# normalized price
 
-# first day's profit = capital * (1 + today_position * today_price_change)
+### Calculate cumulative returns: method 1 (author's), I think it is wrong
+# first day's capital = capital * (1 + today_position * today_price_change)
 daily_profit.append(1. * (1. + target_pos_price_change[0][0] * target_pos_price_change[0][1]))
-
-### Calculate cumulative returns: method 1
 for idx in range(1, len(target_pos_price_change)):
 	daily_profit.append(daily_profit[idx-1]*(1+target_pos_price_change[idx,0]*target_pos_price_change[idx,1]))
 accum_profit = np.array(daily_profit)-1
 
-# perform worse
+# perform worse, but probably correct way to get profit curve
 daily_profit=[0] # day1 capital = 1
 for idx in range(1, len(target_pos_price_change)):
 	daily_profit.append(target_closes[idx-1]*target_pos_price_change[idx-1,0]*target_pos_price_change[idx,1])
 accum_profit1 = np.cumsum(daily_profit)
 
-# perform better, but which one is correct
+# perform better, but probably get days wrong
 daily_profit=[0] # day1 capital = 1
 for idx in range(1, len(target_pos_price_change)):
 	daily_profit.append(target_closes[idx]*target_pos_price_change[idx,0]*target_pos_price_change[idx,1])
 accum_profit2 = np.cumsum(daily_profit)
 
-
+# todo: plot the max and latest value on graph
 plt.figure()
-ax1 = plt.subplot2grid((5, 3), (0, 0), colspan=3, rowspan=3)  # stands for axes
+ax1 = plt.subplot2grid((7, 3), (0, 0), colspan=3, rowspan=3)  # stands for axes
 ax1.plot(target_closes, c='blue', label='close_price')
 ax1.set_title('close_prices')
-ax2 = plt.subplot2grid((5, 3), (3, 0), colspan=3)
-ax2.plot(accum_profit2, c='red', label='train_profit')
-ax3 = plt.subplot2grid((5, 3), (4, 0), colspan=3)
+ax2 = plt.subplot2grid((7, 3), (3, 0), colspan=3, rowspan=3)
+ax2.plot(accum_profit1, c='red', label='train_profit')
+ax3 = plt.subplot2grid((7, 3), (6, 0), colspan=3)
 X = np.arange(len(target_pos_price_change))
 ax3.bar(X, target_pos_price_change[:,0], facecolor='#9999ff', edgecolor='blue')
-# ax4 = plt.subplot2grid((3, 3), (2, 0))
-# ax4.scatter([1, 2], [2, 2])
-# ax4.set_xlabel('ax4_x')
-# ax4.set_ylabel('ax4_y')
-# ax5 = plt.subplot2grid((3, 3), (2, 1))
+
 
 plt.tight_layout()
 plt.show()
