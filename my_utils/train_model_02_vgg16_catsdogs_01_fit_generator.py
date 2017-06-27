@@ -1,4 +1,9 @@
 """
+Use cases 1:
+how to train one sample at a time?
+- create batch_iterator with batch_size 1
+- fit_generator set steps_per_epoch as 1, num_epochs as 1
+
 Inputs:
 1. finetuned_model
 2. parameters:

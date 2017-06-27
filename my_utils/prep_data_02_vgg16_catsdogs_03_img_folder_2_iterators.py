@@ -1,6 +1,10 @@
-###########################
-
 """
+Use cases 1:
+how to train one sample at a time?
+- create batch_iterator with batch_size 1
+- fit_generator set steps_per_epoch as 1, num_epochs as 1
+
+
 Inputs:
 1. images folders for train, valid, test sets
 2. settings: shuffle=True, batch_size=32
@@ -55,11 +59,11 @@ val_batches = DirectoryIterator(directory = data_path_val,
 data_path_test = "/Users/Natsume/Downloads/data_for_all/dogscats/sample/test"
 test_batches = DirectoryIterator(directory = data_path_test,
 							   image_data_generator=ImageDataGenerator(),
-							   target_size=(224, 224),
+							   target_size=(8, 8), # 224, 224
 							   color_mode = "rgb", # add up to (224,224,3)
 							#    classes=["dogs", "cats"],
 							   class_mode=None, # unknown about classes
-							   batch_size=32,
+							   batch_size=1, # 32
 							   shuffle=True,
 							   seed=123,
 							   data_format="channels_last"
@@ -69,4 +73,4 @@ test_batches = DirectoryIterator(directory = data_path_test,
 							   )
 
 
-# img, lab = train_batches.next()
+img= test_batches.next() # why no labels? because they are unknown

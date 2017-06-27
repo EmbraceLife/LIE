@@ -101,7 +101,7 @@ def VGG16(include_top=True,
   input_shape = _obtain_input_shape(
       input_shape, # if set must be a tuple of 3 integers (50, 50, 3)
       default_size=224, # if input_shape set, here must be None
-      min_size=48,
+      min_size=48, # 48, but freely change it to your need
       data_format=K.image_data_format(), # 'channels_first' or 'channels_last'
       include_top=include_top) # True, then must use 224 or False to be other number
 
