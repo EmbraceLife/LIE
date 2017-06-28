@@ -1,18 +1,13 @@
 """
+Uses:
+1. run this file to build and compile a WindPuller model
+
 Inputs:
 1. input_shape; 2. learning_rate; 3. n_layers; 4. n_hidden; 5. rate_dropout
 
 Return:
 1. a built and compiled model (not trained yet)
 
-### Summary
-- use WindPuller class to create a model and compile it
-- a wp model can be imported from this source code
-
-### Steps:
-- import WindPull class
-- set hyperparameters
-- run __init__() to create and compile a model
 """
 
 

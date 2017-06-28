@@ -1,15 +1,19 @@
 # source from https://github.com/happynoom/DeepTrade_keras
 """
-### Summary
+Uses:
+1. run this file, to turn a number of csv files, into train_features_array, train_target_array, valid_features_array, valid_target array, test_features_array, test_target_array
+2. save thest 6 arrays into folders with bz_save_array
+
+
 Inputs:
 - a dir_path with a number of csv files
 - a user selected indicators supported internally
-- a number of file_paths to store to-be-created features arrays and targets arrays
+- 6 dir_paths to save the 6 arrays above
 
 Returns:
-- convert multiple indices csv into large features arrays and target arrays
-- features arrays and targets arrays for training set, valid set, test set
-- save thses aways into their own files
+- 6 arrays above
+- 6 folders with the 6 arrays inside
+
 
 ### Steps
 - import read_csv_2_arrays to convert csv to arrays

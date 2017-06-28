@@ -3,6 +3,7 @@
 """
 Uses: extract_feature()
 1. with OHLCV arrays and many indicators, create features array and target array
+2. example using it 
 
 Inputs:
 1. OHLCV arrays (embedded within the function)
@@ -298,22 +299,25 @@ def extract_feature(selector, file_path, window=30, with_label=True, flatten=Fal
                                                        with_label=with_label, flatten=flatten)
         return moving_features
 
+"""
 ### dataset example 1
 # try dataset from csv to objets to arrays
-# from prep_data_03_stock_01_csv_2_objects_2_arrays_DOHLCV import opens, highs, lows, closes, volumes
+from prep_data_03_stock_01_csv_2_objects_2_arrays_DOHLCV import opens, highs, lows, closes, volumes
 
 
 ### dataset example 2
 # try dataset from csv to pandas to arrays
-# from prep_data_03_stock_01_csv_2_pandas_2_arrays_DOHLCV import csv_df_arrays
-#
-# stock_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices/mdjt_prices.csv"
-# dates, opens, highs, lows, closes, volumes = csv_df_arrays(stock_path)
+from prep_data_03_stock_01_csv_2_pandas_2_arrays_DOHLCV import csv_df_arrays
+
+stock_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices/mdjt_prices.csv"
+dates, opens, highs, lows, closes, volumes = csv_df_arrays(stock_path)
 
 ### get features and targets
 # all internal supported indicators are selected here
-# user_indicators = ["ROCP", "OROCP", "HROCP", "LROCP", "MACD", "RSI", "VROCP", "BOLL", "MA", "VMA", "PRICE_VOLUME"]
-# # get features array and target array
-# moving_indicators_features, moving_real_price_changes = extract_feature(selector=user_indicators)
-#
-# moving_real_price_changes.shape
+user_indicators = ["ROCP", "OROCP", "HROCP", "LROCP", "MACD", "RSI", "VROCP", "BOLL", "MA", "VMA", "PRICE_VOLUME"]
+
+# get features array and target array
+moving_indicators_features, moving_real_price_changes = extract_feature(selector=user_indicators)
+
+moving_real_price_changes.shape
+"""

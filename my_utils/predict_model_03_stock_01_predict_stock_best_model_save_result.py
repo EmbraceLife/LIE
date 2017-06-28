@@ -1,18 +1,13 @@
 """
+Uses: func: get_stock_preds_target
+1. convert a stock csv into an preds_target array
+
 Inputs:
-1. import an empty but compiled wp
-2. best_model_path
-3. paths for storing train_pos_targets, valid_pos_targets, test_pos_targets
+1. stock csv file_path
 
-Returns:
-1. predictions with the best model on training, valid and test set (features, targets arrays)
-2. save predictions and targets into a single array and store them in files
+Return:
+1. array: preds_target
 
-### Summary
-- initiate an empty model from WindPuller
-- load the best trained model into it
-- use this model to predict training, validation, testing sets
-- save predictions and targets into a single array, and save them into files
 """
 
 

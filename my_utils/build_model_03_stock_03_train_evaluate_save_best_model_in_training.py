@@ -1,4 +1,11 @@
 """
+Uses:     run this file
+1. to train the model built and compiled in previous source file
+2. create a tensorboard for it
+3. save best model during training
+4. evaluate this model
+
+
 Inputs:
 1. nb_epochs;
 2. batch_size;

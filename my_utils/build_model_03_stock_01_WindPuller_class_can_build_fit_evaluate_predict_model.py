@@ -1,17 +1,13 @@
 """
-How to use:
-1. to be imported into other source files, in order to use WindPuller class
+Uses:
+1. WindPuller class
+	- __init__: build a model and compile
+	- fit: to train
+	- evaluate:
+	- predict
+	- save
+	- load_model
 
-### Summary
-- build a class with methods to create model, compile model, train model, evaluate model, predict model, save and load model
-- WindPuller class can be imported from this source code
-
-### Steps
-1. WindPuller.__init__(): build a model and compile it
-2. WindPuller.fit(): train the model with x, y as two arrays, not iterators
-3. WindPuller.save() and WindPuller.load_model(): save and load model with model pathname
-4. WindPuller.evaluate(): x is array, not generator
-5. WindPuller.test(): x is array, even with batch_size=32
 """
 
 from keras.layers import Dense, LSTM, Activation, BatchNormalization, Dropout, initializers

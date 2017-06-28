@@ -1,18 +1,15 @@
 """
+Uses: 
+1. load train, valid, test pairs for feature array and target array from files
+2. transpose its dimensions from (0, 1, 2) to (0, 2, 1)
+
 Inputs:
 1. file_path for feature array, target array for training, validation, test set
 
 Return:
-1. ready-to-train dataset: features arrays, targets arrays for training, validation, test set
+1. features arrays, targets arrays for training, validation, test set
 
 
-### Summary:
-- to load is faster than to process and create features and targets from previous pyfile
-- processed ready features array and targets array for training, validation, test sets can be imported from this source file
-
-### Steps
-- load train_features, train_targets, valid_features, valid_targets, test_features, test_targets from files
-- change its shape for training and predict
 """
 
 
