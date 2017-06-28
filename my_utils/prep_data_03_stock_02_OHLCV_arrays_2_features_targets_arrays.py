@@ -1,28 +1,23 @@
 # source from https://github.com/happynoom/DeepTrade_keras
 
 """
-### from OHLCV arrays to indicator_features array, price_change_target array
+Uses: extract_feature()
+1. with OHLCV arrays and many indicators, create features array and target array
 
 Inputs:
-1. import previous code file, got OHLCV arrays on a csv file;
-2. a number of user selected indicators, which are supported internally by self.extract_by_type();
-3. set window in extract_feature(), e.g. 30 days;
+1. OHLCV arrays (embedded within the function)
+2. file_path
+3. list of indicator names
+4. window or steps
 
 Return:
-1. features arrays,
-2. targets array
+1. feature array (?, 61, 30): 61 different indicators
+2. target array (?,): price_change compared with next day
 
+Note:
+1. features created with day_[0,..., 29] and shift one day forward after
+2. target created with day_[29, 30] and shift one day forward after
 
-- given OHLCV arrays imported as global variables
-- 30 days as window, user_selected_indicators
-- use indicators.moving_extract() to get indicator_features array, target array
-	- user select or define 61 indicators
-	- 5 arrays OHLCV become single array (61, 6464)
-	- use 30 days window to split this array above, we get a list of 6434 arrays of shape (61, 30)
-	- convert list to array shape (6434, 61, 30), now we got features array
-	- and flatten 61*30 for saving convenience (or not)
-	- use closes array, with 30 days window, start from 30th day, we get daily price change pct as targets array (6434, )
-	- finally, return (moving_features_array, moving_targets_array)
 """
 
 import talib
@@ -276,9 +271,19 @@ class IndicatorCreator(object):
 	- finally, return (moving_features_array, moving_targets_array)
 
 """
-def extract_feature(selector, window=30, with_label=True, flatten=False):
-	# use user_selected_indicators to create IndicatorCreator object
+
+from prep_data_03_stock_01_csv_2_pandas_2_arrays_DOHLCV import csv_df_arrays
+from prep_data_03_stock_01_csv_2_objects_2_arrays_DOHLCV import read_csv_2_arrays
+
+def extract_feature(selector, file_path, window=30, with_label=True, flatten=False):
+	# selector: user_selected_indicators to create IndicatorCreator object
     indicators = IndicatorCreator(selector)
+
+	# differentiate csv files from indices and from individual stocks
+    if file_path.find("prices") > -1:
+    	dates, opens, highs, lows, closes, volumes = csv_df_arrays(file_path)
+    else:
+    	_, dates, opens, highs, lows, closes, volumes = read_csv_2_arrays(file_path)
 
     if with_label:
         moving_features, moving_labels = indicators.moving_extract(window=window, open_prices=opens, close_prices=closes, high_prices=highs, low_prices=lows, volumes=volumes, with_label=with_label, flatten=flatten)
@@ -293,13 +298,22 @@ def extract_feature(selector, window=30, with_label=True, flatten=False):
                                                        with_label=with_label, flatten=flatten)
         return moving_features
 
-# import OHLCV arrays globally
-from prep_data_03_stock_01_csv_2_objects_2_arrays_DOHLCV import opens, highs, lows, closes, volumes
+### dataset example 1
+# try dataset from csv to objets to arrays
+# from prep_data_03_stock_01_csv_2_objects_2_arrays_DOHLCV import opens, highs, lows, closes, volumes
 
+
+### dataset example 2
+# try dataset from csv to pandas to arrays
+# from prep_data_03_stock_01_csv_2_pandas_2_arrays_DOHLCV import csv_df_arrays
+#
+# stock_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices/mdjt_prices.csv"
+# dates, opens, highs, lows, closes, volumes = csv_df_arrays(stock_path)
+
+### get features and targets
 # all internal supported indicators are selected here
-user_indicators = ["ROCP", "OROCP", "HROCP", "LROCP", "MACD", "RSI", "VROCP", "BOLL", "MA", "VMA", "PRICE_VOLUME"]
-
-# get features array and target array
-moving_indicators_features, moving_real_price_changes = extract_feature(selector=user_indicators)
-
-moving_real_price_changes.shape
+# user_indicators = ["ROCP", "OROCP", "HROCP", "LROCP", "MACD", "RSI", "VROCP", "BOLL", "MA", "VMA", "PRICE_VOLUME"]
+# # get features array and target array
+# moving_indicators_features, moving_real_price_changes = extract_feature(selector=user_indicators)
+#
+# moving_real_price_changes.shape

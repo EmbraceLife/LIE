@@ -1,6 +1,11 @@
 # source from https://github.com/happynoom/DeepTrade_keras
 """
-Inputs:
+Uses:
+1. read_csv_2_arrays(file_path)
+2. example of using this function
+
+
+Function Inputs:
 CSV file: /Users/Natsume/Downloads/DeepTrade_keras/dataset/000001.csv
 
 Return:
@@ -80,10 +85,12 @@ def read_csv_2_arrays(path):
     dates = np.asarray(dates)
     return (sorted_data, dates, opens, highs, lows, closes, volumes)
 
-################### try it out
+################### Example
+"""
 stock_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices/000001.csv"
 stock_daily_objects, dates, opens, highs, lows, closes, volumes = read_csv_2_arrays(stock_path)
-stock_daily_objects.__len__()
+# stock_daily_objects.__len__()
 # stock_daily_objects[0].date
 # stock_daily_objects[-1].date
 # dates[0]
+"""

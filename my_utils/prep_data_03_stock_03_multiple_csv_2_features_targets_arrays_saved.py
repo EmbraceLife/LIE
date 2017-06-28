@@ -26,6 +26,7 @@ Returns:
 
 import os
 from prep_data_03_stock_01_csv_2_objects_2_arrays_DOHLCV import read_csv_2_arrays
+from prep_data_03_stock_01_csv_2_pandas_2_arrays_DOHLCV import csv_df_arrays
 from prep_data_03_stock_02_OHLCV_arrays_2_features_targets_arrays import extract_feature
 import numpy as np
 from prep_data_utils_01_save_load_large_arrays_bcolz_np_pickle_torch import bz_save_array
@@ -59,7 +60,7 @@ user_indicators = ["ROCP", "OROCP", "HROCP", "LROCP", "MACD", "RSI", "VROCP", "B
 dataset_dir = "/Users/Natsume/Downloads/data_for_all/stocks/indices"
 
 # count number of csv to use for creating features array and target arrays
-total_csv_combine = 1
+total_csv_combine = 3
 current_num_csv = 0
 
 # loop through every csv to convert from csv to arrays OHLCV, to arrays features and targets, and concatenate features and targets of different csv files
@@ -71,10 +72,10 @@ for filename in os.listdir(dataset_dir):
 
 	    print("processing the first file: " + filename)
 	    filepath = dataset_dir + "/" + filename
-	    _, _, opens, highs, lows, closes, volumes = read_csv_2_arrays(filepath)
+	    # _, _, opens, highs, lows, closes, volumes = read_csv_2_arrays(filepath)
 
 		# opens, highs, lows, closes, volumes are to be used inside extract_feature to create indicators_features, price_change_targets
-	    moving_features, moving_targets = extract_feature(selector=user_indicators)
+	    moving_features, moving_targets = extract_feature(selector=user_indicators, file_path=filepath)
 
 
 		# save test_set and train_set
@@ -96,9 +97,9 @@ for filename in os.listdir(dataset_dir):
     else:
 	    print("processing file (start counting from 0) no. %d: " % current_num_csv + filename)
 	    filepath = dataset_dir + "/" + filename
-	    _, _, opens, highs, lows, closes, volumes = read_csv_2_arrays(filepath)
+	    # _, _, opens, highs, lows, closes, volumes = read_csv_2_arrays(filepath)
 
-	    moving_features, moving_targets = extract_feature(selector=user_indicators)
+	    moving_features, moving_targets = extract_feature(selector=user_indicators, file_path=filepath)
 
 	    print("split feature array and target arrays to train, valid, test sets...")
 	    train_end_test_begin = moving_features.shape[0] - days_for_valid - days_for_test
@@ -112,6 +113,7 @@ for filename in os.listdir(dataset_dir):
 	    test_features_another = moving_features[train_end_test_begin+days_for_valid:train_end_test_begin+days_for_valid+days_for_test]
 	    test_targets_another = moving_targets[train_end_test_begin+days_for_valid:train_end_test_begin+days_for_valid+days_for_test]
 
+		# rbind different csv's train, val and test together
 	    train_features = np.concatenate((train_features, train_features_another), axis = 0)
 	    train_targets = np.concatenate((train_targets, train_targets_another), axis = 0)
 
