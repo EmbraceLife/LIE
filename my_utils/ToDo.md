@@ -4,6 +4,8 @@
 ## focus on
 1. tf.keras  
 1. advanced models transferring
+1. like Algorithmia, I don't need to understand deep logic of it, but understand inputs and outputs, and how to tweak it to perform novel and better
+1. and then, maybe too curious to not read a paper about it
 
 1. create batch_iterators to throw out one sample at a time	(done)
 1. how to build and compile a simplest model?

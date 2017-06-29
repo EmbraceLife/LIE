@@ -3,7 +3,7 @@
 """
 Uses: extract_feature()
 1. with OHLCV arrays and many indicators, create features array and target array
-2. example using it 
+2. example using it
 
 Inputs:
 1. OHLCV arrays (embedded within the function)
@@ -105,7 +105,8 @@ class IndicatorCreator(object):
     """
     def extract_by_type(self, feature_type, open_prices=None, close_prices=None, high_prices=None, low_prices=None,
                         volumes=None):
-        if feature_type == 'ROCP': # price change pct daily basis on close
+        if feature_type == 'ROCP':
+			# price change pct daily basis on close, use 1 previous day
             rocp = talib.ROCP(close_prices, timeperiod=1)
             self.feature.append(rocp)
         if feature_type == 'OROCP': # price change pct daily basis on open
@@ -118,16 +119,32 @@ class IndicatorCreator(object):
             lrocp = talib.ROCP(low_prices, timeperiod=1)
             self.feature.append(lrocp)
         if feature_type == 'MACD':
+			# of course use previous days data
             macd, signal, hist = talib.MACD(close_prices, fastperiod=12, slowperiod=26, signalperiod=9)
-            norm_macd = np.nan_to_num(macd) / math.sqrt(np.var(np.nan_to_num(macd)))
-            norm_signal = np.nan_to_num(signal) / math.sqrt(np.var(np.nan_to_num(signal)))
-            norm_hist = np.nan_to_num(hist) / math.sqrt(np.var(np.nan_to_num(hist)))
-            macdrocp = talib.ROCP(norm_macd + np.max(norm_macd) - np.min(norm_macd), timeperiod=1)
-            signalrocp = talib.ROCP(norm_signal + np.max(norm_signal) - np.min(norm_signal), timeperiod=1)
-            histrocp = talib.ROCP(norm_hist + np.max(norm_hist) - np.min(norm_hist), timeperiod=1)
-            # self.feature.append(macd / 100.0)
-            # self.feature.append(signal / 100.0)
-            # self.feature.append(hist / 100.0)
+
+			### Peeking into the future
+			# have to use previous data to do normalization, not any data ahead of current value
+            norm_macd = np.nan_to_num(macd) / math.sqrt(np.var(np.nan_to_num(macd))) # biased
+			# a solution: # norm_macd = np.nan_to_num(macd) / np.nan_to_num(macd)[0]
+            norm_signal = np.nan_to_num(signal) / math.sqrt(np.var(np.nan_to_num(signal))) # biased
+			# a solution:
+			# norm_signal = np.nan_to_num(signal) / np.nan_to_num(signal)[0]
+            norm_hist = np.nan_to_num(hist) / math.sqrt(np.var(np.nan_to_num(hist)))# biased
+			# a solution:
+			# norm_hist = np.nan_to_num(hist) / np.nan_to_num(hist)[0]
+
+			### Peeking into the future
+			# for any value preceeding the maximum value of norm_macd and minimum value of norm_macd, add (np.max(norm_macd) - np.min(norm_macd)) is peeking into the future
+            macdrocp = talib.ROCP(norm_macd + np.max(norm_macd) - np.min(norm_macd), timeperiod=1) # biased
+			# a solution:
+			# macdrocp = talib.ROCP(norm_macd, timeperiod=1)
+            signalrocp = talib.ROCP(norm_signal + np.max(norm_signal) - np.min(norm_signal), timeperiod=1) # biased
+			# a solution:
+			# signalrocp = talib.ROCP(norm_signal, timeperiod=1)
+            histrocp = talib.ROCP(norm_hist + np.max(norm_hist) - np.min(norm_hist), timeperiod=1) # biased
+			# a solution:
+			# histrocp = talib.ROCP(norm_hist, timeperiod=1)
+
             self.feature.append(norm_macd)
             self.feature.append(norm_signal)
             self.feature.append(norm_hist)
@@ -136,6 +153,7 @@ class IndicatorCreator(object):
             self.feature.append(signalrocp)
             self.feature.append(histrocp)
         if feature_type == 'RSI':
+			# use previous data only, good
             rsi6 = talib.RSI(close_prices, timeperiod=6)
             rsi12 = talib.RSI(close_prices, timeperiod=12)
             rsi24 = talib.RSI(close_prices, timeperiod=24)
@@ -159,16 +177,23 @@ class IndicatorCreator(object):
             self.feature.append(rsi24rocp)
         if feature_type == 'VROCP':
             # vrocp = talib.ROCP(volumes, timeperiod=1)
+			### Questions and Suggestions
+			# must not use future or full dataset for normalization:
             norm_volumes = (volumes - np.mean(volumes)) / math.sqrt(np.var(volumes))
             vrocp = talib.ROCP(norm_volumes + np.max(norm_volumes) - np.min(norm_volumes), timeperiod=1)
+			# to replace the above two lines of codes with codes below:
+			# norm_volumes = (volumes - volumes[0]) / volumes[0]
+            # vrocp = talib.ROCP(norm_volumes, timeperiod=1)
             # self.feature.append(norm_volumes)
             self.feature.append(vrocp)
         if feature_type == 'BOLL':
+			# this is good
             upperband, middleband, lowerband = talib.BBANDS(close_prices, timeperiod=5, nbdevup=2, nbdevdn=2, matype=0)
             self.feature.append((upperband - close_prices) / close_prices)
             self.feature.append((middleband - close_prices) / close_prices)
             self.feature.append((lowerband - close_prices) / close_prices)
         if feature_type == 'MA':
+			# this is good
             ma5 = talib.MA(close_prices, timeperiod=5)
             ma10 = talib.MA(close_prices, timeperiod=10)
             ma20 = talib.MA(close_prices, timeperiod=20)
@@ -210,6 +235,7 @@ class IndicatorCreator(object):
             self.feature.append((ma360 - close_prices) / close_prices)
             self.feature.append((ma720 - close_prices) / close_prices)
         if feature_type == 'VMA':
+			# good
             ma5 = talib.MA(volumes, timeperiod=5)
             ma10 = talib.MA(volumes, timeperiod=10)
             ma20 = talib.MA(volumes, timeperiod=20)
@@ -252,9 +278,13 @@ class IndicatorCreator(object):
             self.feature.append((ma720 - volumes) / (volumes + 1))
         if feature_type == 'PRICE_VOLUME':
             rocp = talib.ROCP(close_prices, timeperiod=1)
-            norm_volumes = (volumes - np.mean(volumes)) / math.sqrt(np.var(volumes))
+			### problem of peeking into the future
+            norm_volumes = (volumes - np.mean(volumes)) / math.sqrt(np.var(volumes)) # biased
+			# a solution
+			# norm_volumes = (volumes - volumes[0]) / volumes[0]
             vrocp = talib.ROCP(norm_volumes + np.max(norm_volumes) - np.min(norm_volumes), timeperiod=1)
-            # vrocp = talib.ROCP(volumes, timeperiod=1)
+			# a solution
+			# vrocp = talib.ROCP(norm_volumes, timeperiod=1)
             pv = rocp * vrocp * 100.
             self.feature.append(pv)
 
@@ -281,7 +311,7 @@ def extract_feature(selector, file_path, window=30, with_label=True, flatten=Fal
     indicators = IndicatorCreator(selector)
 
 	# differentiate csv files from indices and from individual stocks
-    if file_path.find("prices") > -1:
+    if file_path.find("prices") > -1 or file_path.find("index") > -1:
     	dates, opens, highs, lows, closes, volumes = csv_df_arrays(file_path)
     else:
     	_, dates, opens, highs, lows, closes, volumes = read_csv_2_arrays(file_path)
