@@ -10,6 +10,7 @@ Goals: How to use the following
 from tensorflow.contrib.keras.python.keras.layers import Input
 
 from prep_data_utils_01_save_load_large_arrays_bcolz_np_pickle_torch import bz_load_array
+
 test_img_array = bz_load_array("/Users/Natsume/Downloads/data_for_all/dogscats/results/test_img_array")
 
 from tensorflow.contrib.keras.python.keras import backend as K
@@ -43,12 +44,7 @@ input_placeholder1 = K.placeholder((24,24,4), name='test_img_placeholder')
 input_placeholder2 = K.placeholder(test_img_array.shape, name='test_img_placeholder')
 ndim_p = K.placeholder(ndim=3, name="ndim")
 
-# import numpy as np
-# import tensorflow as tf
-# sess = tf.Session()
-# array1 = np.ones((24,24,3))
-# input_ndim = sess.run(ndim_p, feed_dict={'ndim:0': array1})
-# input_p1 = sess.run(input_placeholder1, feed_dict={'test_img_placeholder_2:0': array1})
+
 """
 Inputs:
 - shape, ndim, dtype, sparse, name are all optional
