@@ -39,16 +39,16 @@ main_input_array = np.random.random((1000, 100))
 
 
 # This embedding layer will encode the input sequence
-# into a sequence of dense 512-dimensional vectors.
+# into a sequence of dense 512-dimensional vectors. # here input_length can be None too. # output here (?, 100, 512)
 x = Embedding(output_dim=512, input_dim=10000, input_length=100)(main_input)
 
 # A LSTM will transform the vector sequence into a single vector,
 # containing information about the entire sequence
-lstm_out = LSTM(32)(x)
+lstm_out = LSTM(32)(x) # output (?, 32)
 
-# Here we insert the auxiliary loss, allowing the LSTM and Embedding layer to be trained smoothly even though the main loss will be much higher in the model.
+# Here we insert the auxiliary loss, allowing the LSTM and Embedding layer to be trained smoothly even though the main loss will be much higher in the model.# output (?, 1)
 auxiliary_output = Dense(1, activation='sigmoid', name='aux_output')(lstm_out)
-# create auxiliary_output_array for training later
+# knowing its shape, we can create auxiliary_output_array
 auxiliary_output_array = np.random.random((1000, 1))
 
 
@@ -83,7 +83,7 @@ model.compile(optimizer='rmsprop', loss='binary_crossentropy',
 
 
 # We can train the model by passing it lists of input arrays and target arrays:
-model.fit([main_input_array, auxiliary_input_array], [main_output_array, auxiliary_output_array],
+model.fit([main_input_array, auxiliary_input_array], [main_output_array, auxiliary_output_array], validation_split=0.2,
           epochs=2, batch_size=32)
 
 

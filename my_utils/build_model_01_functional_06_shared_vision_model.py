@@ -13,9 +13,9 @@ from tensorflow.contrib.keras.python.keras.models import Model
 # First, define the vision modules
 # digit_input = Input(shape=(1, 27, 27))
 digit_input = Input(shape=(27, 27, 1))
-x = Conv2D(64, (3, 3))(digit_input)
-x = Conv2D(64, (3, 3))(x)
-x = MaxPooling2D((2, 2))(x)
+x = Conv2D(64, (3, 3))(digit_input) # padding 'valid' or 'same' affect shape
+x = Conv2D(64, (3, 3))(x) # padding='same', can keep image size the same
+x = MaxPooling2D((2, 2))(x) # downscale image size
 out = Flatten()(x)
 
 vision_model = Model(digit_input, out)
@@ -30,7 +30,7 @@ digit_b = Input(shape=(27, 27, 1))
 out_a = vision_model(digit_a)
 out_b = vision_model(digit_b)
 
-concatenated = concatenate([out_a, out_b])
+concatenated = concatenate([out_a, out_b]) # cbind tensors
 out = Dense(1, activation='sigmoid')(concatenated)
 
 classification_model = Model([digit_a, digit_b], out)

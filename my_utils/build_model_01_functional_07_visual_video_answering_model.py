@@ -33,8 +33,8 @@ encoded_image = vision_model(image_input)
 # Each question will be at most 100 word long,
 # and we will index words as integers from 1 to 9999.
 question_input = Input(shape=(100,), dtype='int32')
-embedded_question = Embedding(input_dim=10000, output_dim=256, input_length=100)(question_input)
-encoded_question = LSTM(256)(embedded_question)
+embedded_question = Embedding(input_dim=10000, output_dim=256, input_length=100)(question_input) # (?, 100, 256)
+encoded_question = LSTM(256)(embedded_question) # (?, 256)
 
 # Let's concatenate the question vector and the image vector:
 merged = concatenate([encoded_question, encoded_image])
@@ -56,15 +56,15 @@ Now that we have trained our image QA model, we can quickly turn it into a video
 
 from tensorflow.contrib.keras.python.keras.layers import TimeDistributed
 
-video_input = Input(shape=(100, 224, 224, 3))
+video_input = Input(shape=(100, 224, 224, 3)) # video shape (?, 100, 224,224,3)
 
 # This is our video encoded via the previously trained vision_model (weights are reused)
-encoded_frame_sequence = TimeDistributed(vision_model)(video_input)  # the output will be a sequence of vectors
+encoded_frame_sequence = TimeDistributed(vision_model)(video_input)  # the output will be a sequence of vectors # (?, 100, 160000)
 
-encoded_video = LSTM(256)(encoded_frame_sequence)  # the output will be a vector
+encoded_video = LSTM(256)(encoded_frame_sequence)  # the output will be a vector # (?, 256)
 
 # This is a model-level representation of the question encoder, reusing the same weights as before:
-question_encoder = Model(inputs=question_input, outputs=encoded_question)
+question_encoder = Model(inputs=question_input, outputs=encoded_question) # create question_encoder model from previous tensors created above example
 
 # Let's use it to encode the question:
 video_question_input = Input(shape=(100,), dtype='int32')

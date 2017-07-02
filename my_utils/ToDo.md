@@ -2,22 +2,9 @@
 1. check latest on https://medium.com/@yelin.qiu, https://mp.weixin.qq.com/debug/wxadoc/dev/
 
 ## focus on
-1. tf.keras  
-1. advanced models transferring
-1. like Algorithmia, I don't need to understand deep logic of it, but understand inputs and outputs, and how to tweak it to perform novel and better
-1. and then, maybe too curious to not read a paper about it
-
-1. create batch_iterators to throw out one sample at a time	(done)
-1. how to build and compile a simplest model?
-1. how to access weights of a model?
-1. how to train one sample at a time?
-	- check functions like fit and fit_generator
-1. access each layer tensor or activation tensor and weights from vgg16
-	- check model attributes for weights even tensors
-
-1. digest: viz_01 and viz_02 to digest
-1. try out every layer and activation functions with vgg16_catsdogs example
-	- dense layer and relu activation
+- all examples made with keras
+- especially all advanced models or paper implementations with keras
+- learn to read papers 
 
 ## matplotlib
 

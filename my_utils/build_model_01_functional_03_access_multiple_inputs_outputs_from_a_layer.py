@@ -20,7 +20,7 @@ from tensorflow.contrib.keras.python.keras.layers import Input, Embedding, LSTM,
 from tensorflow.contrib.keras.python.keras.models import Model
 import numpy as np
 
-tweet_a = Input(shape=(140, 256))
+tweet_a = Input(shape=(140, 256)) # (?, 140, 256)
 tweet_b = Input(shape=(140, 256))
 
 # create fake data
@@ -32,17 +32,17 @@ data_b = np.random.random((1000, 140, 256))
 
 # This layer can take as input a matrix
 # and will return a vector of size 64
-shared_lstm = LSTM(64)
+shared_lstm = LSTM(64, name='encode_a_b')
 
 # When we reuse the same layer instance
 # multiple times, the weights of the layer
 # are also being reused
 # (it is effectively *the same* layer)
-encoded_a = shared_lstm(tweet_a)
-encoded_b = shared_lstm(tweet_b)
+encoded_a = shared_lstm(tweet_a) # (?, 64)
+encoded_b = shared_lstm(tweet_b) # (?, 64)
 
 # We can then concatenate the two vectors:
-merged_vector = concatenate([encoded_a, encoded_b], axis=-1)
+merged_vector = concatenate([encoded_a, encoded_b], axis=-1, name='cbind_encode_a_b') # (?, 64+64)
 
 """
 (['def concatenate(inputs, axis=-1, **kwargs):\n',
@@ -60,7 +60,7 @@ merged_vector = concatenate([encoded_a, encoded_b], axis=-1)
 """
 
 # And add a logistic regression on top
-predictions = Dense(1, activation='sigmoid')(merged_vector)
+predictions = Dense(1, activation='sigmoid', name='predictions')(merged_vector) # (?, 1)
 # create fake data for predictions: labels
 labels = np.random.random((1000, 1))
 
@@ -123,16 +123,16 @@ Simple enough, right?
 The same is true for the properties `input_shape` and `output_shape`: as long as the layer has only one node, or as long as all nodes have the same input/output shape, then the notion of "layer output/input shape" is well defined, and that one shape will be returned by `layer.output_shape`/`layer.input_shape`. But if, for instance, you apply a same `Conv2D` layer to an input of shape `(3, 32, 32)`, and then to an input of shape `(3, 64, 64)`, the layer will have multiple input/output shapes, and you will have to fetch them by specifying the index of the node they belong to:
 """
 
-a = Input(shape=(3, 32, 32))
-b = Input(shape=(3, 64, 64))
+a = Input(shape=(32, 32, 3))
+b = Input(shape=(64, 64, 3))
 
 conv = Conv2D(16, (3, 3), padding='same')
 conved_a = conv(a)
 
 # Only one input so far, the following will work:
-assert conv.input_shape == (None, 3, 32, 32)
+assert conv.input_shape == (None, 32, 32, 3)
 
 conved_b = conv(b)
 # now the `.input_shape` property wouldn't work, but this does:
-assert conv.get_input_shape_at(0) == (None, 3, 32, 32)
-assert conv.get_input_shape_at(1) == (None, 3, 64, 64)
+assert conv.get_input_shape_at(0) == (None, 32, 32, 3)
+assert conv.get_input_shape_at(1) == (None, 64, 64, 3)

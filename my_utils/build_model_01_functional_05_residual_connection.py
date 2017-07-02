@@ -10,7 +10,7 @@ For more information about residual networks, see [Deep Residual Learning for Im
 
 
 from tensorflow.contrib.keras.python.keras.layers import add, Input, Conv2D
-
+from tensorflow.contrib.keras.python.keras.models import Model
 # input tensor for a 3-channel 256x256 image
 # x = Input(shape=(3, 256, 256)) will cause error
 x = Input(shape=(256, 256, 3))
@@ -19,4 +19,7 @@ x = Input(shape=(256, 256, 3))
 # 3x3 conv with 3 output channels (same as input channels)
 y = Conv2D(3, (3, 3), padding='same')(x)
 # this returns x + y.
-z = add([x, y])
+z = add([x, y]) # take in same shape input tensor list, return same shape tensor, in order words, add([x,y]) is row-bind
+
+model = Model(x, z)
+model.summary()
