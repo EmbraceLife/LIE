@@ -19,8 +19,8 @@ from predict_model_03_stock_01_predict_stock_best_model_save_result import get_s
 index_preds_target = get_stock_preds_target(index_path)
 
 # zoom in and out
-closes = closes[-100:]
-index_preds_target = index_preds_target[-100:]
+closes = closes[-700:]
+index_preds_target = index_preds_target[-700:]
 
 ### get return curve dataset
 target_closes = closes/closes[0]# normalized price

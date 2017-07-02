@@ -28,6 +28,7 @@ Build a 2-hidden dense model
 
 from tensorflow.contrib.keras.python.keras.layers import Input, Dense
 from tensorflow.contrib.keras.python.keras.models import Model
+from tensorflow.contrib.keras.python.keras.utils import to_categorical
 import numpy as np
 
 # create an input tensor (placeholder)
@@ -49,9 +50,10 @@ model.compile(optimizer='rmsprop',
 # Generate dummy data
 import numpy as np
 data = np.random.random((1000, 784))
-labels = np.random.randint(2, size=(1000, 10))
+labels = np.random.randint(10, size=(1000, 1))
+labels = to_categorical(labels, num_classes=10)
 
-model.fit(data, labels)  # starts training
+model.fit(data, labels, validation_split=0.2)  # starts training
 
 
 

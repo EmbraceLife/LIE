@@ -21,11 +21,14 @@ model.add(Dense(64, activation='relu'))
 model.add(Dropout(0.5))
 model.add(Dense(1, activation='sigmoid'))
 
-model.compile(loss='binary_crossentropy',
+model.compile(loss='binary_crossentropy', # binary classification
               optimizer='rmsprop',
               metrics=['accuracy'])
 
-model.fit(x_train, y_train,
+hist = model.fit(x_train, y_train,
+          validation_split=0.2,
           epochs=1,
           batch_size=128)
+
+hist.history
 score = model.evaluate(x_test, y_test, batch_size=128)

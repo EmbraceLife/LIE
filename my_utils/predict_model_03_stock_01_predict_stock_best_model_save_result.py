@@ -25,7 +25,8 @@ def get_stock_preds_target(stock_path):
 
 
 	# load the best model so far, using the saved best model by author, not the one trained above
-	wp_best = wp.load_model("/Users/Natsume/Downloads/data_for_all/stocks/model.30.best")
+	wp_best = wp.load_model("/Users/Natsume/Downloads/data_for_all/stocks/best_models_trained/model.30.best")
+	# wp_best = wp.load_model("/Users/Natsume/Downloads/data_for_all/stocks/best_models_trained/model.30.best.bias_removed")
 	# error on unknown layer BatchRenormalization, if use the following line
 	# wp = load_model("/Users/Natsume/Downloads/DeepTrade_keras/author_log_weights/model.30.best")
 

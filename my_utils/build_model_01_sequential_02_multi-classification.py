@@ -45,13 +45,16 @@ model.add(Dropout(0.5))
 model.add(Dense(10, activation='softmax'))
 
 # specify optimizer
-sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
-model.compile(loss='categorical_crossentropy',
+sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True) # param adjust
+model.compile(loss='categorical_crossentropy', # multi-class
               optimizer=sgd,
               metrics=['accuracy'])
 
-model.fit(x_train, y_train,
+hist = model.fit(x_train, y_train,
+          validation_split=0.2,
           epochs=1,
           batch_size=128)
+
+print(hist.history)
 
 score = model.evaluate(x_test, y_test, batch_size=128)
