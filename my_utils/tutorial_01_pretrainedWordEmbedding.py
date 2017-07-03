@@ -130,23 +130,47 @@ print('Training model.')
 sequence_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')# (?, 1000) build placeholder for texts with any number of samples, 1000 in length each
 embedded_sequences = embedding_layer(sequence_input)# output tensor is (?, text_input_length, embedding_dim) == (?, 1000, 100) == each sample text has 1000 words to describe, each word has 100 dims to describe
 x = Conv1D(128, 5, activation='relu')(embedded_sequences) # (?, 996, 128), 996== 1000-4; 1D convolution layer (e.g. temporal convolution). This layer creates a convolution kernel that is convolved with the layer input over a single spatial (or temporal) dimension to produce a tensor of outputs. # maybe, Conv1D is like a single vector or one line of 5 pixel screener, moving from left to right, and from row to row
+# conv1d_t1 = x
 x = MaxPooling1D(5)(x) # (?, 199, 128), 199=(996-1)/5
+# maxp_t1 = x
 x = Conv1D(128, 5, activation='relu')(x) # (?, 195, 128), 195=199-4
+# conv1d_t2 = x
 x = MaxPooling1D(5)(x) # (?, 39, 128), 39 == 195/5
+# maxp_t2 = x
 x = Conv1D(128, 5, activation='relu')(x) # (?, 35, 128)
+# conv1d_t3 = x
 x = MaxPooling1D(35)(x) # (?, 1, 128)
+# maxp_t3 = x
 x = Flatten()(x) # (?, ?) not (?, 128) ??
+# flatten_t = x
 x = Dense(128, activation='relu')(x) # (?, 128)
+# dense_t = x
 preds = Dense(len(labels_index), activation='softmax')(x) # (?, 20)
 
 model = Model(sequence_input, preds) # a number of samples as input, preds as output tensors
 model.compile(loss='categorical_crossentropy',
               optimizer='rmsprop',
               metrics=['acc'])
+model.summary() # see layer output tensor shape and total params of each layer # model.layers[2].count_params() # calculate each layer's params
 
-model_path = "/Users/Natsume/Downloads/data_for_all/word_embeddings/pretrainedWordEmbedding_1.h5"
+# pp model.trainable_weights # display weights shape of each trainable layer
+"""
+Important Tips:
+
+Contemplating the following two tips deeply and patiently !!!!!!!!!!
+
+Compare model.summary() and pp model.trainable_weights, we can see that how Conv1D weights or filters are used to screen embedding_1 tensor
+
+In fact, for all layers, either weights of Conv1D, Dense, or that of Conv2D, consider them to be filters, to screen previous layer's tensor
+
+How embedding weights transform input_1 (?, 1000) to embedding_1 (?, 1000, 100)? deserve research later
+"""
+
+
+
+model_path = "/Users/Natsume/Downloads/data_for_all/word_embeddings/pretrainedWordEmbedding_2.h5"
 if os.path.isfile(model_path):
-	model= load_model("/Users/Natsume/Downloads/data_for_all/word_embeddings/pretrainedWordEmbedding_1.h5")
+	model= load_model("/Users/Natsume/Downloads/data_for_all/word_embeddings/pretrainedWordEmbedding_2.h5")
 
 model.fit(x_train, y_train,
           batch_size=128,
@@ -154,7 +178,7 @@ model.fit(x_train, y_train,
           validation_split=0.2)
         #   validation_data=(x_val, y_val))
 
-model.save("/Users/Natsume/Downloads/data_for_all/word_embeddings/pretrainedWordEmbedding_2.h5")
+model.save("/Users/Natsume/Downloads/data_for_all/word_embeddings/pretrainedWordEmbedding_3.h5")
 
 loss, accuracy = model.evaluate(x_test, y_test, batch_size=len(x_test), verbose=1)
 preds = model.predict(x_test)
