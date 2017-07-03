@@ -26,7 +26,7 @@ def csv_df_arrays(filename):
 
 	def fill_zeros(values):
 		for index in range(len(values)):
-			if values[index] == 0.0:
+			if values[index] == 0.0: # handing trading date without trading info 停牌
 				if values[index-1] != 0.0:
 					values[index] = values[index-1]
 				else:
@@ -44,7 +44,7 @@ def csv_df_arrays(filename):
 
 
 """
-# Example 
+# Example
 
 stock_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices/mdjt_prices.csv"
 

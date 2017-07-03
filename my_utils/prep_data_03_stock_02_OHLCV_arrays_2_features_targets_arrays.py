@@ -281,7 +281,7 @@ def extract_feature(selector, file_path, window=30, with_label=True, flatten=Fal
     indicators = IndicatorCreator(selector)
 
 	# differentiate csv files from indices and from individual stocks
-    if file_path.find("prices") > -1 or file_path.find("index") > -1:
+    if file_path.find("prices") > -1 or file_path.find("index") or file_path.find("ETF")> -1:
     	dates, opens, highs, lows, closes, volumes = csv_df_arrays(file_path)
     else:
     	_, dates, opens, highs, lows, closes, volumes = read_csv_2_arrays(file_path)
