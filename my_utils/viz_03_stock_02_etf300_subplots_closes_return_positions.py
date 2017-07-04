@@ -11,7 +11,7 @@ import numpy as np
 
 # get mdjt closes array
 from prep_data_03_stock_01_csv_2_pandas_2_arrays_DOHLCV import csv_df_arrays
-index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices/ETF50.csv"
+index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices/ETF300.csv"
 _,_,_,_, closes, _ = csv_df_arrays(index_path)
 
 # get mdjt preds_target array
@@ -41,12 +41,12 @@ accum_profit = np.array(daily_capital)-1
 plt.figure()
 ax1 = plt.subplot2grid((7, 3), (0, 0), colspan=3, rowspan=3)  # stands for axes
 ax1.plot(target_closes, c='blue', label='close_price')
-ax1.set_title('ETF50_close_2014.1_onward')
+ax1.set_title('ETF300_close_2014.1_onward')
 ax2 = plt.subplot2grid((7, 3), (3, 0), colspan=3, rowspan=3)
-ax2.set_title('ETF50_return')
+ax2.set_title('ETF300_return')
 ax2.plot(accum_profit, c='red', label='train_profit')
 ax3 = plt.subplot2grid((7, 3), (6, 0), colspan=3)
-ax3.set_title('ETF50_pos')
+ax3.set_title('ETF300_pos')
 X = np.arange(len(index_preds_target))
 ax3.bar(X, index_preds_target[:,0], facecolor='#9999ff', edgecolor='blue')
 
