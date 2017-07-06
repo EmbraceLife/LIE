@@ -1,6 +1,14 @@
 
 """
 ### How can I save a Keras model?
+- model.save("model_name.h5")
+- model.save_weights("model_weights_name.h5")
+- model1 = load_model("mode_name.h5")
+- model_in_json = model.to_json()
+- model_from_json = model_from_json(model_in_json)
+- model_from_json.load_weights("model_weights_name.h5")
+- model_from_json.load_weights("model_weights_name.h5", by_name=True) # when model_from_json has a few layers differ from model
+
 
 *It is not recommended to use pickle or cPickle to save a Keras model.*
 

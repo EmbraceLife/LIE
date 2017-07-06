@@ -1,5 +1,6 @@
 """
 Uses: func: get_stock_preds_target
+1. load the best trained model (Note: BatchRenormalization can only be loaded using wp object)
 1. convert a stock csv into an preds_target array
 
 Inputs:
@@ -16,6 +17,7 @@ from tensorflow.contrib.keras.python.keras.models import load_model
 from build_model_03_stock_02_build_compile_model_with_WindPuller_init import wp
 from prep_data_03_stock_05_get_stock_features_targets_from_csv import stock_csv_features_targets
 import numpy as np
+# from renormalization import BatchRenormalization
 
 def get_stock_preds_target(stock_path):
 # get mdjt data ready
@@ -24,11 +26,13 @@ def get_stock_preds_target(stock_path):
 	stock_features, stock_target = stock_csv_features_targets(stock_path)
 
 
-	# load the best model so far, using the saved best model by author, not the one trained above
-	wp_best = wp.load_model("/Users/Natsume/Downloads/data_for_all/stocks/best_models_trained/model.30.best")
+	# import BatchRenormalization or global BatchRenormalization won't help load_model()
+	# only wp.load_model() can bring BatchRenormalization into globals()
+	wp_best = wp.load_model("/Users/Natsume/Downloads/data_for_all/stocks/best_models_trained/model.30.4_bluechips_indices.best")
+	# wp_best = wp.load_model("/Users/Natsume/Downloads/data_for_all/stocks/best_models_trained/model.30.best")
 	# wp_best = wp.load_model("/Users/Natsume/Downloads/data_for_all/stocks/best_models_trained/model.30.best.bias_removed")
 	# error on unknown layer BatchRenormalization, if use the following line
-	# wp = load_model("/Users/Natsume/Downloads/DeepTrade_keras/author_log_weights/model.30.best")
+	# wp = wp.load_model("/Users/Natsume/Downloads/DeepTrade_keras/author_log_weights/model.30.best")
 
 
 	# predict with model on training, validation and test sets
@@ -40,6 +44,9 @@ def get_stock_preds_target(stock_path):
 
 	return preds_target
 
-# mdjt_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices/mdjt_prices.csv"
+"""
+Example
+"""
+mdjt_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices/mdjt_prices.csv"
 #
-# mdjt_preds_target = get_stock_preds_target(mdjt_path)
+mdjt_preds_target = get_stock_preds_target(mdjt_path)

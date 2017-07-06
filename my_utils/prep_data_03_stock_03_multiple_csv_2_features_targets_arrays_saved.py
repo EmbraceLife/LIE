@@ -61,10 +61,10 @@ test_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targe
 user_indicators = ["ROCP", "OROCP", "HROCP", "LROCP", "MACD", "RSI", "VROCP", "BOLL", "MA", "VMA", "PRICE_VOLUME"]
 
 # dir_path for stock csv
-dataset_dir = "/Users/Natsume/Downloads/data_for_all/stocks/indices"
+dataset_dir = "/Users/Natsume/Downloads/data_for_all/stocks/dataset"
 
 # count number of csv to use for creating features array and target arrays
-total_csv_combine = 3
+total_csv_combine = 25
 current_num_csv = 0
 
 # loop through every csv to convert from csv to arrays OHLCV, to arrays features and targets, and concatenate features and targets of different csv files

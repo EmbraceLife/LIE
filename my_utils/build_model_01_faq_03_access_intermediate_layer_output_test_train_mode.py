@@ -19,7 +19,7 @@ layer_name = 'my_layer'
 intermediate_layer_model = Model(inputs=model.input,
                                  outputs=model.get_layer(layer_name).output)
 
-# must compile before predict???
+# must compile before predict? No, but must compile before training
 input_array1 = np.random.random((1000, 100))*9
 intermediate_output = intermediate_layer_model.predict(input_array1)
 

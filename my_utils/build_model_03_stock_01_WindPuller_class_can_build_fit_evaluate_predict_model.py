@@ -16,12 +16,22 @@ from keras.models import Sequential
 from keras.optimizers import SGD, RMSprop
 from keras.models import load_model
 from keras.initializers import Constant
+import keras.backend as K
+from keras.utils.generic_utils import get_custom_objects
+
+def relu_limited(x, alpha=0., max_value=1.):
+    return K.relu(x, alpha=alpha, max_value=max_value)
+
+get_custom_objects().update({'custom_activation': Activation(relu_limited)})
+
+def risk_estimation(y_true, y_pred):
+    return -100. * K.mean((y_true - 0.0002) * y_pred)
 
 
 
 class WindPuller(object):
 
-    def __init__(self, input_shape, lr=0.01, n_layers=2, n_hidden=8, rate_dropout=0.2, loss='risk_estimation'):
+    def __init__(self, input_shape, lr=0.01, n_layers=2, n_hidden=8, rate_dropout=0.2, loss=risk_estimation):
 
         print("initializing..., learing rate %s, n_layers %s, n_hidden %s, dropout rate %s." %(lr, n_layers, n_hidden, rate_dropout))
 
@@ -48,7 +58,7 @@ class WindPuller(object):
         # self.model.add(BatchNormalization(axis=-1, moving_mean_initializer=Constant(value=0.5),
         #               moving_variance_initializer=Constant(value=0.25)))
         self.model.add(BatchRenormalization(axis=-1, beta_init=Constant(value=0.5)))
-        self.model.add(Activation('relu_limited'))
+        self.model.add(Activation(relu_limited))
 
 		# compile model
         opt = RMSprop(lr=lr)
