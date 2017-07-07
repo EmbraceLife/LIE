@@ -1,6 +1,18 @@
 """
-### How can I obtain the output of an intermediate layer?
+### Access middle layers (in test mode or train mode)?
 
+- middle_layer_tensor = Model(input_tenor, middle_layer_tensor).predict(input_array)
+
+- middle_layer_tensor = K.function([input_tensor], [output_tensor])([input_array])[0]
+
+- middle_layer_tensor = K.function([input_tensor, K.learning_phase()], [output_tensor])([input_array, 0])[0] # for test mode
+
+- middle_layer_tensor = K.function([input_tensor, K.learning_phase()], [output_tensor])([input_array, 1])[0] # for train mode
+
+"""
+
+
+"""
 todo: K.learning_phase()???
 
 One simple way is to create a new `Model` that will output the layers that you are interested in:
@@ -8,6 +20,7 @@ One simple way is to create a new `Model` that will output the layers that you a
 
 from tensorflow.contrib.keras.python.keras.models import Model
 from tensorflow.contrib.keras.python.keras.layers import Input, Dense
+from tensorflow.contrib.keras.python.keras import backend as K
 import numpy as np
 
 input_tensor = Input(shape=(100,), name="input_tensor")
@@ -21,7 +34,9 @@ intermediate_layer_model = Model(inputs=model.input,
 
 # must compile before predict? No, but must compile before training
 input_array1 = np.random.random((1000, 100))*9
-intermediate_output = intermediate_layer_model.predict(input_array1)
+input_tensor1 = K.constant(value=input_array1)
+intermediate_output = intermediate_layer_model.predict(input_array1) # return array
+intermediate_output1 = intermediate_layer_model(input_tensor1) # return tensor not array; tensor is no use and a long way to go to reach array
 
 """
 Alternatively, you can build a Keras function that will return the output of a certain layer given a certain input, for example:

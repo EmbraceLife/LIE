@@ -1,13 +1,10 @@
 """
-### How can I use Keras with datasets that don't fit in memory?
+# train, evaluate, predict in batches to fit large dataset into memory
 
-You can do batch training using `model.train_on_batch(x, y)` and `model.test_on_batch(x, y)`. See the [models documentation](/models/sequential).
+- train_on_batch() and test_on_batch() is to train or test the whole dataset at once (no matter how big they are)
 
-Alternatively, you can write a generator that yields batches of training data and use the method `model.fit_generator(data_generator, steps_per_epoch, epochs)`.
+- model.fit(batch_size), model.fit_generator() are to train a small batch at a time until all dataset are trained
 
-You can see batch training in action in our [CIFAR10 example](https://github.com/fchollet/keras/blob/master/examples/cifar10_cnn.py).
-
-`model.fit()` has batch_size can do the same
 """
 
 from tensorflow.contrib.keras.python.keras.layers import Dropout, BatchNormalization, Input, Dense
@@ -27,8 +24,8 @@ final_tensor = Dense(1)(dp_tensor)
 model = Model(input_tensor, final_tensor)
 model.compile(optimizer='SGD', loss='mse')
 
-# x, y are just a single batch of dataset
-model.train_on_batch(x, y)
+# x, y won't get into batches for training here
+loss_on_batch = model.train_on_batch(x, y) # dive in for details
 """
 ('Runs a single gradient update on a single batch of data.\n'
  '\n'
@@ -64,8 +61,11 @@ model.train_on_batch(x, y)
  '    and/or metrics). The attribute `model.metrics_names` will give you\n'
  '    the display labels for the scalar outputs.')
 """
-
-model.fit(x, y, batch_size=2)
+# fit_loop() will help split x, y into batches for training in batches
+hist = model.fit(x, y, validation_split=0.1, batch_size=2, epochs=5)
+hist.history # a dict of val_loss and loss
+hist.history['val_loss']
+hist.history['loss']
 """
 (['  def fit(self,\n',
   '          x=None,\n',

@@ -299,7 +299,7 @@ def extract_feature(selector, file_path, window=30, with_label=True, flatten=Fal
                                                        with_label=with_label, flatten=flatten)
         return moving_features
 
-
+"""
 ### dataset example 1
 # try dataset from csv to objets to arrays
 # from prep_data_03_stock_01_csv_2_objects_2_arrays_DOHLCV import opens, highs, lows, closes, volumes
@@ -320,3 +320,4 @@ user_indicators = ["ROCP", "OROCP", "HROCP", "LROCP", "MACD", "RSI", "VROCP", "B
 moving_indicators_features, moving_real_price_changes = extract_feature(selector=user_indicators, file_path=stock_path)
 
 moving_real_price_changes.shape
+"""

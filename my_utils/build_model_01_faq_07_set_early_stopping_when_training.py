@@ -1,8 +1,9 @@
 
 """
-### How can I interrupt training when the validation loss isn't decreasing anymore?
+### Early stopping training when the validation loss isn't decreasing anymore
 
 callbacks: EarlyStopping
+
 - monitor: 'val_loss' and possibly others too, but no idea what are they
 - patince: wait for num of losses increase before stop
 - mode: auto, min or max

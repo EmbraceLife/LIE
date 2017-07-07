@@ -1,6 +1,6 @@
 
 """
-### How can I save a Keras model?
+### Save and Load models and weights
 - model.save("model_name.h5")
 - model.save_weights("model_weights_name.h5")
 - model1 = load_model("mode_name.h5")
@@ -8,7 +8,10 @@
 - model_from_json = model_from_json(model_in_json)
 - model_from_json.load_weights("model_weights_name.h5")
 - model_from_json.load_weights("model_weights_name.h5", by_name=True) # when model_from_json has a few layers differ from model
+"""
 
+
+"""
 
 *It is not recommended to use pickle or cPickle to save a Keras model.*
 
@@ -28,6 +31,7 @@ Example:
 
 
 from tensorflow.contrib.keras.python.keras.models import load_model, Model, Sequential
+from tensorflow.contrib.keras.python.keras.models import model_from_json, model_from_yaml
 from tensorflow.contrib.keras.python.keras.layers import Input, Dense
 
 input_tensor = Input(shape=(100,))
@@ -61,11 +65,9 @@ You can then build a fresh model from this data:
 """
 
 # model reconstruction from JSON:
-from tensorflow.contrib.keras.python.keras.models import model_from_json
 model_json = model_from_json(json_string)
 
 # model reconstruction from YAML
-from tensorflow.contrib.keras.python.keras.models import model_from_yaml
 model_yaml = model_from_yaml(yaml_string)
 
 """

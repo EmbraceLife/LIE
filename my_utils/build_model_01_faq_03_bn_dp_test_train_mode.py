@@ -1,8 +1,12 @@
+"""
+Example on middle layer output on train and test mode
 
-###############
+- BatchNormalization layer output arrays on test and train mode
+
+- Dropout layer output arrays on test and train mode
 """
-See the effect of BatchNormalization and Dropout
-"""
+
+
 from tensorflow.contrib.keras.python.keras.layers import Dropout, BatchNormalization, Input
 from tensorflow.contrib.keras.python.keras.models import Model
 import numpy as np
@@ -16,23 +20,39 @@ bn_tensor = BatchNormalization()(input_tensor)
 dp_tensor = Dropout(0.7)(input_tensor)
 
 
+#### Access BatchNormalization layer's output as arrays in both test, train mode
 
-#### for BatchNormalization, to see the effect of BatchNormalization
 # test mode from Model method
 model_bn = Model(input_tensor, bn_tensor)
 bn_array = model_bn.predict(input_array_small)
+
 # test and train mode from K.function method
 k_bn = K.function([input_tensor, K.learning_phase()], [bn_tensor])
 bn_array_test = k_bn([input_array_small, 0])[0]
 bn_array_train = k_bn([input_array_small, 1])[0]
 
-#### for Dropout, to see the effect
+# are test mode the same? and test mode array differ from train mode array
+(bn_array == bn_array_test).sum()
+bn_array.shape # compare to see for equality
+(bn_array == bn_array_train).sum() # total differ
+
+
+
+#### Access Dropout layer's output as array in both test and train mode
+
 # test mode from Model method
 model_dp = Model(input_tensor, dp_tensor)
 dp_array = model_dp.predict(input_array_small)
+
 # test and train mode from K.function method
 k_dp = K.function([input_tensor, K.learning_phase()], [dp_tensor])
 dp_array_test = k_dp([input_array_small, 0])[0]
 dp_array_train = k_dp([input_array_small, 1])[0]
+
+# are test mode the same? and test mode array differ from train mode array
+(dp_array == dp_array_test).sum()
+dp_array.shape # compare to see for equality
+(dp_array == dp_array_train).sum() # total differ
+
 
 ### both BatchNormalization and Droput have some basic operations prior to Normalization and Droping, Diving into the source when feeling so

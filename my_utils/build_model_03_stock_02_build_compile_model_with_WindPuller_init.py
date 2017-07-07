@@ -15,7 +15,7 @@ from build_model_03_stock_01_WindPuller_class_can_build_fit_evaluate_predict_mod
 
 # input_shape (window, num_indicators)
 input_shape = (30, 61)
-lr = 0.002
+lr = 0.001 # first floyd_model2_1000 used 0.002
 n_layers = 1
 n_hidden=16
 rate_dropout = 0.3

@@ -1,3 +1,12 @@
+"""
+Concept Explanation
+- GPU
+- sample
+- batch
+- epoch
+
+"""
+
 
 """
 ### How should I cite Keras?

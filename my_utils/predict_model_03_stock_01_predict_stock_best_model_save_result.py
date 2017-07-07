@@ -28,9 +28,11 @@ def get_stock_preds_target(stock_path):
 
 	# import BatchRenormalization or global BatchRenormalization won't help load_model()
 	# only wp.load_model() can bring BatchRenormalization into globals()
-	wp_best = wp.load_model("/Users/Natsume/Downloads/data_for_all/stocks/best_models_trained/model.30.4_bluechips_indices.best")
+	# wp_best = wp.load_model("/Users/Natsume/Downloads/data_for_all/stocks/best_models_trained/model4_new.best") # xiaoyu trained this new model
+	# wp_best = wp.load_model("/Users/Natsume/Downloads/data_for_all/stocks/floyd_train/floyd_model2_1000/floyd_model2_1000.h5") # floyd model2 1000 epochs, but lr = 0.002
+	# wp_best = wp.load_model("/Users/Natsume/Downloads/data_for_all/stocks/best_models_trained/model.30.4_bluechips_indices.best")
 	# wp_best = wp.load_model("/Users/Natsume/Downloads/data_for_all/stocks/best_models_trained/model.30.best")
-	# wp_best = wp.load_model("/Users/Natsume/Downloads/data_for_all/stocks/best_models_trained/model.30.best.bias_removed")
+	wp_best = wp.load_model("/Users/Natsume/Downloads/data_for_all/stocks/best_models_trained/model.30.best.bias_removed")
 	# error on unknown layer BatchRenormalization, if use the following line
 	# wp = wp.load_model("/Users/Natsume/Downloads/DeepTrade_keras/author_log_weights/model.30.best")
 
@@ -47,6 +49,6 @@ def get_stock_preds_target(stock_path):
 """
 Example
 """
-mdjt_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices/mdjt_prices.csv"
-#
-mdjt_preds_target = get_stock_preds_target(mdjt_path)
+# mdjt_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices/mdjt_prices.csv"
+# #
+# mdjt_preds_target = get_stock_preds_target(mdjt_path)
