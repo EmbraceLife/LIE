@@ -38,8 +38,8 @@ from prep_data_utils_01_save_load_large_arrays_bcolz_np_pickle_torch import bz_s
 # set days for training, validation and testing
 days_for_valid = 1000
 days_for_test = 700 # number of test samples
-input_shape = [30, 61]  # [length of time series, length of feature]
-window = input_shape[0]
+# input_shape = [30, 24] # [30, 61]  # [length of time series, length of feature]
+# window = input_shape[0]
 
 # create gobal variables for storing training, validation and testing features arrays and targets arrays
 train_features = None
@@ -57,12 +57,16 @@ train_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/QCG_features_
 test_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/QCG_features_targets/test_features_path"
 test_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/QCG_features_targets/test_targets_path"
 
-### When we need 61 + 4 OHLC indicators
+########################################################################
+### How many indicators do we use to create features
+########################################################################
+### Situation 1: use 61 indicators without using OHLC as features
 # user selected indicators for converting OHLCV to
 # user_indicators = ["ROCP", "OROCP", "HROCP", "LROCP", "MACD", "RSI", "VROCP", "BOLL", "MA", "VMA", "PRICE_VOLUME"]
 
-### when we only need 20 MA + 4 OHLC indicators
-user_indicators = ["MA"] # only select MA
+### Situation 2: 20 MA indicators + 4 OHLC as indicators
+user_indicators = ["MA"] # only select MA,
+# and OHLC as features are added by comment free a 4 lines of code in  'prep_data_03_stock_02_OHLCV_arrays_2_features_targets_arrays.py'
 
 # dir_path for stock csv
 dataset_dir = "/Users/Natsume/Downloads/data_for_all/stocks/dataset"

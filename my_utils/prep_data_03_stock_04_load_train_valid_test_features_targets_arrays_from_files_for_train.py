@@ -17,8 +17,9 @@ from prep_data_utils_01_save_load_large_arrays_bcolz_np_pickle_torch import bz_l
 import numpy as np
 # create paths for loading those arrays above
 
-
+########################################################################
 #### load data from local folders, training locally
+########################################################################
 train_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/QCG_features_targets/train_features_path"
 train_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/QCG_features_targets/train_targets_path"
 
@@ -28,7 +29,10 @@ valid_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/QCG_features_
 test_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/QCG_features_targets/test_features_path"
 test_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/QCG_features_targets/test_targets_path"
 
+
+########################################################################
 ##### loading data from Floyd input folder, For floyd training
+########################################################################
 
 # train_features_path = "/input/train_features_path"
 # train_targets_path = "/input/train_targets_path"
@@ -59,6 +63,12 @@ test_features = np.transpose(test_features, (0, 2, 1))
 print("train_features, train_targets, shapes: \n")
 print(train_features.shape)
 print(train_targets.shape)
+print("-----------------------------------")
+print("first row of features:")
+print(train_features[0])
+print("first 100 values of train_targets:")
+print(train_targets[:100])
+print("-----------------------------------")
 # check_test_f = np.load("/Users/Natsume/Downloads/data_for_all/stocks/test_features_check.npy")
 # check_test_l = np.load("/Users/Natsume/Downloads/data_for_all/stocks/test_labels_check.npy")
 #

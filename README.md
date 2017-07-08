@@ -1,12 +1,6 @@
 # LIE: Learning Is Experimenting
 
-Do you believe in LIE?
-
-Step by step, this repo's history (see history commits) will testify LIE.
-
-**LIE**
-Learning how to use NeuralNets by primarily diving in working examples and source codes, not reading blogs or papers.
-
+Can we learn deep learning in depth by just experimenting working examples?
 
 # transfer learning based on VGG16
 - learn source codes of tf with example on VGG16
@@ -16,10 +10,6 @@ Learning how to use NeuralNets by primarily diving in working examples and sourc
 	- process of weights update through running each sample
 	- process of effects of small and large learning rate
 - core tf.contrib.keras building VGG16
-
-# pandas and finance
-- https://www.datacamp.com/community/tutorials/finance-python-trading#gs.vBkZrk0
-- http://training.tpq.io/
 
 # Understanding the nature of transfer learning
 - uniqueness about imagenet datasets for this task
