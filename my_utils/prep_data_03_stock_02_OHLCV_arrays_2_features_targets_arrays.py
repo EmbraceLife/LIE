@@ -189,6 +189,12 @@ class IndicatorCreator(object):
             ma180rocp = talib.ROCP(ma180, timeperiod=1)
             ma360rocp = talib.ROCP(ma360, timeperiod=1)
             ma720rocp = talib.ROCP(ma720, timeperiod=1)
+			# add OHLC for qcg_model_2000 only, for other models must comment out
+            # self.feature.append(close_prices)
+            # self.feature.append(open_prices)
+            # self.feature.append(high_prices)
+            # self.feature.append(low_prices)
+
             self.feature.append(ma5rocp)
             self.feature.append(ma10rocp)
             self.feature.append(ma20rocp)

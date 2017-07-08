@@ -19,25 +19,25 @@ import numpy as np
 
 
 #### load data from local folders, training locally
-# train_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/train_features_path"
-# train_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/train_targets_path"
-#
-# valid_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/valid_features_path"
-# valid_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/valid_targets_path"
-#
-# test_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/test_features_path"
-# test_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/test_targets_path"
+train_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/QCG_features_targets/train_features_path"
+train_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/QCG_features_targets/train_targets_path"
+
+valid_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/QCG_features_targets/valid_features_path"
+valid_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/QCG_features_targets/valid_targets_path"
+
+test_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/QCG_features_targets/test_features_path"
+test_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/QCG_features_targets/test_targets_path"
 
 ##### loading data from Floyd input folder, For floyd training
 
-train_features_path = "/input/train_features_path"
-train_targets_path = "/input/train_targets_path"
-
-valid_features_path = "/input/valid_features_path"
-valid_targets_path = "/input/valid_targets_path"
-
-test_features_path = "/input/test_features_path"
-test_targets_path = "/input/test_targets_path"
+# train_features_path = "/input/train_features_path"
+# train_targets_path = "/input/train_targets_path"
+#
+# valid_features_path = "/input/valid_features_path"
+# valid_targets_path = "/input/valid_targets_path"
+#
+# test_features_path = "/input/test_features_path"
+# test_targets_path = "/input/test_targets_path"
 
 train_features = bz_load_array(train_features_path)
 train_targets = bz_load_array(train_targets_path)
@@ -64,3 +64,6 @@ print(train_targets.shape)
 #
 # test_targets == check_test_l
 # test_features_t == check_test_f
+
+###### Test floyd on this file
+# floyd run --env keras --data DJeKLuEpYqJPBYhxViyRfm --gpu "python prep_data_03_stock_04_load_train_valid_test_features_targets_arrays_from_files_for_train.py"

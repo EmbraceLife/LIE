@@ -35,6 +35,7 @@ def get_stock_preds_target(stock_path):
 	wp_best = wp.load_model("/Users/Natsume/Downloads/data_for_all/stocks/best_models_trained/model.30.best.bias_removed")
 	# error on unknown layer BatchRenormalization, if use the following line
 	# wp = wp.load_model("/Users/Natsume/Downloads/DeepTrade_keras/author_log_weights/model.30.best")
+	# wp_best = wp.load_model("/Users/Natsume/Downloads/data_for_all/stocks/floyd_train/qcg_train_only_ma/qcg_model_2000.h5")
 
 
 	# predict with model on training, validation and test sets

@@ -24,7 +24,8 @@ def stock_csv_features_targets(filepath):
 	# dates, opens, highs, lows, closes, volumes = csv_df_arrays(filepath)
 
 	# all internal supported indicators are selected here
-	user_indicators = ["ROCP", "OROCP", "HROCP", "LROCP", "MACD", "RSI", "VROCP", "BOLL", "MA", "VMA", "PRICE_VOLUME"]
+	user_indicators = ["ROCP", "OROCP", "HROCP", "LROCP", "MACD", "RSI", "VROCP", "BOLL", "MA", "VMA", "PRICE_VOLUME"] # for most model cases
+	# user_indicators = ['MA'] # only used for qcg model
 
 	# get features array and target array
 	moving_indicators_features, moving_real_price_changes = extract_feature(selector=user_indicators, file_path=filepath)
