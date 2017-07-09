@@ -11,3 +11,5 @@
 - combination_multiple_linear_functions
 - non-linear
 - activation_function
+- supervised_learning
+- unsupervised_learning
