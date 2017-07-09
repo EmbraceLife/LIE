@@ -11,7 +11,7 @@
 ## Understanding
 1. cross_entropy == log_loss == measure similarity between predictions and true labels|targets, when targets are multiple classes
 2. cross_entropy value is small or even down to 0, if predictions are very close to true class targets, or even exact the same to true class targets
-3. cross_entropy can be used as loss function to represent the relationship between predictions on classes and true targets on classes 
+3. cross_entropy can be used as loss function to represent the relationship between predictions on classes and true targets on classes
 
 ## sources
 [quora](https://www.quora.com/Whats-an-intuitive-way-to-think-of-cross-entropy)
