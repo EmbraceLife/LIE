@@ -18,10 +18,12 @@ todo: K.learning_phase()???
 One simple way is to create a new `Model` that will output the layers that you are interested in:
 """
 
-from tensorflow.contrib.keras.python.keras.models import Model
+from tensorflow.contrib.keras.python.keras.models import Model, Sequential
 from tensorflow.contrib.keras.python.keras.layers import Input, Dense
 from tensorflow.contrib.keras.python.keras import backend as K
 import numpy as np
+
+
 
 input_tensor = Input(shape=(100,), name="input_tensor")
 inter_tensor = Dense(30, name="my_layer")(input_tensor)

@@ -36,3 +36,8 @@ python -m pdb /Users/Natsume/Downloads/LIE/my_utils/build_model_03_stock_03_trai
 ```
 python -m pdb /Users/Natsume/Downloads/LIE/my_utils/viz_03_stock_02_ETF_predict_return_plots.py
 ```
+
+## look inside the model structure
+```
+python -m pdb build_model_03_stock_02_build_compile_model_with_WindPuller_init.py
+```

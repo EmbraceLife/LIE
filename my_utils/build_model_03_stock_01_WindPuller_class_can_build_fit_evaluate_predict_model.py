@@ -10,7 +10,7 @@ Uses:
 
 """
 
-from keras.layers import Dense, LSTM, Activation, BatchNormalization, Dropout, initializers
+from keras.layers import Dense, LSTM, Activation, BatchNormalization, Dropout, initializers, Input
 from renormalization import BatchRenormalization
 from keras.models import Sequential
 from keras.optimizers import SGD, RMSprop
@@ -87,3 +87,9 @@ class WindPuller(object):
 
     def predict(self, x, batch_size=32, verbose=0):
         return self.model.predict(x, batch_size, verbose)
+
+# """
+# test model building
+# """
+# model = WindPuller(input_shape = (30, 61))
+# model.summary()

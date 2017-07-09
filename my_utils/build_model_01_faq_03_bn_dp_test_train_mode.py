@@ -7,13 +7,12 @@ Example on middle layer output on train and test mode
 """
 
 
-from tensorflow.contrib.keras.python.keras.layers import Dropout, BatchNormalization, Input
-from tensorflow.contrib.keras.python.keras.models import Model
+from tensorflow.contrib.keras.python.keras.layers import Dropout, BatchNormalization, Input, Dense
+from tensorflow.contrib.keras.python.keras.models import Model, Sequential
 import numpy as np
 from tensorflow.contrib.keras.python.keras import backend as K
 
 input_array_small = np.random.random((10,10))*2
-
 
 input_tensor = Input(shape=(10,))
 bn_tensor = BatchNormalization()(input_tensor)
@@ -56,3 +55,14 @@ dp_array.shape # compare to see for equality
 
 
 ### both BatchNormalization and Droput have some basic operations prior to Normalization and Droping, Diving into the source when feeling so
+
+
+#### from Sequential model, access the middle layer's output array
+
+model_seq = Sequential()
+model_seq.add(Dropout(0.3, input_shape=(10,)))
+model_seq.add(BatchNormalization())
+model_seq.add(Dense(1))
+
+preds1 = K.function([model_seq.input, K.learning_phase()], [model_seq.layers[-2].output])([input_array_small, 0])[0]
+preds = model_seq.predict(input_array_small)

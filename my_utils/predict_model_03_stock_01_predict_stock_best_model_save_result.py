@@ -13,7 +13,8 @@ Return:
 
 
 
-from tensorflow.contrib.keras.python.keras.models import load_model
+from tensorflow.contrib.keras.python.keras.models import load_model, Model
+from tensorflow.contrib.keras.python.keras import backend as K
 from build_model_03_stock_02_build_compile_model_with_WindPuller_init import wp
 from prep_data_03_stock_05_get_stock_features_targets_from_csv import stock_csv_features_targets
 import numpy as np
@@ -36,7 +37,6 @@ def get_stock_preds_target(stock_path):
 	# error on unknown layer BatchRenormalization, if use the following line
 	# wp = wp.load_model("/Users/Natsume/Downloads/DeepTrade_keras/author_log_weights/model.30.best")
 	# wp_best = wp.load_model("/Users/Natsume/Downloads/data_for_all/stocks/floyd_train/qcg_train_only_ma/qcg_model_2000.h5")
-
 
 	# predict with model on training, validation and test sets
 	pred_capital_pos = wp_best.predict(stock_features)
