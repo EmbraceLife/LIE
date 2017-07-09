@@ -1,5 +1,5 @@
 """
-- use (X, y) to train a network to imitate xor function, in reality we don't know what exact the true function we want to learn
+- use (X, y) to train a network to imitate xor function, in reality most of time, we don't know what exact the true function we want to learn
 - a model with 2 layers, 9 parameters in total, perform a xor function
 - activation takes no parameters, make the previous layer output non-linear
 - why activation function to make non-linear? world is non-linear
