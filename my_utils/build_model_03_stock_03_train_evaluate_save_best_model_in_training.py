@@ -1,4 +1,9 @@
 """
+train_deep_trader_model
+- get dataset ready
+- train a number of epochs
+- save trained and tensorboard log
+
 Uses:     run this file
 1. to train the model built and compiled in previous source file
 2. create a tensorboard for it

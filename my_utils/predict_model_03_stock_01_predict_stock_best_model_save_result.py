@@ -1,4 +1,10 @@
 """
+predict_on_best_deep_trader_model
+- get new dataset to predict on
+- load best model
+- make prediction
+- cbind predictions with y_true
+
 Uses: func: get_stock_preds_target
 1. load the best trained model (Note: BatchRenormalization can only be loaded using wp object)
 1. convert a stock csv into an preds_target array

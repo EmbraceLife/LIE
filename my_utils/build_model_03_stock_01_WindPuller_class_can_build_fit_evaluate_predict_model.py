@@ -1,4 +1,6 @@
 """
+deep_trader_model_Sequential
+
 Uses:
 1. WindPuller class
 	- __init__: build a model and compile

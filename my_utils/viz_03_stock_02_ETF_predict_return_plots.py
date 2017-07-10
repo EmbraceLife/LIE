@@ -1,4 +1,10 @@
 """
+plot_price_return_num_trades
+- get predictions of a stock
+- calc cumulative return
+- calc num_trades
+- do subplots
+
 ### Summary
 - combine training, valid, test predictions arrays into one array
 - get cumulative return curve

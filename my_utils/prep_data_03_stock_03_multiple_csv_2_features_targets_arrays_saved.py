@@ -1,5 +1,16 @@
 # source from https://github.com/happynoom/DeepTrade_keras
 """
+extract_features_target_from_csv_multiple
+- from a stock csv file, extract features array, target array
+- split each array into train, valid, test 3 sub_arrays groups
+- do the same two steps to another csv
+- rbind 3 new sub_arrays onto previous 3 sub_arrays groups
+- return 3 large arrays groups (each group has features array, target array)
+- total 6 arrays are saved in 6 files
+- this file work specifically on indices dataset
+
+
+
 Uses:
 1. run this file, to turn a number of csv files, into train_features_array, train_target_array, valid_features_array, valid_target array, test_features_array, test_target_array
 2. save thest 6 arrays into folders with bz_save_array

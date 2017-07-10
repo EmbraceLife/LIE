@@ -1,6 +1,6 @@
 ## re-organise my code
 - keywords
-- one purpose one file
+- one purpose one file (stock is done)
 - deep learning book (simple version)
 - how far can I go without reading math equations?
 - build models from simple to complex

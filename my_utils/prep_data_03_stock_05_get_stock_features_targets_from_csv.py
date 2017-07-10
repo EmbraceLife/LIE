@@ -1,4 +1,8 @@
 """
+prepare_new_stock_data_to_predict
+- get a totally new dataset or stock
+- get features array and target array out of it
+
 Uses:
 1. stock_csv_features_targets:
 	- to turn a stock csv to features_array, target_array

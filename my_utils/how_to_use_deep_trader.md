@@ -1,4 +1,4 @@
-# How to run deep trader? 如何使用深度交易者代码？
+# deep_trader_guide? 如何使用深度交易者代码？
 
 所有代码在https://github.com/EmbraceLife/LIE/tree/master/my_utils
 

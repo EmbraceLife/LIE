@@ -1,6 +1,9 @@
-# source from https://github.com/happynoom/DeepTrade_keras
-
 """
+extract_features_target_from_csv
+- from a stock csv file, extract features array, target array
+- eatures array has 61 indicators
+- target array has price_change
+
 Uses: extract_feature()
 1. with OHLCV arrays and many indicators, create features array and target array
 2. example using it

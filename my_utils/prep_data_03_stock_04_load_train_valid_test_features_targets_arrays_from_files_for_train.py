@@ -1,4 +1,7 @@
 """
+load_train_valid_test_features_target_arrays
+- load these arrays from files before training
+
 Uses:
 1. load train, valid, test pairs for feature array and target array from files
 2. transpose its dimensions from (0, 1, 2) to (0, 2, 1)

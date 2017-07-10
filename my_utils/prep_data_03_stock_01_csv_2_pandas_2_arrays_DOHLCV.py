@@ -1,4 +1,10 @@
 """
+csv_df_arrays
+- convert csv to df
+- convert df to many arrays
+- from nan to number 0.0
+- fill 0.0 with values before and after
+
 Uses:
 1. csv_df_arrays(file_path)
 2. Example of using it
@@ -23,6 +29,12 @@ def csv_df_arrays(filename):
 	lows = stock[:, 4].astype('float')
 	closes = stock[:, 5].astype('float')
 	volumes = stock[:, 6].astype('float')
+
+	opens = np.nan_to_num(opens)
+	highs = np.nan_to_num(highs)
+	lows = np.nan_to_num(lows)
+	closes = np.nan_to_num(closes)
+	volumes = np.nan_to_num(volumes)
 
 	def fill_zeros(values):
 		for index in range(len(values)):

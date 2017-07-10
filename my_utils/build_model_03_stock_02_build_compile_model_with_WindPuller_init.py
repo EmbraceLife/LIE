@@ -1,4 +1,9 @@
 """
+instantiate_deep_trader_model
+- set parameters
+- build a model object
+- check its summary
+
 Uses:
 1. run this file to build and compile a WindPuller model
 
