@@ -4,6 +4,12 @@
 
 ## How to design loss_function
 
+## more discussion
+[Chinese discussion](https://3509763625.docs.qq.com/IHdgocxxaqq?type=1&ptlang=1033&ptlang=1033&_wv=1)
+[Discussion with Trask](https://nd101.slack.com/archives/D41LA4DEK/p1499710345549332)
+-
+
+
 ## example
 - search `risk_estimation` in this repo
 - `cross_entropy`: try it in the drawing below
@@ -16,3 +22,6 @@
 
 [video link cn](https://pan.baidu.com/s/1nvPu65F)
 [youtube](https://youtu.be/RgSz6UAnt0w)
+
+## Latest update
+![](https://lh3.googleusercontent.com/0pauvVty1yIWlqJx_v3oxBQtJMcwrY6Om-CDJDUCeGic5N-ywYNGNDzazmjVZuYy_hK-7yATabg8KKnhWM-e_IqoMsEsykRlhY9S2trCSsbEeIQmoxsyogDbTtdIFPsrzgZgFx96gmUIMfDSsFSfBWtuSfhTfWANlxFSt1CU3zl_A0ba-x_1gf0JC5HSqS-S1ogHPuy0ISCZKE7nnE3VEl5UaBtKPaUfWWzc9IOgdISPwWFD86hJaueV5_UVKs3omAwIKs4wLfGj0VG4KIo5rz9mSuHzLI1MTpHBW1AewQHHsfIaLcKx64S3RVY6oHQZ57W_iTW26acCvNLCNRjtJdUqq9PhkWOPWRNU8CB0JJwm5STUMSi-BIgGmyVLDV8U-W5HeIDp3_0oYUajhAKShNrbv7Q55_J_kUunTCQffy8N8kuA0wK79a_JUTCKFrPvL8Baz5SzkU42rIg7_z5mfJ0o5QxZsCPHSNIkg7Cqn_z9cZyNZk72ty2cUQkGFIVKubuXsmRh0gW-AvyuOaBPIecIR5YuH6BE-PscPeBUMo6JGNvFO1o9mmnX51-ID4fE3gD-F-HaDaYXu9YJnPfR5aXKPRCMIKokmmWD2sP0qkY__5eTFrdGXQYN=w1608-h1136-no)
