@@ -1,5 +1,10 @@
 
 """
+save_load_model
+save_load_weights
+save_load_weights_by_layer_name
+extract_model_structure
+
 ### Save and Load models and weights
 - model.save("model_name.h5")
 - model.save_weights("model_weights_name.h5")

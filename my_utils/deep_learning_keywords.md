@@ -16,6 +16,29 @@
 - unsupervised_learning
 - parametric_learning
 - non-parametric_learning
+- negative_log_likelihood
+- GPU_epoch_batch_sample
+- save_load_model
+- save_load_weights
+- save_load_weights_by_layer_name
+- extract_model_structure
+- middle_layer_output_array_by_Model
+- middle_layer_output_array_by_K_function
+- middle_layer_output_array_test_mode
+- middle_layer_output_array_train_mode
+- test_train_middle_layer_output_array_loaded_best_model
+- keras_config_file
+- image_data_format_epislon_backend
+- train_on_batch_fit_fit_generator
+- hist_fit_fit_generator
+- early_stopping
+- validation_split
+- training_shuffle
+- history_record_losses_metrics_all_epochs
+- freeze_layer_weights
+- pre_trained_models
+- remove_a_layer_from_model
+
 
 ## simple examples
 - xor_example

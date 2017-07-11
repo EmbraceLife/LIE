@@ -1,5 +1,8 @@
 """
-# train, evaluate, predict in batches to fit large dataset into memory
+train_on_batch_fit_fit_generator
+hist_fit_fit_generator
+
+# train, evaluate, predict in batches to order to fill large dataset into memory
 
 - train_on_batch() and test_on_batch() is to train or test the whole dataset at once (no matter how big they are)
 

@@ -1,4 +1,6 @@
 """
+freeze_layer_weights
+
 ### How can I "freeze" Keras layers?
 
 To "freeze" a layer means to exclude it from training, i.e. its weights will never be updated. This is useful in the context of fine-tuning a model, or using fixed embeddings for a text input.

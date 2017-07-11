@@ -1,4 +1,6 @@
 """
+GPU_epoch_batch_sample
+
 Concept Explanation
 - GPU
 - sample

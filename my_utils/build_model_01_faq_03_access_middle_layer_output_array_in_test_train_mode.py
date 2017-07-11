@@ -1,7 +1,15 @@
 """
+middle_layer_output_array_by_Model
+middle_layer_output_array_by_K_function
+middle_layer_output_array_test_mode
+middle_layer_output_array_train_mode
+
+
 ### Access middle layers (in test mode or train mode)?
 
 - middle_layer_tensor = Model(input_tenor, middle_layer_tensor).predict(input_array)
+
+- middle_layer_tensor = Model(model.input, model.layers[3].output).predict(input_array)
 
 - middle_layer_tensor = K.function([input_tensor], [output_tensor])([input_array])[0]
 

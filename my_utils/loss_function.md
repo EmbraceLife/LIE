@@ -5,9 +5,9 @@
 ## How to design loss_function
 
 ## more discussion
-[Chinese discussion](https://3509763625.docs.qq.com/IHdgocxxaqq?type=1&ptlang=1033&ptlang=1033&_wv=1)
-[Discussion with Trask](https://nd101.slack.com/archives/D41LA4DEK/p1499710345549332)
--
+[Chinese discussion](https://3509763625.docs.qq.com/ne3ji3jCtmJ?type=1&ptlang=1033&_wv=1)       
+
+
 
 
 ## example

@@ -1,4 +1,5 @@
 ### How can I remove a layer from a Sequential model?
+remove_a_layer_from_model
 
 You can remove the last added layer in a Sequential model by calling `.pop()`:
 

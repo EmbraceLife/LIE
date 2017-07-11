@@ -1,5 +1,7 @@
 
 """
+early_stopping
+
 ### Early stopping training when the validation loss isn't decreasing anymore
 
 callbacks: EarlyStopping
