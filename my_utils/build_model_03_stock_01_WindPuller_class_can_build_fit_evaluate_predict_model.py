@@ -58,7 +58,7 @@ class WindPuller(object):
 		# add a dense layer, with BatchRenormalization, relu_limited
         self.model.add(Dense(1, kernel_initializer=initializers.glorot_uniform()))
         # self.model.add(BatchNormalization(axis=-1, moving_mean_initializer=Constant(value=0.5),
-        #               moving_variance_initializer=Constant(value=0.25)))
+                    #   moving_variance_initializer=Constant(value=0.25)))
         self.model.add(BatchRenormalization(axis=-1, beta_init=Constant(value=0.5)))
         self.model.add(Activation(relu_limited))
 

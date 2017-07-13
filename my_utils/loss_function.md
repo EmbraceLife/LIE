@@ -25,3 +25,9 @@
 
 ## Latest update
 ![](https://lh3.googleusercontent.com/0pauvVty1yIWlqJx_v3oxBQtJMcwrY6Om-CDJDUCeGic5N-ywYNGNDzazmjVZuYy_hK-7yATabg8KKnhWM-e_IqoMsEsykRlhY9S2trCSsbEeIQmoxsyogDbTtdIFPsrzgZgFx96gmUIMfDSsFSfBWtuSfhTfWANlxFSt1CU3zl_A0ba-x_1gf0JC5HSqS-S1ogHPuy0ISCZKE7nnE3VEl5UaBtKPaUfWWzc9IOgdISPwWFD86hJaueV5_UVKs3omAwIKs4wLfGj0VG4KIo5rz9mSuHzLI1MTpHBW1AewQHHsfIaLcKx64S3RVY6oHQZ57W_iTW26acCvNLCNRjtJdUqq9PhkWOPWRNU8CB0JJwm5STUMSi-BIgGmyVLDV8U-W5HeIDp3_0oYUajhAKShNrbv7Q55_J_kUunTCQffy8N8kuA0wK79a_JUTCKFrPvL8Baz5SzkU42rIg7_z5mfJ0o5QxZsCPHSNIkg7Cqn_z9cZyNZk72ty2cUQkGFIVKubuXsmRh0gW-AvyuOaBPIecIR5YuH6BE-PscPeBUMo6JGNvFO1o9mmnX51-ID4fE3gD-F-HaDaYXu9YJnPfR5aXKPRCMIKokmmWD2sP0qkY__5eTFrdGXQYN=w1608-h1136-no)
+
+
+### design loss function and activation function of deep trader
+- risk_estimation_design
+- relu_limited_design
+- [see discussion with friends](https://3509763625.docs.qq.com/23b5pWBEvG3?type=1&ptlang=1033&_wv=1)

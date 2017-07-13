@@ -1,5 +1,9 @@
 """
 train_deep_trader_model
+predict_middle_layer_output_after_training
+
+
+train_deep_trader_model
 - get dataset ready
 - train a number of epochs
 - save trained and tensorboard log
@@ -27,15 +31,15 @@ Return:
 - best model during training is saved
 - evaluate the model with test set
 """
-
+import keras.backend as K
 from keras.callbacks import TensorBoard, ModelCheckpoint
 from prep_data_03_stock_04_load_train_valid_test_features_targets_arrays_from_files_for_train import train_features, train_targets, valid_features, valid_targets, test_features, test_targets
-
+from keras.models import load_model
 from build_model_03_stock_02_build_compile_model_with_WindPuller_init import wp
 import numpy as np
 
 # input_shape (window, num_indicators)
-nb_epochs = 1000 # set it large when train with floyd
+nb_epochs = 1 # set it large when train with floyd
 batch_size = 512
 
 ########################################################################
@@ -59,9 +63,20 @@ scores = wp.evaluate(test_features, test_targets, verbose=0)
 print('Test loss:', scores[0])
 print('Test accuracy:', scores[1])
 
+preds = wp.predict(test_features)
+print(preds)
+
+# get middle layer's output on test mode
+batchNorm_test = K.function([wp.model.input, K.learning_phase()], [wp.model.layers[-2].output])([test_features, 0])[0]
+# on train mode
+batchNorm_test = K.function([wp.model.input, K.learning_phase()], [wp.model.layers[-2].output])([test_features, 1])[0]
+
 wp.save("/Users/Natsume/Desktop/model_3000.h5") # saving locally
 # wp.save("/output/exact_model2_1000.h5") # saving on floyd
 
+model1 = load_model("/Users/Natsume/Desktop/model_3000.h5")
+batchNorm_test = K.function([model1.input, K.learning_phase()], [model1.layers[-2].output])([test_features, 1])[0]
+batchNorm_test = K.function([model1.input, K.learning_phase()], [model1.layers[-2].output])([test_features, 0])[0]
 #### without output, the following floyd command is working
 ### make sure: /input/data_file_name, even though dataset saved in floyd/data/daniel/features_targets_train_val_test
 # floyd run --data DJeKLuEpYqJPBYhxViyRfm --gpu "python build_model_03_stock_03_train_evaluate_save_best_model_in_training.py " --env keras

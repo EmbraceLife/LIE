@@ -38,18 +38,26 @@
 - freeze_layer_weights
 - pre_trained_models
 - remove_a_layer_from_model
+- gradient_descent
+- loss_raw_error_weight_delta_alpha
+- slope_derivative_weight_delta
+- divergence
+- learning_rate_alpha
 
 
 ## simple examples
 - xor_example
 - deep_trader_guide
+- trask_break_gradient_descent
 
 ## deep trader models
 - deep_trader_model_Sequential
 - deep_trader_model_Model
 - instantiate_deep_trader_model
 - train_deep_trader_model
-- predict_on_best_deep_trader_model
+- predict_middle_layer_output_after_training
+- predict_on_loaded_best_model
+- predict_middle_layer_output_on_loaded_best_model
 - csv_df_arrays
 - extract_features_target_from_csv
 - extract_features_target_from_csv_multiple
@@ -58,3 +66,5 @@
 - save_load_large_arrays
 - plot_price_return_num_trades
 - floyd_guide
+- risk_estimation_design
+- relu_limited_design

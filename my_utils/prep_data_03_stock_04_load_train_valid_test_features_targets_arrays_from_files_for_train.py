@@ -23,14 +23,14 @@ import numpy as np
 ########################################################################
 #### load data from local folders, training locally
 ########################################################################
-train_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/QCG_features_targets/train_features_path"
-train_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/QCG_features_targets/train_targets_path"
+train_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/train_features_path"
+train_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/train_targets_path"
 
-valid_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/QCG_features_targets/valid_features_path"
-valid_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/QCG_features_targets/valid_targets_path"
+valid_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/valid_features_path"
+valid_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/valid_targets_path"
 
-test_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/QCG_features_targets/test_features_path"
-test_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/QCG_features_targets/test_targets_path"
+test_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/test_features_path"
+test_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/test_targets_path"
 
 
 ########################################################################
