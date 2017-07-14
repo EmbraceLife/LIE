@@ -50,6 +50,7 @@
 - slope_derivative_weight_delta
 - divergence
 - learning_rate_alpha
+- grokking_deep_learning_correlation
 
 
 ## simple examples

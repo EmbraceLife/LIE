@@ -1,5 +1,9 @@
 # How to read correlation between input and output through weights?
-I have built a simple neuralNet to build a model to do xor. The neural structure is in the drawing below.     
+grokking_deep_learning_correlation
+
+I found chapter 6 of grokking deep learning is not as crystal clear as previous chapters. In order to have a better understanding, I attempted the following example.
+
+I have built a simple neuralNet to imitate a function of doing xor. The neural structure is in the drawing below.     
 ![](https://lh3.googleusercontent.com/w3dqSSnbXDrQEXHbrfOi93Xh4c7ZJVKKgeaLANf2gv2YI-4qL_7_gEKZyXO4k9gaZ5E0uwJebPWf59vTulZ_YzusSzM756LJVOc9qX9Pi8OsB3wirMo4SZIzgB-1kVH-1VHUHdZYiL32C6XIyfin61NjtaK9NkhQaXGOGX3ph4qxaEft96MnJTbtZdkazdxAk6mYd7TdVkUDS7dZEewvS071_hYQkQpUNnpVLl4KVEOs3JcojmbrwLzlYfQZSpKYi88HZh8pNpWwbRGVnfrsD1Ofky3Lbd_X4XYq0sR-6MNfqIEtAnV_teWbbblptzcK4lLiMMTJT8WThpwHVfeMrtCNbwx06_P4q4sTjLmfVm17AJl-FUMn4iTOojeZz4HUHH5PmTDi6_jCNOpUFhPIdvnz8K8zh3K5CCz9ObRLmxwC86wKKwchvbCuyXbShCZRhI8-zhMAVtE9iWxsaEMZTw6PSgocDOsJ4NZHG2oiZAH6QHZpnycE926Jw5LBA3q7139aiDfHhQ7dMsAyd7JHe1IiMt_BdwnCuD-LvRSdiNB42jGzROjKF1Q1qBBC7hIuJUpQ62BeH2d2cJOe8oSCkSNgdaMGUBTKxSKnUHKNZYFTQt-24oNHeWxg=w1732-h1224-no)
 
 plotting from NeuralNet without relu on hidden layer and no sigmoid on final output     
