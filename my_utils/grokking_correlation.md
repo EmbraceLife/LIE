@@ -9,14 +9,87 @@ I have built a simple neuralNet to imitate a function of doing xor. The neural s
 plotting from NeuralNet without relu on hidden layer and no sigmoid on final output     
 ![](https://lh3.googleusercontent.com/qpMGGdWc61mJ417s4wa0bqIM0RsXMj0FN5VFKkVdV-JrtfSyCwF81swSok70XUR6LOJeu7FnqPWD_pA293j4heurJtV_hkOhLEjO8Y5nNhLNuFYInUs8QwT_S-1o6jUNkS6oEhNTLegzo2zQcLGhbmdmCQOQ6uHSsN-sNHfFyMuOpoFmtCV3nTDC8qzOWok41uUAntlJmN-UxxluGvmDbHfxrJWXyhA9MnMagGMapMcvC3Kr6DXhfBjaaC-ZBAIeUfNC7S85XsxuKO4sCSUkH9sNZMdjzwD3rXZF00MV49cEomI_Rn06Km0SHbDMmJrlxaMCUcx4HToJqvawx-OwvAx_LTYIPOls-K8wpZ1O7t06-6cYA7HpV2_zXtOPo1LpgJ029O1dJ5LxTOaMhm5xWA5k8wOq8rr2FwtvSQ_0wpWVW_Fubr0bOCH6XXbhMquF-RDM33cOofpeHOKaY5bU5H8InkmyqDozOoKZud96SE5D9TRa2qSr0lXuNEmSh4ySrmtu3HiQFuT1ynB5TtswHxIg2qygJlIrx3atb4FSKNCCTDNq5oQHJNpo3e3k0mWcG0u0zUMVkn2TJcRwCe3IN0GYbFxYUUxA8uho9CTjHtnzpe2zV8Ozo6kw=w2452-h1224-no)
 
+```python
+print("features:", X)
+print("targets:", y)
+print("predictions:", model.predict(X))
+
+features:
+[[0 0]
+ [0 1]
+ [1 0]
+ [1 1]]
+targets: [0 1 1 0]
+predictions:
+[[ 0.50276363]
+ [ 0.50332505]
+ [ 0.50126481]
+ [ 0.50182629]]
+```
+
 plotting from NeuralNet without relu on hidden layer but with sigmoid on final output    
 ![](https://lh3.googleusercontent.com/Scz7ELOHXOAgKjnE-ciR208UHfy3DECH_jpl9MhpPmLU0ZeuL6Wvq-9nWAsWuh2FEbhSpfOMTS-L2etmv5KDtG-9L3wXwJ6Z81wSKvvtGEmmia_y1Ei0neGfYyUEVyt2OWRO9Lv2ZXY_5EvBYVnXwiu4YpbSoiFZ2nuePnimZQSBVKZIu0jtfM8v9u-UQhtFL4frupwGxF7unaiBHVyIN8JXIVSxdCAESfdreQq42NyFK0veuuKDLfSRKn1r1NeT-M7DEDWdz5J78ZEWd_uiJN9GgjJ7dYNlaMajvKPdwbvIt96mq9qdqbM2cODvqqy2LrR4ZPK8zBmTc7IDOEUtR_P8CcjcQRdOrBW3qXUDup8x7MfUcbUOQuYnQ0G2KawHS4FM5XC3A46IbyMluyrchVIx1lZm31IYCNKz8ouYkynamiHK_PHWCHxUi4zSNW1Awh8CZ9qGaBdMEySR3wn1vugxuWxwGlQYEgLBSTRMt_TEqp_AGU6k6Z9VtO8BHAoloylrGDdnOkvAmxAsnyvbm4tqQxrVYMgnsKsgNK9aMyXDkG00B4fTM1cnmlSmxXW4nu-EPCTCk1nojJZ2mFfAz8oiOoHpWEjD0vuYcsJZ41iLaolVtk4pDbkR=w2416-h1224-no)
+
+```python
+print("features:", X)
+print("targets:", y)
+print("predictions:", model.predict(X))
+
+features:
+[[0 0]
+ [0 1]
+ [1 0]
+ [1 1]]
+targets: [0 1 1 0]
+predictions:
+[[ 0.43570971]
+ [ 0.43603104]
+ [ 0.4360652 ]
+ [ 0.43638653]]
+```
+
 
 plotting from NeuralNet with relu on hidden layer but without sigmoid on final output    
 ![](https://lh3.googleusercontent.com/bo4G958sg89Wh-4MzSj_PGSwMkPfU-ryXu_Ol-FympecCMW-HxP0EolhzG5_i5Gx2rN5yUd_7OoUIU0RIuTMnWFgPpjfIOEbUaZSJ1VAp3nxNt4OM8Cp6nFkDPu3GgORHMRyvaXnE26tBT1JS5JZ7JRmoQBUPo6RooI2Wx7YJTLJVw03PZCQsJx2hNCLTVs7c5fD4C5ubL9SUoINS9_1grUocwoCuhZC5cswOeIXXOgAsz63FjosGJVTwJqmW0aziGvarZ4-9VG-OZhzI5QLEDjVqtTyj8Vg4XB32DVqCryNnOviU5jzBpmil0OI-GgDNeE1-kgW3t3y3IEqmMYAdc2x8Ar6BLggNtyLnMuIA6nhCHcpIQxsz2CKMHiofjogc-QLRbHlY6JOov4KxnxaxziPeT2ZUV8r44UmJ1ym0xA82Vh6cHAjhqR7f2TGy03-BsZn9axRh72TfQzPdOr830ziUwshOOnmVcmBWjbQfOxfnjkzw4DpbV6jWmv7PCk_yMSlYtpU-xIDr1QMTL9HSZCViHToRqkLQ3gBcE_pahypuOiwwoKRC5FS2Fb2rA25wPKkH-xtP7enDhKiBJljMiwv8nFiRT4oPtq_M_Sy0TzEOMEcLuMc06oD=w2410-h1224-no)
 
+```python
+print("features:", X)
+print("targets:", y)
+print("predictions:", model.predict(X))
+
+features:
+[[0 0]
+ [0 1]
+ [1 0]
+ [1 1]]
+targets: [0 1 1 0]
+predictions: [[  7.77083784e-08]
+ [  9.99999940e-01]
+ [  9.99999940e-01]
+ [  1.81037336e-08]]
+```
+
+
 plotting from NeuralNet with relu on hidden layer and with sigmoid on final output    
 ![](https://lh3.googleusercontent.com/r9xx3zaHzxD87-cBAsU2-U9wserUHsr2QqBsUHyNcVnsOnk7NT2VGuaGF2Qmt7Ghua8H30JD8macb6ZqUTXAFxQnWk5wJQClyacPU1AfMQUJxmFhYgixAbRp4Z3mqVNM4tiUrJhveXtW-hl2RF6IphbkYYbfkaUWJNTiTTpGl4dmDidcVuNIezBa6GDGMt9wmXCGaVWYpGUjVaCygSDC1hdapzk_EKRcet51Oq13pC6YyEIHRvW69PvTx-E29Qcs2mSWSxyu71dOLEHG6R5APcYzqFtWCwP3qb62EiSUfDZhaXCG2OkdCR3TtPzBX_NwVL27p1V-mlo0W1io4ABIbHmhhO0LDIB5tsFP4nqij6Kpot-ase4P2yn3ZlYB8SqScXKmpAJlgdjcOUsvuzqN_oyyPCDuVx9la1CZP2FDIOi72Efn3TQysbJq_26ijLd9t4_9G6F869VYlJypvt2EqFg60vQybHy_qKJ6kcEgfqGxkHBy5hdDPKs7aAChZZmkL7-mjmxmj38QabV2nb1PYgJt7kqCZ0tGnh4n9Oj-YaEcH0Gd7aXx-V7QVoeabgpihKAujqe183AekIW0oA061Sa6gt6z4_m2i3amh9ZQq6tUXorpBCecj-l5=w2428-h1224-no)
+
+```python
+print("features:", X)
+print("targets:", y)
+print("predictions:", model.predict(X))
+
+features: [[0 0]
+ [0 1]
+ [1 0]
+ [1 1]]
+targets: [0 1 1 0]
+predictions: [[ 0.07140524]
+ [ 0.97043109]
+ [ 0.97092551]
+ [ 0.0201302 ]]
+
+```
+
 
 ## Basic understanding
 1. neuralNet is to capture the correlation between inputs and outputs

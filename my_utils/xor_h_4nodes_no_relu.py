@@ -230,14 +230,14 @@ print("features:", X)
 print("targets:", y)
 print("predictions:", model.predict(X))
 
-# features: 
-# [[0 0]
-#  [0 1]
-#  [1 0]
-#  [1 1]]
-# targets: [0 1 1 0]
-# predictions:
-# [[ 0.43570971]
-#  [ 0.43603104]
-#  [ 0.4360652 ]
-#  [ 0.43638653]]
+features: 
+[[0 0]
+ [0 1]
+ [1 0]
+ [1 1]]
+targets: [0 1 1 0]
+predictions:
+[[ 0.43570971]
+ [ 0.43603104]
+ [ 0.4360652 ]
+ [ 0.43638653]]
