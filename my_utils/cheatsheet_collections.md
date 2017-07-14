@@ -3,4 +3,4 @@
 ## numpy_cheatsheet
 ![](https://cdn-images-1.medium.com/max/2000/1*o_CO_8Plpi2Ac3s-Gs5IQg.png)
 
-![](https://share.weiyun.com/a63050335c239a480e99a62ca1fcc80d)
+![](http://a2.qpic.cn/psb?/V119hAgO0rkTjw/7X*yvEqNNqkxOGqhXCtVbwzVstBh3Ut..TJj9hmxMH0!/b/dD8BAAAAAAAA&bo=iAOAAgAAAAADACw!&rf=viewer_4)
