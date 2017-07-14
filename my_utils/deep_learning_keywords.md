@@ -1,5 +1,8 @@
 # Keywords in Deep Learning
 
+## basic tools
+- numpy_cheatsheet
+
 ## basic concepts
 - neuralNet
 - loss_function
