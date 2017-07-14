@@ -2,6 +2,10 @@
 
 ## basic tools
 - numpy_cheatsheet
+- keras_cheatsheet
+- neuralNet_formula_cheatsheet
+- neuralNet_structure_cheatsheet
+- terminology_chinese
 
 ## basic concepts
 - neuralNet
