@@ -4,6 +4,19 @@ loss_raw_error_weight_delta_alpha
 slope_derivative_weight_delta
 divergence
 learning_rate_alpha
+
+## what we have
+- there is just a single input: 0.5
+- initial weight: 0.5
+- true target: 0.8
+- alpha: 1
+- loss_function: mse
+
+## what to do
+- based on this single sample, move up and down weights based on gradient_descent calculated direction and amount, to update weights, then apply to the same input-output, for 20 times
+
+## what to see
+- given input, output fixed, when weight initialized differently
 """
 
 weight= 0.5
