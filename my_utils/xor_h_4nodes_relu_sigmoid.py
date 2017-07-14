@@ -1,4 +1,6 @@
 """
+grokking_deep_learning_correlation
+
 xor_example
 
 - use (X, y) to train a network to imitate xor function, in reality most of time, we don't know what exact the true function we want to learn
