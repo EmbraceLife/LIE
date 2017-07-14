@@ -19,23 +19,24 @@ plotting from NeuralNet with relu on hidden layer and with sigmoid on final outp
 ![](https://lh3.googleusercontent.com/r9xx3zaHzxD87-cBAsU2-U9wserUHsr2QqBsUHyNcVnsOnk7NT2VGuaGF2Qmt7Ghua8H30JD8macb6ZqUTXAFxQnWk5wJQClyacPU1AfMQUJxmFhYgixAbRp4Z3mqVNM4tiUrJhveXtW-hl2RF6IphbkYYbfkaUWJNTiTTpGl4dmDidcVuNIezBa6GDGMt9wmXCGaVWYpGUjVaCygSDC1hdapzk_EKRcet51Oq13pC6YyEIHRvW69PvTx-E29Qcs2mSWSxyu71dOLEHG6R5APcYzqFtWCwP3qb62EiSUfDZhaXCG2OkdCR3TtPzBX_NwVL27p1V-mlo0W1io4ABIbHmhhO0LDIB5tsFP4nqij6Kpot-ase4P2yn3ZlYB8SqScXKmpAJlgdjcOUsvuzqN_oyyPCDuVx9la1CZP2FDIOi72Efn3TQysbJq_26ijLd9t4_9G6F869VYlJypvt2EqFg60vQybHy_qKJ6kcEgfqGxkHBy5hdDPKs7aAChZZmkL7-mjmxmj38QabV2nb1PYgJt7kqCZ0tGnh4n9Oj-YaEcH0Gd7aXx-V7QVoeabgpihKAujqe183AekIW0oA061Sa6gt6z4_m2i3amh9ZQq6tUXorpBCecj-l5=w2428-h1224-no)
 
 ## Basic understanding
-- neuralNet is to capture the correlation between inputs and outputs
-- if neuralNet is successful, then the pattern or correlation between inputs and outputs will be stored inside weights
-- usually in real world, it is hard to directly discover correlation between inputs and outputs
-- in this case, we need to build intermediate_outputs between inputs and outputs
-- we use a neuralNet (multiple inputs to multiple outputs) to capture conditional correlation between inputs and intermediate_outputs with the help of non-linear activation function
-- then we can use another neuralNet (multiple input, one output) to easily find direct correlation between intermediate_outputs and final outputs (no non-linear activation function is needed, in this case, sigmoid is used but it is not for discovering correlation, but for nice format)
-- without non-linear activation function to help find conditional correlation between inputs and intermediate_outputs, there won't be direct correlation between intermediate_outputs and final outputs
+1. neuralNet is to capture the correlation between inputs and outputs
+1. if neuralNet is successful, then the pattern or correlation between inputs and outputs will be stored inside weights
+1. usually in real world, it is hard to directly discover correlation between inputs and outputs
+1. in this case, we need to build intermediate_outputs between inputs and outputs
+1. we use a neuralNet (multiple inputs to multiple outputs) to capture conditional correlation between inputs and intermediate_outputs with the help of non-linear activation function
+1. then we can use another neuralNet (multiple input, one output) to easily find direct correlation between intermediate_outputs and final outputs (no non-linear activation function is needed, in this case, sigmoid is used but it is not for discovering correlation, but for nice format)
+1. without non-linear activation function to help find conditional correlation between inputs and intermediate_outputs, there won't be direct correlation between intermediate_outputs and final outputs
+Are these understanding above correct? if not please correct me
 
-## Questions: Are the following statements correct?     
-- based on the plottings, we can see that without relu activation, our neuralNet won't learn much useful, prediction is merely guessing;
-- with relu, we can easily achieve 100% accuracy with about 50 epochs and loss is reduced close to 0;
-- we can say that without relu, our neuralNet does not find correlation between inputs and outputs, not find correlation between intermediate_outputs and final outputs;
-- with relu, conditional correlation is found between our intermediate_outputs and inputs; and direct correlation is found between intermediate_outputs and final outputs;
+## Questions_A: Are the following statements correct?     
+1. based on the plottings, we can see that without relu activation, our neuralNet won't learn much useful, prediction is merely guessing;
+2. with relu, we can easily achieve 100% accuracy with about 50 epochs and loss is reduced close to 0;
+2. we can say that without relu, our neuralNet does not find correlation between inputs and outputs, not find correlation between intermediate_outputs and final outputs;
+2. with relu, conditional correlation is found between our intermediate_outputs and inputs; and direct correlation is found between intermediate_outputs and final outputs;
 
-## Questions: How to use weights to tell correlation?
+## Questions_B: How to use weights to tell correlation?
 Based on the plotting     
-- how can I tell whether the weights between inputs and intermediate_outputs find no correlation between them?
-- how can I tell whether the weights between inputs and intermediate_outputs find conditional correlation between them?
-- how can I tell whether the weights between intermediate_outputs find no correlation between them?
-- how can I tell whether the weights between intermediate_outputs find direct correlation between them?
+1. how can I tell whether the weights between inputs and intermediate_outputs find no correlation between them?
+1. how can I tell whether the weights between inputs and intermediate_outputs find conditional correlation between them?
+1. how can I tell whether the weights between intermediate_outputs find no correlation between them?
+1. how can I tell whether the weights between intermediate_outputs find direct correlation between them?
