@@ -71,7 +71,7 @@ predictions: [[  7.77083784e-08]
 
 
 plotting from NeuralNet with relu on hidden layer and with sigmoid on final output    
-![](https://lh3.googleusercontent.com/r9xx3zaHzxD87-cBAsU2-U9wserUHsr2QqBsUHyNcVnsOnk7NT2VGuaGF2Qmt7Ghua8H30JD8macb6ZqUTXAFxQnWk5wJQClyacPU1AfMQUJxmFhYgixAbRp4Z3mqVNM4tiUrJhveXtW-hl2RF6IphbkYYbfkaUWJNTiTTpGl4dmDidcVuNIezBa6GDGMt9wmXCGaVWYpGUjVaCygSDC1hdapzk_EKRcet51Oq13pC6YyEIHRvW69PvTx-E29Qcs2mSWSxyu71dOLEHG6R5APcYzqFtWCwP3qb62EiSUfDZhaXCG2OkdCR3TtPzBX_NwVL27p1V-mlo0W1io4ABIbHmhhO0LDIB5tsFP4nqij6Kpot-ase4P2yn3ZlYB8SqScXKmpAJlgdjcOUsvuzqN_oyyPCDuVx9la1CZP2FDIOi72Efn3TQysbJq_26ijLd9t4_9G6F869VYlJypvt2EqFg60vQybHy_qKJ6kcEgfqGxkHBy5hdDPKs7aAChZZmkL7-mjmxmj38QabV2nb1PYgJt7kqCZ0tGnh4n9Oj-YaEcH0Gd7aXx-V7QVoeabgpihKAujqe183AekIW0oA061Sa6gt6z4_m2i3amh9ZQq6tUXorpBCecj-l5=w2428-h1224-no)
+![](https://lh3.googleusercontent.com/Ljm9YhlPASIew7_R2zm7gFdvA2GiD0-ygu7dG37z1-UxZSXQfQlM2vD4XGxMD6GGnIOAeNhqsDIuwWi0Yvqp3PfsaDCc4vh0n4U8dMSxLQijynban-xfwIA1Y6WPc3iL9yDs822kqk681fK9dBUF_fdScXgba925g7dJCyzSgChQ_MXSB2oil7xqYxikgAHQD9xmKC4b394af0G8c83wyOkpx9WKTAPIFjGcIBSSJSxcxX2BthRhzgUa_QpKghSQInhdcC7mOifwSbsDj83p91tTibDXxbFfXT5LzMMfpkNT3-YRMjYgwOmZlsfQB6lvowQxXs8sM5YRxkcCR8HeYgXthstow-C5NPQuuXSfvgC7uFjowCux103Y4HiTS9Ris17dzHkCfTNCOsDTvoc2llnNx9TNiZtQ_60aSeqTtq0IXbxjsSe7klISPFW1cYssbukefZcCgpu6sC_6agnRVRtI2odDLidqOXKqHbNH9TmU0IND5UKiIdtGIquo3fPYIzV_vSH5fUXeOh9iyNFDWwv0qKCZgCr9t6WbYYO2lTHsMjX6zPi4Hdw0SwAh548OZKkmk7ieQI3W33xpP1BckcdYzQvne0l8LPfjKZqZZ90d9i9UvT-wb4lp=w2412-h1224-no)
 
 ```python
 print("features:", X)
@@ -109,7 +109,41 @@ Are these understanding above correct? if not please correct me
 
 ## Questions_B: How to use weights to tell correlation?
 Based on the plotting     
+1. how can I tell whether the model is learning or not?
+	- if the weight is not going up or down, then we say this weight is not learning, right?
+	- weight, either going up or going down, both count as learning, right?
 1. how can I tell whether the weights between inputs and intermediate_outputs find no correlation between them?
+	- of course, we can tell by observing the loss and accuracy curves, but in the book it seems to suggest we can tell by observe the changes of weights, right?
 1. how can I tell whether the weights between inputs and intermediate_outputs find conditional correlation between them?
-1. how can I tell whether the weights between intermediate_outputs find no correlation between them?
-1. how can I tell whether the weights between intermediate_outputs find direct correlation between them?
+1. how can I tell whether the weights between intermediate_outputs and final outputs find no correlation between them?
+1. how can I tell whether the weights between intermediate_outputs and final outputs find direct correlation between them?
+
+## Questions_C: How to recreate overfitting situations?
+- overfitting is model weights remember all samples
+- overfitting is model weights learns from all samples and managed to cut loss down to near zero,
+- but weights fail to learn the overall pattern, or the weights which corresponding to the most important features of inputs have not really updated enough to capture pattern or correlation between inputs and outputs
+- but accidentally the updated weights managed to cut loss very low and stop learning eventually;
+- therefore, model weights only remember all training samples not capture pattern behind inputs and outputs, this is overfitting
+- we can tell overfitting by comparing training loss and validation loss; if validation loss getting worse later on, but training loss keep improving, then we say model is overfitting
+1. we can't tell which input features are important, nor can tell which weights are important, right?
+2. how can we avoid overfitting?
+
+## discussion with trask
+whether a model is learning or is able to capture the correlation between inputs and outputs or not, can be confirmed by comparing training and validation loss curves.
+
+By contemplating on the book illustrations on pages 111,112,114,115, it makes me wonder does Andrew suggest we can know something useful from observing weights curves. Of course, adding a relu on hidden layer, will change weights from Input layer to hidden layer, but in what does relu change or improve weights, maybe we can see it from weights curves?
+
+weights plotting 1: no relu on hidden layer, no sigmoid on output layer
+- obs0: loss stays at 0.25 from 1.5; accuracy stays between 0, 25%, 50%
+- obs1: weights between intermediate_outputs and final outputs are 0 most of time;
+	- it indicates no matter what intermediate_outputs are, final outputs will stay 0; therefore, there is no correlation between intermediate_outputs and final outputs, right?
+- obs2: weights between inputs and intermediate_outputs are all approaching 0
+	- no correlation between inputs and intermediate_outputs
+
+weights plotting 2: no relu on hidden layer, with sigmoid on output layer
+- obs0: loss stays at 0.255 from 0.275; accuracy stays between 0, 0.25, and 0.5
+- obs1:
+
+1. If both loss curves keep approaching 0, then we say this model captures correlation; can we observe this situation from the model's weights?
+1. if training loss is approaching 0 but validation loss curve later become worse, we say this is overfitting, this model accidentally updated weights to a state which cut loss near 0 to stop learning but the weights didn’t learn the real correlation; can we observe this situation from the model's weights?
+1. if training loss is not approaching 0, or stay on a value up and down a little, we say this model couldn’t move the weights either up or down, so weights are not learning anything. can we observe this situation from the model's weights?

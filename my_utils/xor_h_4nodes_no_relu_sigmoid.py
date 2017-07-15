@@ -1,7 +1,10 @@
 """
 grokking_deep_learning_correlation
-
 xor_example
+print_number_format_control
+plot_ax_title_size
+plot_figure_suptitle
+subplot_structure
 
 - use (X, y) to train a network to imitate xor function, in reality most of time, we don't know what exact the true function we want to learn
 - a model with 2 layers, 9 parameters in total, perform a xor function
@@ -163,63 +166,76 @@ plt.suptitle("xor_h_4nodes_no_relu_no_sigmoid")
 ax1 = plt.subplot2grid((6, 4), (0, 0), colspan=2, rowspan=2)  # stands for axes
 ax1.plot(losses, c='blue', label='losses') # change index name
 ax1.legend(loc='best')
+ax1.set_title("end value: %.04f" % losses[-1], fontsize = 5)
 
 
 ax2 = plt.subplot2grid((6, 4), (0, 2), colspan=2, rowspan=2)
 ax2.plot(accuracies, c='red', label='acc')
 ax2.legend(loc='best')
+ax2.set_title("end value: %.04f" % accuracies[-1], fontsize=5)
 
 ax3 = plt.subplot2grid((6, 4), (2, 0), colspan=1, rowspan=2)
 ax3.plot(w_2_1, c='green', label='w_2_1')
 ax3.legend(loc='best')
+ax3.set_title("end value: %.04f" % w_2_1[-1], fontsize=5)
 
 ax4 = plt.subplot2grid((6, 4), (2, 1), colspan=1, rowspan=2)
 ax4.plot(w_2_2, c='green', label='w_2_2')
 ax4.legend(loc='best')
+ax4.set_title("end value: %.04f" % w_2_2[-1], fontsize=5)
 
 ax5 = plt.subplot2grid((6, 4), (2, 2), colspan=1, rowspan=2)
 ax5.plot(w_2_3, c='green', label='w_2_3')
 ax5.legend(loc='best')
+ax5.set_title("end value: %.04f" % w_2_3[-1], fontsize=5)
 
 ax6 = plt.subplot2grid((6, 4), (2, 3), colspan=1, rowspan=2)
 ax6.plot(w_2_4, c='green', label='w_2_4')
 ax6.legend(loc='best')
+ax6.set_title("end value: %.04f" % w_2_4[-1], fontsize=5)
 
-ax3 = plt.subplot2grid((6, 4), (4, 0), colspan=1, rowspan=1)
-ax3.plot(w_1_1_1, c='green', label='w_1_1_1')
-ax3.legend(loc='best')
+ax7 = plt.subplot2grid((6, 4), (4, 0), colspan=1, rowspan=1)
+ax7.plot(w_1_1_1, c='green', label='w_1_1_1')
+ax7.legend(loc='best')
+ax7.set_title("end value: %.04f" % w_1_1_1[-1], fontsize=5)
 
-ax4 = plt.subplot2grid((6, 4), (4, 1), colspan=1, rowspan=1)
-ax4.plot(w_1_2_1, c='green', label='w_2_2_1')
-ax4.legend(loc='best')
+ax8 = plt.subplot2grid((6, 4), (4, 1), colspan=1, rowspan=1)
+ax8.plot(w_1_2_1, c='green', label='w_2_2_1')
+ax8.legend(loc='best')
+ax8.set_title("end value: %.04f" % w_1_2_1[-1], fontsize=5)
 
-ax5 = plt.subplot2grid((6, 4), (4, 2), colspan=1, rowspan=1)
-ax5.plot(w_1_3_1, c='green', label='w_2_3_1')
-ax5.legend(loc='best')
+ax9 = plt.subplot2grid((6, 4), (4, 2), colspan=1, rowspan=1)
+ax9.plot(w_1_3_1, c='green', label='w_2_3_1')
+ax9.legend(loc='best')
+ax9.set_title("end value: %.04f" % w_1_3_1[-1], fontsize=5)
 
-ax6 = plt.subplot2grid((6, 4), (4, 3), colspan=1, rowspan=1)
-ax6.plot(w_1_4_1, c='green', label='w_2_4_1')
-ax6.legend(loc='best')
+ax10 = plt.subplot2grid((6, 4), (4, 3), colspan=1, rowspan=1)
+ax10.plot(w_1_4_1, c='green', label='w_2_4_1')
+ax10.legend(loc='best')
+ax10.set_title("end value: %.04f" % w_1_4_1[-1], fontsize=5)
 
-ax3 = plt.subplot2grid((6, 4), (5, 0), colspan=1, rowspan=1)
-ax3.plot(w_1_1_2, c='green', label='w_1_1_2')
-ax3.legend(loc='best')
+ax11 = plt.subplot2grid((6, 4), (5, 0), colspan=1, rowspan=1)
+ax11.plot(w_1_1_2, c='green', label='w_1_1_2')
+ax11.legend(loc='best')
+ax11.set_title("end value: %.04f" % w_1_1_2[-1], fontsize=5)
 
-ax4 = plt.subplot2grid((6, 4), (5, 1), colspan=1, rowspan=1)
-ax4.plot(w_1_2_2, c='green', label='w_1_2_2')
-ax4.legend(loc='best')
+ax12 = plt.subplot2grid((6, 4), (5, 1), colspan=1, rowspan=1)
+ax12.plot(w_1_2_2, c='green', label='w_1_2_2')
+ax12.legend(loc='best')
+ax12.set_title("end value: %.04f" % w_1_2_2[-1], fontsize=5)
 
-ax5 = plt.subplot2grid((6, 4), (5, 2), colspan=1, rowspan=1)
-ax5.plot(w_1_3_2, c='green', label='w_1_3_2')
-ax5.legend(loc='best')
+ax13 = plt.subplot2grid((6, 4), (5, 2), colspan=1, rowspan=1)
+ax13.plot(w_1_3_2, c='green', label='w_1_3_2')
+ax13.legend(loc='best')
+ax13.set_title("end value: %.04f" % w_1_3_2[-1], fontsize=5)
 
-ax6 = plt.subplot2grid((6, 4), (5, 3), colspan=1, rowspan=1)
-ax6.plot(w_1_4_2, c='green', label='w_1_4_2')
-ax6.legend(loc='best')
-
+ax14 = plt.subplot2grid((6, 4), (5, 3), colspan=1, rowspan=1)
+ax14.plot(w_1_4_2, c='green', label='w_1_4_2')
+ax14.legend(loc='best')
+ax14.set_title("end value: %.04f" % w_1_4_2[-1], fontsize=5)
 
 plt.tight_layout()
-plt.show()
+plt.show() # use this to save manually can control the size of image
 # plt.savefig("/Users/Natsume/Downloads/data_for_all/deeplearningbook/xor_h_4nodes_relu_sigmoid.png")
 
 

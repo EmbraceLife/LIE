@@ -51,6 +51,10 @@
 - divergence
 - learning_rate_alpha
 - grokking_deep_learning_correlation
+- print_number_format_control
+- plot_ax_title_size
+- plot_figure_suptitle
+- subplot_structure
 
 
 ## simple examples
