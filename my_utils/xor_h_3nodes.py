@@ -1,4 +1,6 @@
 """
+grokking_deep_learning_correlation
+
 xor_example
 
 - use (X, y) to train a network to imitate xor function, in reality most of time, we don't know what exact the true function we want to learn
@@ -15,6 +17,9 @@ from tensorflow.contrib.keras.python.keras.layers import Dense, Dropout, Activat
 from tensorflow.contrib.keras.python.keras.optimizers import SGD
 from tensorflow.contrib.keras.python.keras import backend as K
 import numpy as np
+
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 
 X = np.array([[0,0],[0,1],[1,0],[1,1]])
 # y = np.array([[0],[1],[1],[0]])
@@ -59,23 +64,45 @@ model2.summary() # see each layer of a model
 #######################################################
 # Get initial weights and set initial weights
 #######################################################
-# model.get_weights()
-# init_weights = [
-# 		np.array([
-# 				[-0.66203642,  0.65546608, -0.25427276, -0.68927366,  0.74309146, -0.44285029,  0.54889917, -0.50751185],
-# 				[ 0.07632661,  0.43128681,  0.29212224,  0.27949238, -0.11013824, 0.47689664,  0.76805544,  0.56422651]], dtype='float32'),
-# 		np.array([ 0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.], dtype='float32'), np.array([[ 0.11014801],
-# 				[ 0.46761429],
-# 				[-0.24970412],
-# 				[ 0.45270479],
-# 				[-0.64895076],
-# 				[ 0.69505012],
-# 				[ 0.68852973],
-# 				[-0.41429198]], dtype='float32'),
-# 		np.array([ 0.], dtype='float32')]
-# model.set_weights(init_weights)
+model.get_weights()
+init_weights = [
+		np.array([
+			[-1.06875527, -1.04556847, -0.68481433],
+			[ 0.35927498, -0.84642076, -0.90496564]], dtype='float32'),
+		np.array([ 0.,  0.,  0.], dtype='float32'),
+		np.array([[-0.2744348 ],
+				[ 0.87478721],
+				[-0.55810392]], dtype='float32'),
+		np.array([ 0.], dtype='float32')]
+model.set_weights(init_weights)
 
-
+## prepare a list for each node's weights
+w_1_1_1 = []
+w_1_1_2 = []
+w_1_2_1 = []
+w_1_2_2 = []
+w_1_3_1 = []
+w_1_3_2 = []
+# w_1_4_1 = []
+# w_1_4_2 = []
+w_2_1 = []
+w_2_2 = []
+w_2_3 = []
+# w_2_4 = []
+w_1_1_1.append(init_weights[0][0,0])
+w_1_1_2.append(init_weights[0][1,0])
+w_1_2_1.append(init_weights[0][0,1])
+w_1_2_2.append(init_weights[0][1,1])
+w_1_3_1.append(init_weights[0][0,2])
+w_1_3_2.append(init_weights[0][1,2])
+# w_1_4_1.append(init_weights[0][0,3])
+# w_1_4_2.append(init_weights[0][1,3])
+w_2_1.append(init_weights[2][0,0])
+w_2_2.append(init_weights[2][1,0])
+w_2_3.append(init_weights[2][2,0])
+# w_2_4.append(init_weights[2][3,0])
+losses = []
+accuracies = []
 
 
 
@@ -97,29 +124,133 @@ model1.compile(loss='binary_crossentropy', optimizer=sgd, metrics=['accuracy'])
 # hist = fit() will record a loss for each epoch
 #######################################################
 
-hist1 = model.fit(X, y, batch_size=1, validation_split=0.25, epochs=10) # accuracy 0.75
-hist2 = model.fit(X, y, batch_size=1, epochs=1000) # only down to loss: 0.1685 - acc: 0.7500
+# hist1 = model.fit(X, y, batch_size=1, validation_split=0.25, epochs=10) # accuracy 0.75
+# hist2 = model.fit(X, y, batch_size=1, epochs=1000) # accuracy 100%, loss keep dropping down to 0.0016
 
-
-# See how weights changes to make function more close to xor function
-epochs = 5
+#######################################################
+# save all weights, loss, accuracy changes
+#######################################################
+epochs = 1000
 for epoch in range(epochs):
 	print("epoch:", epoch)
-	model.fit(X, y, batch_size=1, epochs=1)
-	print("Layer1 weights shape:")
-	print(model.layers[0].weights)
-	print("Layer1 kernel:")
-	print(model.layers[0].get_weights()[0]) # each training, network step closer to xor function
-	print("Layer1 bias:")
-	print(model.layers[0].get_weights()[1])
+	hist = model.fit(X, y, batch_size=1, epochs=1)
+	print("save each and every weight element into list")
+	w_1_1_1.append(model.get_weights()[0][0,0])
+	w_1_1_2.append(model.get_weights()[0][1,0])
+	w_1_2_1.append(model.get_weights()[0][0,1])
+	w_1_2_2.append(model.get_weights()[0][1,1])
+	w_1_3_1.append(model.get_weights()[0][0,2])
+	w_1_3_2.append(model.get_weights()[0][1,2])
+	# w_1_4_1.append(model.get_weights()[0][0,3])
+	# w_1_4_2.append(model.get_weights()[0][1,3])
+	w_2_1.append(model.get_weights()[2][0,0])
+	w_2_2.append(model.get_weights()[2][1,0])
+	w_2_3.append(model.get_weights()[2][2,0])
+	# w_2_4.append(model.get_weights()[2][3,0])
+	print("save each and every loss and accuracy")
+	losses.append(hist.history['loss'][0])
+	accuracies.append(hist.history['acc'][0])
 
-print(model.predict(X))
-print(model1.predict(X))
-error = model.evaluate([X], [y])
-print("error", error)
-"""
-[[ 0.0033028 ]
- [ 0.99581173]
- [ 0.99530098]
- [ 0.00564186]]
-"""
+
+#######################################################
+# plot all weights and losses, accuracies
+#######################################################
+
+plt.figure()
+
+plt.suptitle("xor_h_3nodes_relu_sigmoid")
+
+
+ax1 = plt.subplot2grid((6, 4), (0, 0), colspan=2, rowspan=2)  # stands for axes
+ax1.plot(losses, c='blue', label='losses') # change index name
+ax1.legend(loc='best')
+ax1.set_title("end value: %.04f" % losses[-1], fontsize = 5)
+
+
+ax2 = plt.subplot2grid((6, 4), (0, 2), colspan=2, rowspan=2)
+ax2.plot(accuracies, c='red', label='acc')
+ax2.legend(loc='best')
+ax2.set_title("end value: %.04f" % accuracies[-1], fontsize=5)
+
+ax3 = plt.subplot2grid((6, 4), (2, 0), colspan=1, rowspan=2)
+ax3.plot(w_2_1, c='green', label='w_2_1')
+ax3.legend(loc='best')
+ax3.set_title("end value: %.04f" % w_2_1[-1], fontsize=5)
+
+ax4 = plt.subplot2grid((6, 4), (2, 1), colspan=1, rowspan=2)
+ax4.plot(w_2_2, c='green', label='w_2_2')
+ax4.legend(loc='best')
+ax4.set_title("end value: %.04f" % w_2_2[-1], fontsize=5)
+
+ax5 = plt.subplot2grid((6, 4), (2, 2), colspan=1, rowspan=2)
+ax5.plot(w_2_3, c='green', label='w_2_3')
+ax5.legend(loc='best')
+ax5.set_title("end value: %.04f" % w_2_3[-1], fontsize=5)
+
+# ax6 = plt.subplot2grid((6, 4), (2, 3), colspan=1, rowspan=2)
+# ax6.plot(w_2_4, c='green', label='w_2_4')
+# ax6.legend(loc='best')
+# ax6.set_title("end value: %.04f" % w_2_4[-1], fontsize=5)
+
+ax7 = plt.subplot2grid((6, 4), (4, 0), colspan=1, rowspan=1)
+ax7.plot(w_1_1_1, c='green', label='w_1_1_1')
+ax7.legend(loc='best')
+ax7.set_title("end value: %.04f" % w_1_1_1[-1], fontsize=5)
+
+ax8 = plt.subplot2grid((6, 4), (4, 1), colspan=1, rowspan=1)
+ax8.plot(w_1_2_1, c='green', label='w_2_2_1')
+ax8.legend(loc='best')
+ax8.set_title("end value: %.04f" % w_1_2_1[-1], fontsize=5)
+
+ax9 = plt.subplot2grid((6, 4), (4, 2), colspan=1, rowspan=1)
+ax9.plot(w_1_3_1, c='green', label='w_2_3_1')
+ax9.legend(loc='best')
+ax9.set_title("end value: %.04f" % w_1_3_1[-1], fontsize=5)
+
+# ax10 = plt.subplot2grid((6, 4), (4, 3), colspan=1, rowspan=1)
+# ax10.plot(w_1_4_1, c='green', label='w_2_4_1')
+# ax10.legend(loc='best')
+# ax10.set_title("end value: %.04f" % w_1_4_1[-1], fontsize=5)
+
+ax11 = plt.subplot2grid((6, 4), (5, 0), colspan=1, rowspan=1)
+ax11.plot(w_1_1_2, c='green', label='w_1_1_2')
+ax11.legend(loc='best')
+ax11.set_title("end value: %.04f" % w_1_1_2[-1], fontsize=5)
+
+ax12 = plt.subplot2grid((6, 4), (5, 1), colspan=1, rowspan=1)
+ax12.plot(w_1_2_2, c='green', label='w_1_2_2')
+ax12.legend(loc='best')
+ax12.set_title("end value: %.04f" % w_1_2_2[-1], fontsize=5)
+
+ax13 = plt.subplot2grid((6, 4), (5, 2), colspan=1, rowspan=1)
+ax13.plot(w_1_3_2, c='green', label='w_1_3_2')
+ax13.legend(loc='best')
+ax13.set_title("end value: %.04f" % w_1_3_2[-1], fontsize=5)
+
+# ax14 = plt.subplot2grid((6, 4), (5, 3), colspan=1, rowspan=1)
+# ax14.plot(w_1_4_2, c='green', label='w_1_4_2')
+# ax14.legend(loc='best')
+# ax14.set_title("end value: %.04f" % w_1_4_2[-1], fontsize=5)
+
+plt.tight_layout()
+plt.show() # use this to save manually can control the size of image
+# plt.savefig("/Users/Natsume/Downloads/data_for_all/deeplearningbook/xor_h_4nodes_relu_sigmoid.png")
+
+
+
+#######################################################
+# make predictions
+#######################################################
+print("features:", X)
+print("targets:", y)
+print("predictions:", model.predict(X))
+
+# features: [[0 0]
+#  [0 1]
+#  [1 0]
+#  [1 1]]
+# targets: [0 1 1 0]
+# predictions: [[ 0.07140524]
+#  [ 0.97043109]
+#  [ 0.97092551]
+#  [ 0.0201302 ]]

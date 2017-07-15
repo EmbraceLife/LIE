@@ -1,13 +1,24 @@
 # How to read correlation between input and output through weights?
 grokking_deep_learning_correlation
 
-I found chapter 6 of grokking deep learning is not as crystal clear as previous chapters. In order to have a better understanding, I attempted the following example.
+In the following example, I want to use neuralnet to imitate xor function.
 
-I have built a simple neuralNet to imitate a function of doing xor. The neural structure is in the drawing below.     
+```python
+X = np.array([[0,0],[0,1],[1,0],[1,1]])
+# y = np.array([[0],[1],[1],[0]])
+# it is better to be replaced with true target function ^ or xor function
+y = X[:,0] ^ X[:,1] # ^ is xor function
+```
+
+The main neuralNet to imitate a function of doing xor is described in the drawing below: just one hidden layer with 4 nodes
 ![](https://lh3.googleusercontent.com/w3dqSSnbXDrQEXHbrfOi93Xh4c7ZJVKKgeaLANf2gv2YI-4qL_7_gEKZyXO4k9gaZ5E0uwJebPWf59vTulZ_YzusSzM756LJVOc9qX9Pi8OsB3wirMo4SZIzgB-1kVH-1VHUHdZYiL32C6XIyfin61NjtaK9NkhQaXGOGX3ph4qxaEft96MnJTbtZdkazdxAk6mYd7TdVkUDS7dZEewvS071_hYQkQpUNnpVLl4KVEOs3JcojmbrwLzlYfQZSpKYi88HZh8pNpWwbRGVnfrsD1Ofky3Lbd_X4XYq0sR-6MNfqIEtAnV_teWbbblptzcK4lLiMMTJT8WThpwHVfeMrtCNbwx06_P4q4sTjLmfVm17AJl-FUMn4iTOojeZz4HUHH5PmTDi6_jCNOpUFhPIdvnz8K8zh3K5CCz9ObRLmxwC86wKKwchvbCuyXbShCZRhI8-zhMAVtE9iWxsaEMZTw6PSgocDOsJ4NZHG2oiZAH6QHZpnycE926Jw5LBA3q7139aiDfHhQ7dMsAyd7JHe1IiMt_BdwnCuD-LvRSdiNB42jGzROjKF1Q1qBBC7hIuJUpQ62BeH2d2cJOe8oSCkSNgdaMGUBTKxSKnUHKNZYFTQt-24oNHeWxg=w1732-h1224-no)
+
+----
 
 plotting from NeuralNet without relu on hidden layer and no sigmoid on final output     
 ![](https://lh3.googleusercontent.com/x4ULglIdmsa5xpfZuG__kJ16uKgeax9xU2xmOvm4i5fBBSxlx8ZV4LpcTSdSok3-Yq3H9bS7_l1924wKWF-4Up0OTe4_sR1wV4MDitFADpbcd_BvAsn1a3jKyABSVA4EllcdMxuYajRMCHEiSpU0TipjoOOiZGhnFWnUqgFsnX7d4V-iquNYHI1GgMqrEJZwZAZ3uVo9tBBT9KjOMdimYEGHu32-emxVGYNKwos6HOwdMmyh0-ydPdMFmJ_RQDxdA4u0w6b8pNLdyNOwkaZSI6W-tPLTVxnV242JA2fkYV7nP5E91B0orl1mgiPKjmWQ9yISUB5AXs3XEd-Dcl8XOTmhWnz7WnJg2dnys4bsRU6UchMKSUuUnVtqqfB_MYCdU7DP67vG_2sgNRhLu16vrH_YLoDa2Om38WiSoxL7DZXGvkki_AbH-0M7dzdt28NtuuWeemFYcLScbWOpO9cRMTN6TruFf8HCYaQUBGN9q_oYxBq6oaKx70nANBdo8DIsJsMj21UCbbr6rrrAx4zfvRMGIMBBEMyj__P0RADBUsm1kcUXxepE4JQh9XLHlKvsWN4GD1reax0_tlGZdjc0kgIl5QDfPHV8_-JGd9nE1hfz0hWeE4S3P3Ox=w2412-h1224-no)
+
+This model failed to capture anything useful between inputs and outputs     
 
 ```python
 print("features:", X)
@@ -27,8 +38,16 @@ predictions:
  [ 0.50182629]]
 ```
 
+Can the model weights tell us why this model does not learn anything?    
+- intermediate_layer's weights are very close to 0 and weight curve remain flat most of time
+
+
+----
+
 plotting from NeuralNet without relu on hidden layer but with sigmoid on final output    
 ![](https://lh3.googleusercontent.com/Zc153rK03wTmKJ6fZWXUP-j_Jt4I7XyABbncS35lrYSkqQH3NH-6Z446tQQ03HMV3-oElwp9K2IzXXDREBfLlCCkGUAETrOu1m-URTLztQQwORCBN7nH3f6N6dAsVTQEZEzFS70SWF-FViumTzG2Nqd1bo_UCso8PF68Ir7IfAM3lhwuHd2otqTv9Z2e1WBj5RRdefBFdVOpneTImfXdZLS_gWaHbUc1RlDCLIPMPi8MpT3q1YKt8MlrkFkK9Q4b3z16-Aq4pDLy_gh8mwFXV550yfBzv6aqJTjcHybXrxL8nA4zrGeR_S4YMof76BeqAN0jUnLRiQaA6d8yalFcpyksa82q8PDM_HNNEE0tRV87-leiwbXMprYNu-uZJ8LtGCSG6_miFrj3K49DAOyaD318cmG4O6Q8s5yUQpwVTO5NNUIDQb7EuJZjd91L5kWud5YZe0EVSIArXPI3ve-GYAjWuqN1Az8NUopHpVqqe1FtpjBBbWNH46oOQybdBS7CoLrfM49JE8zpuoyJzUT2n_CaLFAq5LC-cuBdGktD60K3GFM2WaFz71z6Q1dcwc2_ghT06Fjn9Ynej6JAKN3cNWTtbAIEvOxnzPUdFS9DZFF8K7xXV6u-XccZ=w2412-h1224-no)
+
+This model failed to capture anything useful between inputs and outputs     
 
 ```python
 print("features:", X)
@@ -48,10 +67,18 @@ predictions:
  [ 0.43638653]]
 ```
 
+Can the model weights tell us why this model does not learn anything?   
+- with sigmoid, although intermediate_layer's weights are no longer flat
+- intermediate_layer's weights are all quite closer to 0, range (-0.04, 0.08)
+- therefore, no matter how features of inputs differ from each other, its weighted sum or predictions don't change much
+- therefore, this model is not learning anything neither
+
+----
 
 plotting from NeuralNet with relu on hidden layer but without sigmoid on final output    
 ![](https://lh3.googleusercontent.com/S9nSABfpV31Mgd_A4hrqawL-NrFomcryd97xjntgWkOouEx_mzs-8pLeFTJDAJJwaErhLWFuZ4vvhx9QCZsGBDc7WOw7CtHfE0SHWzlcS44tnKoqHeBX4qvCzvkWc9QlEaaUg2H46gIbYu4XZVtSgQ9CU_JJ_1GNxfvvkmpSp9GykirVI7i-kf8ZTpSLEbMnvFNIdjS1PrJI5LI3OCxvHluaBiRKbnQj1nAzIZo2D_4Iq15daQbtHzVKEndQEa6rfp7Jyk6ra5NG7DzRjCdDdP9SFUqYIL3zYURo8JcSaaSSI-ICQZRYNl9RxbMtBe3lXPIK8IqoP_t4yWDW6gPczEcXtEnJ9OiYcVVZgN-ythO8t6P-MWH6l0m4eyzqBqoGIpc1RvKxYgFFJTQDZbIvI4rc70U4-igPADydhdW4O0NdLum3YXoxkPB3auc0UEKuRznFpo_JQXR9KbJH0gx-MOUZ-ereHKlb2SEGnQKaL8dP7fvxO4eQSkAEL--DLMPgCZdTfnVRCg3lxK9ty7BSzLv9oqB3lDbDYOZaWErTOjCZIWOiOVGc6e-fN7gZpkNEOOXY9Bj5PD4qQou7v6kLBby37JYrbu83oansPRZk-oK3-hcH0CGM7mWU=w2412-h1224-no)
 
+This model captures pattern between inputs and outputs    
 ```python
 print("features:", X)
 print("targets:", y)
@@ -69,10 +96,19 @@ predictions: [[  7.77083784e-08]
  [  1.81037336e-08]]
 ```
 
+Can the model weights tell us why this model does not learn anything?   
+- without sigmoid, intermediate_layer's weights are most time flat, this is because within the first 50 epochs weights are updated well enough to capture the pattern
+- intermediate_layer's weights are all quite away from 0, range (-0.48, 1.17)
+- therefore, as features of inputs differ from each other, its weighted sum or predictions will differ as well
+- therefore, this model has learnt something
+
+----
 
 plotting from NeuralNet with relu on hidden layer and with sigmoid on final output    
 ![](https://lh3.googleusercontent.com/Ljm9YhlPASIew7_R2zm7gFdvA2GiD0-ygu7dG37z1-UxZSXQfQlM2vD4XGxMD6GGnIOAeNhqsDIuwWi0Yvqp3PfsaDCc4vh0n4U8dMSxLQijynban-xfwIA1Y6WPc3iL9yDs822kqk681fK9dBUF_fdScXgba925g7dJCyzSgChQ_MXSB2oil7xqYxikgAHQD9xmKC4b394af0G8c83wyOkpx9WKTAPIFjGcIBSSJSxcxX2BthRhzgUa_QpKghSQInhdcC7mOifwSbsDj83p91tTibDXxbFfXT5LzMMfpkNT3-YRMjYgwOmZlsfQB6lvowQxXs8sM5YRxkcCR8HeYgXthstow-C5NPQuuXSfvgC7uFjowCux103Y4HiTS9Ris17dzHkCfTNCOsDTvoc2llnNx9TNiZtQ_60aSeqTtq0IXbxjsSe7klISPFW1cYssbukefZcCgpu6sC_6agnRVRtI2odDLidqOXKqHbNH9TmU0IND5UKiIdtGIquo3fPYIzV_vSH5fUXeOh9iyNFDWwv0qKCZgCr9t6WbYYO2lTHsMjX6zPi4Hdw0SwAh548OZKkmk7ieQI3W33xpP1BckcdYzQvne0l8LPfjKZqZZ90d9i9UvT-wb4lp=w2412-h1224-no)
 
+
+This model captures pattern between inputs and outputs    
 ```python
 print("features:", X)
 print("targets:", y)
@@ -90,12 +126,48 @@ predictions: [[ 0.07140524]
 
 ```
 
+Can the model weights tell us why this model does not learn anything?   
+- intermediate_layer's weights are all quite away from 0, range (-1.5, 2.85)
+- therefore, as features of inputs differ from each other, its weighted sum or predictions will differ as well
+- therefore, this model has learnt something
+
+
+
+
+### How about the same neuralNet with just 3 nodes in hidden layer?
+
+plotting from neuralNet with only 3 nodes with relu and sigmoid     
+![](https://lh3.googleusercontent.com/-awPvNnUkQftw8uCHvnqAbam3TWq9Juh4eFRund3GZVQzlzh7inGDcptwMJiUCCRbrVM10O7xJFAaHA2CXqHv_og_tmQzM0lPh6pfpRIP9GhLJYOzFT6NXsZNTYZNMlUfJdbdlI_rcx46154GSNkbnkmcwy6UmVuiJ_aXe05CX6AX0dS3cXV2EZUnnGR9eCtpZr6Al2UfqmlppgDc2i-KncSQ3URTR9iKmovOMQfTGYOBVPGzX6b99-sbBxTPkyCaWKA9B9ifJgsCtT5Fdw_suc-htAqA4e5wHxhQp3SZgXDl7RFBIP97Bx8myacK6zKLWz5z9lvJBjWKf9znJSLvmGMXTAcbg73NJqUxuNslK7AFPoFn4YbpP4MK88nPgkRzSL93vZZwxvagqY2AwTwbW5lK4kpjYJNtnBTs97pQHevPfXR6L-nRgxPNfN6e9h5LPD07FVsvtg4TjMjbLL-NBzPOLHiyPvC76KUX3IzsFdAvPldkamd7EhxtiMW7jzzsZ86bVMn9HmHLbIsaZapWxW7Y9CPd3Na3nqvY-A8CpTs5s-j0ANXk3uEkYADWq1Ofq_bVcwJHD5fdIi9Q-41NuajeZu13b-1dXuYYmI4mbTgOkqcGsm9kfzy=w2412-h1224-no)
+
+This model failed to capture anything useful between inputs and outputs     
+```python
+print("features:", X)
+print("targets:", y)
+print("predictions:", model.predict(X))
+
+features: [[0 0]
+ [0 1]
+ [1 0]
+ [1 1]]
+targets: [0 1 1 0]
+predictions: [[ 0.50016105]
+ [ 0.50016105]
+ [ 0.50016105]
+ [ 0.50016105]]
+```
+
+Can the model weights tell us why this model does not learn anything?   
+- without sigmoid, intermediate_layer's weights are most time flat, this is because within the first 50 epochs weights are updated well enough to capture the pattern
+- intermediate_layer's weights are all quite away from 0, range (-0.48, 1.17)
+- therefore, as features of inputs differ from each other, its weighted sum or predictions will differ as well
+- therefore, this model has learnt something
+
 
 ## Basic understanding
 1. neuralNet is to capture the correlation between inputs and outputs
 1. if neuralNet is successful, then the pattern or correlation between inputs and outputs will be stored inside weights
 1. usually in real world, it is hard to directly discover correlation between inputs and outputs
-1. in this case, we need to build intermediate_outputs between inputs and outputs
+1. so, it is common to build intermediate_outputs between inputs and outputs to build a selective correlation between intermediate_outputs and final outputs
 1. we use a neuralNet (multiple inputs to multiple outputs) to capture conditional correlation between inputs and intermediate_outputs with the help of non-linear activation function
 1. then we can use another neuralNet (multiple input, one output) to easily find direct correlation between intermediate_outputs and final outputs (no non-linear activation function is needed, in this case, sigmoid is used but it is not for discovering correlation, but for nice format)
 1. without non-linear activation function to help find conditional correlation between inputs and intermediate_outputs, there won't be direct correlation between intermediate_outputs and final outputs
