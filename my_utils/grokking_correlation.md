@@ -3,7 +3,7 @@ grokking_deep_learning_correlation
 
 By contemplating on the book illustrations on pages 111,112,114,115, it makes me wonder does Andrew suggest we can verify correlation from observing weights curves. Is it possible?
 
-So, I have made the following neuralnet and plottings on weights to see whether we can tell correlation from weights curves. 
+So, I have made the following neuralnet and plottings on weights to see whether we can tell correlation from weights curves.
 
 
 In the following example, I want to use neuralnet to imitate xor function.
@@ -45,6 +45,8 @@ predictions:
 
 Can the model weights tell us why this model does not learn anything?    
 - intermediate_layer's weights are very close to 0 and weight curve remain flat most of time
+- so, no matter how much features of inputs differ, the outputs won't differ much
+- so, nothing is learnt by this model
 
 
 ----
@@ -73,7 +75,6 @@ predictions:
 ```
 
 Can the model weights tell us why this model does not learn anything?   
-- with sigmoid, although intermediate_layer's weights are no longer flat
 - intermediate_layer's weights are all quite closer to 0, range (-0.04, 0.08)
 - therefore, no matter how features of inputs differ from each other, its weighted sum or predictions don't change much
 - therefore, this model is not learning anything neither
@@ -102,7 +103,6 @@ predictions: [[  7.77083784e-08]
 ```
 
 Can the model weights tell us why this model does not learn anything?   
-- without sigmoid, intermediate_layer's weights are most time flat, this is because within the first 50 epochs weights are updated well enough to capture the pattern
 - intermediate_layer's weights are all quite away from 0, range (-0.48, 1.17)
 - therefore, as features of inputs differ from each other, its weighted sum or predictions will differ as well
 - therefore, this model has learnt something
@@ -162,10 +162,10 @@ predictions: [[ 0.50016105]
 ```
 
 Can the model weights tell us why this model does not learn anything?   
-- 7 out of 9 weights are not changing
+- 7 out of 9 weights are not changing at all
 - 2 weights has changed but remain small, one is -0.098, the other is -0.17
 - most of epochs both weights remain the same
-- so, no matter how much features of inputs differ from each other, the outputs may not change that much;
+- so, no matter how much features of inputs differ from each other, the outputs will not change that much;
 - therefore, this model failed to learn the pattern
 
 
