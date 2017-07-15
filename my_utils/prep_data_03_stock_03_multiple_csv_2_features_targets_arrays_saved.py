@@ -47,8 +47,8 @@ import numpy as np
 from prep_data_utils_01_save_load_large_arrays_bcolz_np_pickle_torch import bz_save_array
 
 # set days for training, validation and testing
-days_for_valid = 1000
-days_for_test = 700 # number of test samples
+days_for_valid = 700 # 1000 is too much dataset to be taken away from training
+days_for_test = 0 # number of test samples
 # input_shape = [30, 24] # [30, 61]  # [length of time series, length of feature]
 # window = input_shape[0]
 
@@ -61,22 +61,22 @@ test_features = None
 test_targets = None
 
 # create paths for storing those arrays above
-train_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/QCG_features_targets/train_features_path"
-valid_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/QCG_features_targets/valid_targets_path"
-valid_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/QCG_features_targets/valid_features_path"
-train_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/QCG_features_targets/train_targets_path"
-test_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/QCG_features_targets/test_features_path"
-test_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/QCG_features_targets/test_targets_path"
+train_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/train_features_path"
+valid_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/valid_targets_path"
+valid_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/valid_features_path"
+train_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/train_targets_path"
+test_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/test_features_path"
+test_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/test_targets_path"
 
 ########################################################################
 ### How many indicators do we use to create features
 ########################################################################
 ### Situation 1: use 61 indicators without using OHLC as features
 # user selected indicators for converting OHLCV to
-# user_indicators = ["ROCP", "OROCP", "HROCP", "LROCP", "MACD", "RSI", "VROCP", "BOLL", "MA", "VMA", "PRICE_VOLUME"]
+user_indicators = ["ROCP", "OROCP", "HROCP", "LROCP", "MACD", "RSI", "VROCP", "BOLL", "MA", "VMA", "PRICE_VOLUME"]
 
 ### Situation 2: 20 MA indicators + 4 OHLC as indicators
-user_indicators = ["MA"] # only select MA,
+# user_indicators = ["MA"] # only select MA,
 # and OHLC as features are added by comment free a 4 lines of code in  'prep_data_03_stock_02_OHLCV_arrays_2_features_targets_arrays.py'
 
 # dir_path for stock csv
@@ -147,6 +147,10 @@ for filename in os.listdir(dataset_dir):
 	    test_targets = np.concatenate((test_targets, test_targets_another), axis = 0)
 
     current_num_csv += 1
+
+print("training: (%d, %d, %d)" % (train_features.shape[0], train_features.shape[1], train_features.shape[2]))
+print("validation: (%d, %d, %d)" % (valid_features.shape[0], valid_features.shape[1], valid_features.shape[2]))
+print("test: (%d, %d, %d)" % (test_features.shape[0], test_features.shape[1], test_features.shape[2]))
 
 bz_save_array(train_features_path, train_features)
 bz_save_array(train_targets_path, train_targets)

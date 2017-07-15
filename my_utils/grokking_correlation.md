@@ -1,7 +1,7 @@
 # Can we tell correlation between inputs and outputs by observing weights curves?
 grokking_deep_learning_correlation
 
-By contemplating on the book illustrations on pages 111,112,114,115, it makes me wonder does Andrew suggest we can verify correlation from observing weights curves. Is it possible?
+By contemplating on the book illustrations on pages 111,112,114,115, it makes me wonder does Andrew suggest we can verify correlation from observing weights curves. Is it possible? Is there anything useful can be gained by observing weights curves?
 
 So, I have made the following neuralnet and plottings on weights to see whether we can tell correlation from weights curves.
 

@@ -23,26 +23,26 @@ import numpy as np
 ########################################################################
 #### load data from local folders, training locally
 ########################################################################
-train_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/train_features_path"
-train_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/train_targets_path"
+# train_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/train_features_path"
+# train_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/train_targets_path"
+#
+# valid_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/valid_features_path"
+# valid_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/valid_targets_path"
 
-valid_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/valid_features_path"
-valid_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/valid_targets_path"
-
-test_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/test_features_path"
-test_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/test_targets_path"
+# test_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/test_features_path"
+# test_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/test_targets_path"
 
 
 ########################################################################
 ##### loading data from Floyd input folder, For floyd training
 ########################################################################
 
-# train_features_path = "/input/train_features_path"
-# train_targets_path = "/input/train_targets_path"
-#
-# valid_features_path = "/input/valid_features_path"
-# valid_targets_path = "/input/valid_targets_path"
-#
+train_features_path = "/input/train_features_path"
+train_targets_path = "/input/train_targets_path"
+
+valid_features_path = "/input/valid_features_path"
+valid_targets_path = "/input/valid_targets_path"
+
 # test_features_path = "/input/test_features_path"
 # test_targets_path = "/input/test_targets_path"
 
@@ -50,8 +50,8 @@ train_features = bz_load_array(train_features_path)
 train_targets = bz_load_array(train_targets_path)
 valid_features = bz_load_array(valid_features_path)
 valid_targets = bz_load_array(valid_targets_path)
-test_features = bz_load_array(test_features_path)
-test_targets = bz_load_array(test_targets_path)
+# test_features = bz_load_array(test_features_path)
+# test_targets = bz_load_array(test_targets_path)
 
 
 ### do np.reshape and np.transpose have very different result
@@ -61,11 +61,13 @@ test_targets = bz_load_array(test_targets_path)
 # test_features_reshape = np.reshape(test_features, (-1, 30, 61))
 train_features = np.transpose(train_features, (0, 2, 1))
 valid_features = np.transpose(valid_features, (0, 2, 1))
-test_features = np.transpose(test_features, (0, 2, 1))
+# test_features = np.transpose(test_features, (0, 2, 1))
 
 print("train_features, train_targets, shapes: \n")
 print(train_features.shape)
 print(train_targets.shape)
+print(valid_features.shape)
+print(valid_targets.shape)
 print("-----------------------------------")
 print("first row of features:")
 print(train_features[0])

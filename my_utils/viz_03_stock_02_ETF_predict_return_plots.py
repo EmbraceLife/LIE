@@ -18,8 +18,8 @@ import numpy as np
 # 获取标的收盘价和日期序列
 from prep_data_03_stock_01_csv_2_pandas_2_arrays_DOHLCV import csv_df_arrays
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF50.csv"
-# index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF500.csv"
-index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF300.csv"
+index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF500.csv"
+# index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF300.csv"
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF100.csv"
 
 date,_,_,_, closes, _ = csv_df_arrays(index_path)
@@ -93,23 +93,23 @@ for idx in range(1, len(index_preds_target)):
 	accum_capital = daily_capital[idx-1]*(1+index_preds_target[idx,0]*index_preds_target[idx,1])
 	daily_capital.append(accum_capital)
 
-	# 情况2：
-	# 计算实际交易成本
-	if index_preds_target[idx-1,0] == index_preds_target[idx,0] == 1.0 or index_preds_target[idx-1,0] == index_preds_target[idx,0] == 0.0:
-		# no trade, no trading cost today
-		accum_capital = daily_capital[idx-1]*(1+index_preds_target[idx,0]*index_preds_target[idx,1])
-		daily_capital.append(accum_capital)
-	elif index_preds_target[idx-1,0] == index_preds_target[idx,0] and index_preds_target[idx-1,1] == index_preds_target[idx,1] == 0.0:
-		# no trade, no trading cost today
-		accum_capital = daily_capital[idx-1]*(1+index_preds_target[idx,0]*index_preds_target[idx,1])
-		daily_capital.append(accum_capital)
-
-	else:
-		# cost = (today's holding position capital - yesterday's holding position capital)*0.001
-		cost = np.abs((daily_capital[idx-1]*index_preds_target[idx,0]- daily_capital[idx-2]*index_preds_target[idx-1,0])*0.001)
-		# today's accum_capital = today's accum_capital - cost
-		accum_capital = daily_capital[idx-1]*(1+index_preds_target[idx,0]*index_preds_target[idx,1]) - cost
-		daily_capital.append(accum_capital)
+	# # 情况2：
+	# # 计算实际交易成本
+	# if index_preds_target[idx-1,0] == index_preds_target[idx,0] == 1.0 or index_preds_target[idx-1,0] == index_preds_target[idx,0] == 0.0:
+	# 	# no trade, no trading cost today
+	# 	accum_capital = daily_capital[idx-1]*(1+index_preds_target[idx,0]*index_preds_target[idx,1])
+	# 	daily_capital.append(accum_capital)
+	# elif index_preds_target[idx-1,0] == index_preds_target[idx,0] and index_preds_target[idx-1,1] == index_preds_target[idx,1] == 0.0:
+	# 	# no trade, no trading cost today
+	# 	accum_capital = daily_capital[idx-1]*(1+index_preds_target[idx,0]*index_preds_target[idx,1])
+	# 	daily_capital.append(accum_capital)
+	#
+	# else:
+	# 	# cost = (today's holding position capital - yesterday's holding position capital)*0.001
+	# 	cost = np.abs((daily_capital[idx-1]*index_preds_target[idx,0]- daily_capital[idx-2]*index_preds_target[idx-1,0])*0.001)
+	# 	# today's accum_capital = today's accum_capital - cost
+	# 	accum_capital = daily_capital[idx-1]*(1+index_preds_target[idx,0]*index_preds_target[idx,1]) - cost
+	# 	daily_capital.append(accum_capital)
 
 accum_profit = np.array(daily_capital)-1 # 累积总资产减去初始资产 = 累积收益
 print("final date:", date[-1])
@@ -124,7 +124,7 @@ accum_change_capital = np.cumsum(changes_preds) # 累积差值，获得总资产
 
 plt.figure()
 ax1 = plt.subplot2grid((7, 3), (0, 0), colspan=3, rowspan=4)  # stands for axes
-ax1.plot(target_closes, c='blue', label='ETF300') # change index name
+ax1.plot(target_closes, c='blue', label='ETF500') # change index name
 ax1.plot(accum_profit, c='red', label='accum_profit')
 ax1.legend(loc='best')
 ax1.set_title('from %s to %s return: %04f' % (date[0], date[-1], accum_profit[-1]))
@@ -137,8 +137,8 @@ ax2.set_title("accumulated total transactions of full capital: %02f" % accum_cha
 ax3 = plt.subplot2grid((7, 3), (6, 0), colspan=3)
 X = np.arange(len(index_preds_target))
 ax3.bar(X, index_preds_target[:,0], facecolor='#9999ff', edgecolor='blue')
-ax3.set_title('model4_no_cost') # change model name
+ax3.set_title('revised_v1_no_cost') # change model name
 
 plt.tight_layout()
-# plt.show()
-plt.savefig("/Users/Natsume/Downloads/data_for_all/stocks/model_performance/ETF300_model4_addcost.png")
+plt.show()
+# plt.savefig("/Users/Natsume/Downloads/data_for_all/stocks/model_performance/ETF300_model4_addcost.png")

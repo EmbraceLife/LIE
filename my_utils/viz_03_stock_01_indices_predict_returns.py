@@ -37,28 +37,28 @@ daily_capital.append(1. * (1. + index_preds_target[0,0]*index_preds_target[0,1])
 
 # from second day onward
 for idx in range(1, len(index_preds_target)):
-	# situation one:
-	# everyday's accumulated capital, ignore trading cost
-	accum_capital = daily_capital[idx-1]*(1+index_preds_target[idx,0]*index_preds_target[idx,1])
-	daily_capital.append(accum_capital)
+	# # situation one:
+	# # everyday's accumulated capital, ignore trading cost
+	# accum_capital = daily_capital[idx-1]*(1+index_preds_target[idx,0]*index_preds_target[idx,1])
+	# daily_capital.append(accum_capital)
 
-	# # situation two:
-	# # everyday's accumulated capital, consider trading cost
-	# if index_preds_target[idx-1,0] == index_preds_target[idx,0] == 1.0 or index_preds_target[idx-1,0] == index_preds_target[idx,0] == 0.0:
-	# 	# no trade, no trading cost today
-	# 	accum_capital = daily_capital[idx-1]*(1+index_preds_target[idx,0]*index_preds_target[idx,1])
-	# 	daily_capital.append(accum_capital)
-	# elif index_preds_target[idx-1,0] == index_preds_target[idx,0] and index_preds_target[idx-1,1] == index_preds_target[idx,1] == 0.0:
-	# 	# no trade, no trading cost today
-	# 	accum_capital = daily_capital[idx-1]*(1+index_preds_target[idx,0]*index_preds_target[idx,1])
-	# 	daily_capital.append(accum_capital)
-	#
-	# else:
-	# 	# cost = (today's holding position capital - yesterday's holding position capital)*0.001
-	# 	cost = np.abs((daily_capital[idx-1]*index_preds_target[idx,0]- daily_capital[idx-2]*index_preds_target[idx-1,0])*0.001)
-	# 	# today's accum_capital = today's accum_capital - cost
-	# 	accum_capital = daily_capital[idx-1]*(1+index_preds_target[idx,0]*index_preds_target[idx,1]) - cost
-	# 	daily_capital.append(accum_capital)
+	# situation two:
+	# everyday's accumulated capital, consider trading cost
+	if index_preds_target[idx-1,0] == index_preds_target[idx,0] == 1.0 or index_preds_target[idx-1,0] == index_preds_target[idx,0] == 0.0:
+		# no trade, no trading cost today
+		accum_capital = daily_capital[idx-1]*(1+index_preds_target[idx,0]*index_preds_target[idx,1])
+		daily_capital.append(accum_capital)
+	elif index_preds_target[idx-1,0] == index_preds_target[idx,0] and index_preds_target[idx-1,1] == index_preds_target[idx,1] == 0.0:
+		# no trade, no trading cost today
+		accum_capital = daily_capital[idx-1]*(1+index_preds_target[idx,0]*index_preds_target[idx,1])
+		daily_capital.append(accum_capital)
+
+	else:
+		# cost = (today's holding position capital - yesterday's holding position capital)*0.001
+		cost = np.abs((daily_capital[idx-1]*index_preds_target[idx,0]- daily_capital[idx-2]*index_preds_target[idx-1,0])*0.001)
+		# today's accum_capital = today's accum_capital - cost
+		accum_capital = daily_capital[idx-1]*(1+index_preds_target[idx,0]*index_preds_target[idx,1]) - cost
+		daily_capital.append(accum_capital)
 
 accum_profit = np.array(daily_capital)-1
 print("final date:", date[-1])
@@ -90,5 +90,5 @@ ax3.plot(index_preds_target[:,0], c="green")
 ax3.set_title('model2 with lr0.001 no cost') # change model name
 
 plt.tight_layout()
-# plt.show()
-plt.savefig("/Users/Natsume/Downloads/data_for_all/stocks/model_performance/index000001_position.png")
+plt.show()
+# plt.savefig("/Users/Natsume/Downloads/data_for_all/stocks/model_performance/index000001_position.png")

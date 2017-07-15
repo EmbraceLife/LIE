@@ -21,24 +21,15 @@ from keras.initializers import Constant
 import keras.backend as K
 from keras.utils.generic_utils import get_custom_objects
 
-#######################
-# original deep trader
-#######################
-# def relu_limited(x, alpha=0., max_value=1.):
-#     return K.relu(x, alpha=alpha, max_value=max_value)
-#
-# get_custom_objects().update({'custom_activation': Activation(relu_limited)})
+def relu_limited(x, alpha=0., max_value=1.):
+    return K.relu(x, alpha=alpha, max_value=max_value)
 
+get_custom_objects().update({'custom_activation': Activation(relu_limited)})
 
-# def risk_estimation(y_true, y_pred):
-#     return -100. * K.mean((y_true - 0.0002) * y_pred)
-
-#######################
-# revised deep trader
-## version trained locally used -1 not -100
-#######################
 def risk_estimation(y_true, y_pred):
-    return -100 * K.mean(y_true * y_pred)
+    return -100. * K.mean((y_true - 0.0002) * y_pred)
+
+
 
 class WindPuller(object):
 
@@ -66,17 +57,10 @@ class WindPuller(object):
 
 		# add a dense layer, with BatchRenormalization, relu_limited
         self.model.add(Dense(1, kernel_initializer=initializers.glorot_uniform()))
-
-		#######################
-		# original deep trader
-		#######################
-        # self.model.add(BatchRenormalization(axis=-1, beta_init=Constant(value=0.5)))
-        # self.model.add(Activation(relu_limited))
-
-		#######################
-		# revised deep trader
-		#######################
-        self.model.add(Activation('sigmoid'))
+        # self.model.add(BatchNormalization(axis=-1, moving_mean_initializer=Constant(value=0.5),
+                    #   moving_variance_initializer=Constant(value=0.25)))
+        self.model.add(BatchRenormalization(axis=-1, beta_init=Constant(value=0.5)))
+        self.model.add(Activation(relu_limited))
 
 		# compile model
         opt = RMSprop(lr=lr)

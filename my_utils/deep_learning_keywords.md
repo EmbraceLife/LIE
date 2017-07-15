@@ -55,7 +55,7 @@
 - plot_ax_title_size
 - plot_figure_suptitle
 - subplot_structure
-
+- sigmoid_distribution
 
 ## simple examples
 - xor_example

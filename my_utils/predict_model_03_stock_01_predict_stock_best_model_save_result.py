@@ -41,10 +41,13 @@ def get_stock_preds_target(stock_path):
 	# wp_best = wp.load_model("/Users/Natsume/Downloads/data_for_all/stocks/floyd_train/floyd_model2_1000/floyd_model2_1000.h5") # floyd model2 1000 epochs, but lr = 0.002
 	# wp_best = wp.load_model("/Users/Natsume/Downloads/data_for_all/stocks/best_models_trained/model.30.4_bluechips_indices.best")
 	# wp_best = wp.load_model("/Users/Natsume/Downloads/data_for_all/stocks/best_models_trained/model.30.best")
-	wp_best = load_model("/Users/Natsume/Downloads/data_for_all/stocks/best_models_trained/model.30.best.bias_removed")
+	# wp_best = load_model("/Users/Natsume/Downloads/data_for_all/stocks/best_models_trained/model.30.best.bias_removed")
 	# error on unknown layer BatchRenormalization, if use the following line
 	# wp = wp.load_model("/Users/Natsume/Downloads/DeepTrade_keras/author_log_weights/model.30.best")
 	# wp_best = wp.load_model("/Users/Natsume/Downloads/data_for_all/stocks/floyd_train/qcg_train_only_ma/qcg_model_2000.h5")
+	# model_path = "/Users/Natsume/Desktop/best_model_in_training.h5"
+	model_path = "/Users/Natsume/Desktop/floyd_revised/during_best.h5"
+	wp_best = load_model(model_path)
 
 	# predict with model on training, validation and test sets
 	pred_capital_pos = wp_best.predict(stock_features)
@@ -61,13 +64,20 @@ def get_middle_layer_output(stock_path):
 
 	stock_features, stock_target = stock_csv_features_targets(stock_path)
 
-	global wp # must to make the following line work
-	wp = wp.load_model("/Users/Natsume/Downloads/data_for_all/stocks/best_models_trained/model.30.best.bias_removed")
-	preds1 = wp.predict(stock_features) # normal final output range (0, 1)
-	plt.hist(preds1)
-	plt.show()
+	##############################
+	# when wp is needed
+	##############################
+	# global wp # must to make the following line work
+	# wp = wp.load_model("/Users/Natsume/Downloads/data_for_all/stocks/best_models_trained/model.30.best.bias_removed")
+	# preds1 = wp.predict(stock_features) # normal final output range (0, 1)
+	# plt.hist(preds1)
+	# plt.show()
+
+
 	# no need wp here
-	wp_best = load_model("/Users/Natsume/Downloads/data_for_all/stocks/best_models_trained/model.30.best.bias_removed")
+	model_path = "/Users/Natsume/Downloads/data_for_all/stocks/best_models_trained/model.30.best.bias_removed"
+	# model_path = "/Users/Natsume/Desktop/best_model_in_training.h5"
+	wp_best = load_model(model_path)
 	preds2 = wp_best.predict(stock_features)
 
 	# access last second layer () output in test mode range(-23, 25)
@@ -107,6 +117,6 @@ def get_middle_layer_output(stock_path):
 """
 Example
 """
-index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/index000001.csv"
-#
-index_preds_target = get_middle_layer_output(index_path)
+# index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/index000001.csv"
+# #
+# index_preds_target = get_middle_layer_output(index_path)
