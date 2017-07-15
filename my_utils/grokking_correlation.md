@@ -1,5 +1,10 @@
-# How to read correlation between input and output through weights?
+# Can we tell correlation between inputs and outputs by observing weights curves?
 grokking_deep_learning_correlation
+
+By contemplating on the book illustrations on pages 111,112,114,115, it makes me wonder does Andrew suggest we can verify correlation from observing weights curves. Is it possible?
+
+So, I have made the following neuralnet and plottings on weights to see whether we can tell correlation from weights curves. 
+
 
 In the following example, I want to use neuralnet to imitate xor function.
 
@@ -132,7 +137,7 @@ Can the model weights tell us why this model does not learn anything?
 - therefore, this model has learnt something
 
 
-
+---
 
 ### How about the same neuralNet with just 3 nodes in hidden layer?
 
@@ -157,11 +162,14 @@ predictions: [[ 0.50016105]
 ```
 
 Can the model weights tell us why this model does not learn anything?   
-- without sigmoid, intermediate_layer's weights are most time flat, this is because within the first 50 epochs weights are updated well enough to capture the pattern
-- intermediate_layer's weights are all quite away from 0, range (-0.48, 1.17)
-- therefore, as features of inputs differ from each other, its weighted sum or predictions will differ as well
-- therefore, this model has learnt something
+- 7 out of 9 weights are not changing
+- 2 weights has changed but remain small, one is -0.098, the other is -0.17
+- most of epochs both weights remain the same
+- so, no matter how much features of inputs differ from each other, the outputs may not change that much;
+- therefore, this model failed to learn the pattern
 
+
+----
 
 ## Basic understanding
 1. neuralNet is to capture the correlation between inputs and outputs
