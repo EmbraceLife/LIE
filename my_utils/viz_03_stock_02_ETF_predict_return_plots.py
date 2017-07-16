@@ -17,8 +17,8 @@ import numpy as np
 
 # 获取标的收盘价和日期序列
 from prep_data_03_stock_01_csv_2_pandas_2_arrays_DOHLCV import csv_df_arrays
-# index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF50.csv"
-index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF500.csv"
+index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF50.csv"
+# index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF500.csv"
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF300.csv"
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF100.csv"
 
@@ -33,6 +33,8 @@ index_preds_target[:, 0]:预测值，即下一日的持仓的总资产占比
 index_preds_target[:, 1]:下一日的当天价格变化
 """
 
+
+
 # zoom in and out for the last 700 trading days
 closes = closes[-700:]
 index_preds_target = index_preds_target[-700:]
@@ -41,7 +43,64 @@ index_preds_target = index_preds_target[-700:]
 target_closes = closes/closes[0]-1# normalized price to price changes
 daily_capital=[]
 
-
+######################################################
+# 收益计算 _ v1.0, 对我的脑力要求太高，can't do it!
+######################################################
+	# 设置阀值，筛选买入，持有和卖出的时间点
+	# 买入： 在第n个（pos>0.95）出现时，买入; 更改持仓状态
+	# 持有： 0.05 < pos < 0.95时，均持有;
+	# 卖出： 在第n个 （pos < 0.05）出现时，卖出; 更改持仓状态
+	# 持仓状态： has_pos = True or False
+# buy_signal = 0.9
+# sell_signal = 0.1
+# patience = 3 # 1,2,3
+# pos = index_preds_target[:,0]
+# price_ch = index_preds_target[:,1]
+# pos_state = False
+# buy_signal_count = 1
+# sell_signal_count = 1
+# init_capital = 100000
+# # daily_capital = []
+#
+# for index in range(len(pos)):
+# 	# 买入条件： 没有持仓，买入信号出现 buy_signal_count 次
+# 	if pos[index] > buy_signal and buy_signal_count == patience and pos_state == False:
+# 		pos_state = True # 设置持仓状态
+# 		if len(daily_capital) == 0:
+# 			daily_capital.append(init_capital * (1 + price_ch[index])) # 计算当日收益，收集
+# 		else:
+# 			daily_capital.append(daily_capital[index-1] * (1 + price_ch[index])) # 计算当日收益，收集
+# 		buy_signal_count += 1
+# 		sell_signal_count = 1
+#
+# 	# 卖出条件： 有持仓，卖出信号出现 sell_signal_count 次
+# 	elif pos[index] < sell_signal and buy_signal_count == patience and pos_state == True:
+# 		pos_state = False # 设置持仓状态
+# 		sell_signal_count+=1
+# 		buy_signal_count = 1
+# 		daily_capital.append(daily_capital[index-1]) # 计算当日收益，收集
+#
+#
+# 	else:
+# 		# 持有状态下, 计算当天市值，收集
+# 		if pos_state == True:
+# 			daily_capital.append(daily_capital[index-1] * (1 + price_ch[index]))
+# 		# 空仓状态下，计算当天市值，收集
+# 		else:
+# 			if len(daily_capital) == 0:
+# 				daily_capital.append(init_capital)
+# 			else:
+# 				daily_capital.append(daily_capital[index-1])
+# 		# 依旧累积买入和卖出信号发生次数
+# 		if pos[index] > buy_signal:
+# 			buy_signal_count+=1
+# 		if pos[index] < sell_signal:
+# 			sell_signal_count+=1
+#
+# daily_capital
+######################################################
+# 收益计算v0
+######################################################
 """
 ### 如何计算累积的每日的总资产（包括计算交易成本）？代码在下面可见
 
@@ -82,38 +141,48 @@ accum_capital = daily_capital[idx-1]*(1+index_preds_target[idx,0]*index_preds_ta
 daily_capital.append(accum_capital)
 - 将累积的每天的总资产收入daily_capital这个list中
 """
-daily_capital.append(1. * (1. + index_preds_target[0,0]*index_preds_target[0,1]))
+
 
 ## see the picture the author drew to refresh the logic
 
 # from second day onward
-for idx in range(1, len(index_preds_target)):
-	# 情况1:
-	# 完全忽略交易成本
-	accum_capital = daily_capital[idx-1]*(1+index_preds_target[idx,0]*index_preds_target[idx,1])
-	daily_capital.append(accum_capital)
+for idx in range(len(index_preds_target)):
 
-	# # 情况2：
-	# # 计算实际交易成本
-	# if index_preds_target[idx-1,0] == index_preds_target[idx,0] == 1.0 or index_preds_target[idx-1,0] == index_preds_target[idx,0] == 0.0:
-	# 	# no trade, no trading cost today
-	# 	accum_capital = daily_capital[idx-1]*(1+index_preds_target[idx,0]*index_preds_target[idx,1])
-	# 	daily_capital.append(accum_capital)
-	# elif index_preds_target[idx-1,0] == index_preds_target[idx,0] and index_preds_target[idx-1,1] == index_preds_target[idx,1] == 0.0:
-	# 	# no trade, no trading cost today
-	# 	accum_capital = daily_capital[idx-1]*(1+index_preds_target[idx,0]*index_preds_target[idx,1])
-	# 	daily_capital.append(accum_capital)
-	#
-	# else:
-	# 	# cost = (today's holding position capital - yesterday's holding position capital)*0.001
-	# 	cost = np.abs((daily_capital[idx-1]*index_preds_target[idx,0]- daily_capital[idx-2]*index_preds_target[idx-1,0])*0.001)
-	# 	# today's accum_capital = today's accum_capital - cost
-	# 	accum_capital = daily_capital[idx-1]*(1+index_preds_target[idx,0]*index_preds_target[idx,1]) - cost
-	# 	daily_capital.append(accum_capital)
+	# 第一天的市值： 第一天开盘买入，当天结束时的市值
+	if idx == 0:
+		daily_capital.append(1. * (1. + index_preds_target[0,0]*index_preds_target[0,1]))
+
+	else:
+		# 情况1:
+		# 完全忽略交易成本
+		accum_capital = daily_capital[idx-1]*(1+index_preds_target[idx,0]*index_preds_target[idx,1])
+		daily_capital.append(accum_capital)
+
+		# # 情况2：
+		# # 计算实际交易成本
+		# if index_preds_target[idx-1,0] == index_preds_target[idx,0] == 1.0 or index_preds_target[idx-1,0] == index_preds_target[idx,0] == 0.0:
+		# 	# no trade, no trading cost today
+		# 	accum_capital = daily_capital[idx-1]*(1+index_preds_target[idx,0]*index_preds_target[idx,1])
+		# 	daily_capital.append(accum_capital)
+		# elif index_preds_target[idx-1,0] == index_preds_target[idx,0] and index_preds_target[idx-1,1] == index_preds_target[idx,1] == 0.0:
+		# 	# no trade, no trading cost today
+		# 	accum_capital = daily_capital[idx-1]*(1+index_preds_target[idx,0]*index_preds_target[idx,1])
+		# 	daily_capital.append(accum_capital)
+		#
+		# else:
+		# 	# cost = (today's holding position capital - yesterday's holding position capital)*0.001
+		# 	cost = np.abs((daily_capital[idx-1]*index_preds_target[idx,0]- daily_capital[idx-2]*index_preds_target[idx-1,0])*0.001)
+		# 	# today's accum_capital = today's accum_capital - cost
+		# 	accum_capital = daily_capital[idx-1]*(1+index_preds_target[idx,0]*index_preds_target[idx,1]) - cost
+		# 	daily_capital.append(accum_capital)
 
 accum_profit = np.array(daily_capital)-1 # 累积总资产减去初始资产 = 累积收益
 print("final date:", date[-1])
 print("final_return:", accum_profit[-1])
+
+#################################### 收益计算_v0 end
+
+
 
 ##### accumulation of transaction percentage，即换手率
 preds = index_preds_target[:,0] # 每日持仓的总资产占比
