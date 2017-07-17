@@ -11,7 +11,7 @@ Uses:
 	- load_model
 
 """
-
+import tensorflow as tf
 from keras.layers import Dense, LSTM, Activation, BatchNormalization, Dropout, initializers, Input
 from renormalization import BatchRenormalization
 from keras.models import Sequential
@@ -20,6 +20,7 @@ from keras.models import load_model
 from keras.initializers import Constant
 import keras.backend as K
 from keras.utils.generic_utils import get_custom_objects
+from keras.backend.tensorflow_backend import _to_tensor
 
 #######################
 # original deep trader
@@ -29,16 +30,41 @@ def relu_limited(x, alpha=0., max_value=1.):
 
 get_custom_objects().update({'custom_activation': Activation(relu_limited)})
 
-
 def risk_estimation(y_true, y_pred):
     return -100. * K.mean((y_true - 0.0002) * y_pred)
+
+######################
+# my custom buy_hold_sell activation function
+#####################
+def buy_hold_sell(x, lower_threshold=0.33, higher_threshold=0.66):
+	"""
+	x: tensor
+	return a tensor
+	"""
+	lower_tensor = _to_tensor(lower_threshold, x.dtype.base_dtype)
+	higher_tensor = _to_tensor(higher_threshold, x.dtype.base_dtype)
+	buy_tensor = _to_tensor(1.0, x.dtype.base_dtype)
+	not_sure_tensor = _to_tensor(0.5, x.dtype.base_dtype)
+	sell_tensor = _to_tensor(0.0, x.dtype.base_dtype)
+
+	r = tf.where(tf.less(higher_tensor, x), buy_tensor,
+    x)
+	r = tf.where(tf.less(x, lower_tensor), sell_tensor,
+    x)
+	r = tf.where(lower_tensor <= x <= higher_tensor, not_sure_tensor, x)
+
+	return r
+
+
+get_custom_objects().update({'custom_activation': Activation(buy_hold_sell)})
+
 
 #######################
 # revised deep trader
 ## version trained locally used -1 not -100
 #######################
 def risk_estimation(y_true, y_pred):
-    return -100 * K.mean(y_true * y_pred)
+    return -100 * K.mean(y_true * y_pred) # -0.0002 is removed from original
 
 class WindPuller(object):
 
@@ -77,6 +103,12 @@ class WindPuller(object):
 		# revised deep trader
 		#######################
         self.model.add(Activation('sigmoid'))
+
+		#######################
+		# to only output 1, 0.5, 0 as predictions to reduce trading frequency
+		# for custom function, don't use "buy_hold_sell", just buy_hold_sell
+		#######################
+        # self.model.add(Activation(buy_hold_sell))
 
 		# compile model
         opt = RMSprop(lr=lr)

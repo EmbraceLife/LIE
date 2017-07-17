@@ -11,8 +11,8 @@ import numpy as np
 
 # get closes array
 from prep_data_03_stock_01_csv_2_pandas_2_arrays_DOHLCV import csv_df_arrays
-index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF50.csv"
-# index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/index000001.csv"
+# index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF50.csv"
+index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/index000001.csv"
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/index50.csv"
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/index300.csv"
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/index500.csv"

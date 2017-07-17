@@ -22,12 +22,13 @@ from matplotlib.colors import ListedColormap, BoundaryNorm
 
 # 获取标的收盘价和日期序列
 from prep_data_03_stock_01_csv_2_pandas_2_arrays_DOHLCV import csv_df_arrays
+# index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/index000001.csv"
 index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF50.csv"
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF500.csv"
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF300.csv"
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF100.csv"
 
-date,_,_,_, closes, _ = csv_df_arrays(index_path)
+date,open_prices,_,_, closes, _ = csv_df_arrays(index_path)
 
 
 from predict_model_03_stock_01_predict_stock_best_model_save_result import get_stock_preds_target
@@ -41,6 +42,7 @@ index_preds_target[:, 1]:下一日的当天价格变化
 
 
 # zoom in and out for the last 700 trading days
+open_prices = open_prices[-700:]
 closes = closes[-700:]
 index_preds_target = index_preds_target[-700:]
 
@@ -114,7 +116,7 @@ daily_capital=[]
 # plt.show()
 
 ######################################################
-# 收益计算v0
+# 收益计算v0, 前期复杂的交易成本计算方法
 ######################################################
 """
 ### 如何计算累积的每日的总资产（包括计算交易成本）？代码在下面可见
@@ -139,7 +141,7 @@ elif index_preds_target[idx-1,0] == index_preds_target[idx,0] and index_preds_ta
 - 如果昨天的持仓占比 == 今天的持仓占比， 而且昨日价格变化和今日价格变化都是0， 那么没有交易，也就没有交易成本
 
 else:
-	# cost = (today's holding position capital - yesterday's holding position capital)*0.001
+	# cost = (today's total_share_number_to_hold - yesterday_total_share_number_to_hold)*Today_open_price*0.001
 	cost = np.abs((daily_capital[idx-1]*index_preds_target[idx,0]- daily_capital[idx-2]*index_preds_target[idx-1,0])*0.001)
 	# today's accum_capital = today's accum_capital - cost
 	accum_capital = daily_capital[idx-1]*(1+index_preds_target[idx,0]*index_preds_target[idx,1]) - cost
@@ -157,40 +159,98 @@ daily_capital.append(accum_capital)
 - 将累积的每天的总资产收入daily_capital这个list中
 """
 
+#
+# ## see the picture the author drew to refresh the logic
+#
+# # from second day onward
+# for idx in range(len(index_preds_target)):
+#
+# 	# 第一天的市值： 第一天开盘买入，当天结束时的市值
+# 	if idx == 0:
+# 		daily_capital.append(1. * (1. + index_preds_target[0,0]*index_preds_target[0,1]))
+#
+# 	else:
+# 		# # 情况1:
+# 		# # 完全忽略交易成本
+# 		# accum_capital = daily_capital[idx-1]*(1+index_preds_target[idx,0]*index_preds_target[idx,1])
+# 		# daily_capital.append(accum_capital)
+#
+# 		# 情况2：
+# 		# 计算实际交易成本
+# 		if index_preds_target[idx-1,0] == index_preds_target[idx,0] == 1.0 or index_preds_target[idx-1,0] == index_preds_target[idx,0] == 0.0:
+# 			# no trade, no trading cost today
+# 			accum_capital = daily_capital[idx-1]*(1+index_preds_target[idx,0]*index_preds_target[idx,1])
+# 			daily_capital.append(accum_capital)
+# 		elif index_preds_target[idx-1,0] == index_preds_target[idx,0] and index_preds_target[idx-1,1] == index_preds_target[idx,1] == 0.0:
+# 			# no trade, no trading cost today
+# 			accum_capital = daily_capital[idx-1]*(1+index_preds_target[idx,0]*index_preds_target[idx,1])
+# 			daily_capital.append(accum_capital)
+#
+# 		else:
+# 			# cost = (today's holding position capital - yesterday's holding position capital)*0.001
+# 			cost = np.abs((daily_capital[idx-1]*index_preds_target[idx,0]- daily_capital[idx-2]*index_preds_target[idx-1,0])*0.001)
+# 			# today's accum_capital = today's accum_capital - cost
+# 			accum_capital = daily_capital[idx-1]*(1+index_preds_target[idx,0]*index_preds_target[idx,1]) - cost
+# 			daily_capital.append(accum_capital)
 
-## see the picture the author drew to refresh the logic
 
-# from second day onward
+
+
+
+######################################################
+# revised trading cost based on MonteCarlo's suggestion
+#####################################################
+add_cost = True # False # True
+daily_stock_shares = []
+daily_capital = []
+
 for idx in range(len(index_preds_target)):
 
-	# 第一天的市值： 第一天开盘买入，当天结束时的市值
 	if idx == 0:
-		daily_capital.append(1. * (1. + index_preds_target[0,0]*index_preds_target[0,1]))
+		# 第一天的市值： 第一天开盘买入，当天结束时的市值 = 当天总资产 + 当天持仓市值在收盘时的增值部分 = 当天总资产（1 + 持仓市值占总资产比 * 当天价格变化）
+		today_capital_before_cost = 1. * (1. + index_preds_target[0,0]*index_preds_target[0,1])
 
-	else:
-		# 情况1:
-		# 完全忽略交易成本
-		accum_capital = daily_capital[idx-1]*(1+index_preds_target[idx,0]*index_preds_target[idx,1])
-		daily_capital.append(accum_capital)
+		# 第一天的持股数量： 第一天开盘时总购买的资产金额／第一天开盘价
+		daily_stock_shares.append(1/open_prices[idx])
 
-		# # 情况2：
-		# # 计算实际交易成本
-		# if index_preds_target[idx-1,0] == index_preds_target[idx,0] == 1.0 or index_preds_target[idx-1,0] == index_preds_target[idx,0] == 0.0:
-		# 	# no trade, no trading cost today
-		# 	accum_capital = daily_capital[idx-1]*(1+index_preds_target[idx,0]*index_preds_target[idx,1])
-		# 	daily_capital.append(accum_capital)
-		# elif index_preds_target[idx-1,0] == index_preds_target[idx,0] and index_preds_target[idx-1,1] == index_preds_target[idx,1] == 0.0:
-		# 	# no trade, no trading cost today
-		# 	accum_capital = daily_capital[idx-1]*(1+index_preds_target[idx,0]*index_preds_target[idx,1])
-		# 	daily_capital.append(accum_capital)
-		#
-		# else:
-		# 	# cost = (today's holding position capital - yesterday's holding position capital)*0.001
-		# 	cost = np.abs((daily_capital[idx-1]*index_preds_target[idx,0]- daily_capital[idx-2]*index_preds_target[idx-1,0])*0.001)
-		# 	# today's accum_capital = today's accum_capital - cost
-		# 	accum_capital = daily_capital[idx-1]*(1+index_preds_target[idx,0]*index_preds_target[idx,1]) - cost
-		# 	daily_capital.append(accum_capital)
+		# 如果需要计算交易成本
+		if add_cost:
+			# 第一天的交易成本 = 首日买入持有市值*交易成本比率
+			today_cost = 1 * index_preds_target[0,0] * 0.001
+			# 第一天的市值 = 为计算交易成本的市值 - 交易成本
+			today_capital_after_cost = today_capital_before_cost - today_cost
 
+			daily_capital.append(today_capital_after_cost)
+		else:
+			daily_capital.append(today_capital_before_cost)
+
+
+	else: # 以后的每一天
+
+		# 如果不计算交易成本
+		# 今天的总市值=昨天总市值*（1+今天开盘后要买入的市值占比*今日收盘与昨日收盘价格变化率）
+		# 如果需要也可以使用， 今天的总市值=昨天总市值*（1+今天开盘后要买入的市值占比*今日收盘与昨日收盘价格变化率），只需要修改目标值生成的计算方法就行。
+		today_capital_before_cost = daily_capital[idx-1]*(1 + index_preds_target[idx,0]*index_preds_target[idx,1])
+
+		# 今天的持股数量 = 今天开盘前总资产*今天开盘后要有的总持股市值占比／今天开盘价; 并收集起来
+		daily_stock_shares.append( (daily_capital[idx-1]*index_preds_target[idx,0])/open_prices[idx])
+
+
+		# 如果需要计算交易成本
+		if add_cost:
+			# 第二天的市值（计算交易成本）
+			# 今天的交易成本 = | 今天开盘时需要拥有的总持股数 - 昨天开盘时需要拥有的总持股数 | * 今天开盘价 * 0.001
+			today_cost = np.abs(daily_stock_shares[idx] - daily_stock_shares[idx-1]) * open_prices[idx] * 0.001
+
+			# 今天计算交易成本后的总市值 = 今天的总市值（不计算成本） - 今天交易成本
+			today_capital_after_cost = today_capital_before_cost - today_cost
+
+			daily_capital.append(today_capital_after_cost)
+		else:
+			daily_capital.append(today_capital_before_cost)
+
+
+### 统计总收益
 accum_profit = np.array(daily_capital)-1 # 累积总资产减去初始资产 = 累积收益
 print("final date:", date[-1])
 print("final_return:", accum_profit[-1])
@@ -232,7 +292,7 @@ for start, stop, col in zip(xy[:-1], xy[1:], color_data):
     ax1.plot(x, y, color=uniqueish_color(col))
 ax1.plot(accum_profit, c='gray', alpha=0.5, label='accum_profit')
 ax1.legend(loc='best')
-ax1.set_title('from %s to %s return: %04f' % (date[0], date[-1], accum_profit[-1]))
+ax1.set_title('ETF50, added cost, from %s to %s return: %04f' % (date[0], date[-1], accum_profit[-1]))
 
 #############
 ### plot 换手率
