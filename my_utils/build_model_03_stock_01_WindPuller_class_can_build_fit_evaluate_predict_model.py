@@ -24,14 +24,14 @@ from keras.utils.generic_utils import get_custom_objects
 #######################
 # original deep trader
 #######################
-# def relu_limited(x, alpha=0., max_value=1.):
-#     return K.relu(x, alpha=alpha, max_value=max_value)
-#
-# get_custom_objects().update({'custom_activation': Activation(relu_limited)})
+def relu_limited(x, alpha=0., max_value=1.):
+    return K.relu(x, alpha=alpha, max_value=max_value)
+
+get_custom_objects().update({'custom_activation': Activation(relu_limited)})
 
 
-# def risk_estimation(y_true, y_pred):
-#     return -100. * K.mean((y_true - 0.0002) * y_pred)
+def risk_estimation(y_true, y_pred):
+    return -100. * K.mean((y_true - 0.0002) * y_pred)
 
 #######################
 # revised deep trader

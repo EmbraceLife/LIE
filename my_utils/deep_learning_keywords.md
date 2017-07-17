@@ -56,6 +56,9 @@
 - plot_figure_suptitle
 - subplot_structure
 - sigmoid_distribution
+- line_continuous_color
+
+
 
 ## simple examples
 - xor_example
@@ -80,3 +83,6 @@
 - floyd_guide
 - risk_estimation_design
 - relu_limited_design
+- turnover_rate_curve
+- price_curve_prediction_continuous_color_detailed
+- price_curve_prediction_continuous_color_simple

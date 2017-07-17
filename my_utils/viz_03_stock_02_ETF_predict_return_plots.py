@@ -5,15 +5,20 @@ plot_price_return_num_trades
 - calc num_trades
 - do subplots
 
+- continuous_color_reference
+http://matplotlib.org/examples/color/colormaps_reference.html
+
 ### Summary
 - combine training, valid, test predictions arrays into one array
 - get cumulative return curve
 - do subplot close price, return curve and positions bar
 """
-
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import numpy as np
+from matplotlib.collections import LineCollection
+from matplotlib.colors import ListedColormap, BoundaryNorm
 
 # 获取标的收盘价和日期序列
 from prep_data_03_stock_01_csv_2_pandas_2_arrays_DOHLCV import csv_df_arrays
@@ -60,44 +65,54 @@ daily_capital=[]
 # buy_signal_count = 1
 # sell_signal_count = 1
 # init_capital = 100000
-# # daily_capital = []
+# daily_capital_list = []
 #
-# for index in range(len(pos)):
-# 	# 买入条件： 没有持仓，买入信号出现 buy_signal_count 次
-# 	if pos[index] > buy_signal and buy_signal_count == patience and pos_state == False:
-# 		pos_state = True # 设置持仓状态
-# 		if len(daily_capital) == 0:
-# 			daily_capital.append(init_capital * (1 + price_ch[index])) # 计算当日收益，收集
-# 		else:
-# 			daily_capital.append(daily_capital[index-1] * (1 + price_ch[index])) # 计算当日收益，收集
-# 		buy_signal_count += 1
-# 		sell_signal_count = 1
+# ### 搜索最佳组合
+# for (buy_signal, sell_signal) in [(0.9,0.1), (0.8, 0.2), (0.7, 0.3)]:
+# 	for patience in [1,2,3]:
 #
-# 	# 卖出条件： 有持仓，卖出信号出现 sell_signal_count 次
-# 	elif pos[index] < sell_signal and buy_signal_count == patience and pos_state == True:
-# 		pos_state = False # 设置持仓状态
-# 		sell_signal_count+=1
-# 		buy_signal_count = 1
-# 		daily_capital.append(daily_capital[index-1]) # 计算当日收益，收集
+# 		daily_capital=[]
+# 		for index in range(len(pos)):
+# 			# 买入条件： 没有持仓，买入信号出现 buy_signal_count 次
+# 			if pos[index] > buy_signal and buy_signal_count == patience and pos_state == False:
+# 				pos_state = True # 设置持仓状态
+# 				if len(daily_capital) == 0:
+# 					daily_capital.append(init_capital * (1 + price_ch[index])) # 计算当日收益，收集
+# 				else:
+# 					daily_capital.append(daily_capital[index-1] * (1 + price_ch[index])) # 计算当日收益，收集
+# 				buy_signal_count += 1
+# 				sell_signal_count = 1
+#
+# 			# 卖出条件： 有持仓，卖出信号出现 sell_signal_count 次
+# 			elif pos[index] < sell_signal and buy_signal_count == patience and pos_state == True:
+# 				pos_state = False # 设置持仓状态
+# 				sell_signal_count+=1
+# 				buy_signal_count = 1
+# 				daily_capital.append(daily_capital[index-1]) # 计算当日收益，收集
 #
 #
-# 	else:
-# 		# 持有状态下, 计算当天市值，收集
-# 		if pos_state == True:
-# 			daily_capital.append(daily_capital[index-1] * (1 + price_ch[index]))
-# 		# 空仓状态下，计算当天市值，收集
-# 		else:
-# 			if len(daily_capital) == 0:
-# 				daily_capital.append(init_capital)
 # 			else:
-# 				daily_capital.append(daily_capital[index-1])
-# 		# 依旧累积买入和卖出信号发生次数
-# 		if pos[index] > buy_signal:
-# 			buy_signal_count+=1
-# 		if pos[index] < sell_signal:
-# 			sell_signal_count+=1
+# 				# 持有状态下, 计算当天市值，收集
+# 				if pos_state == True and index > 0:
+# 					daily_capital.append(daily_capital[index-1] * (1 + price_ch[index]))
+# 				# 空仓状态下，计算当天市值，收集
+# 				else:
+# 					if len(daily_capital) == 0:
+# 						daily_capital.append(init_capital)
+# 					else:
+# 						daily_capital.append(daily_capital[index-1])
+# 				# 依旧累积买入和卖出信号发生次数
+# 				if pos[index] > buy_signal:
+# 					buy_signal_count+=1
+# 				if pos[index] < sell_signal:
+# 					sell_signal_count+=1
 #
-# daily_capital
+# 		daily_capital_list.append(np.array(daily_capital))
+
+# for captial in daily_capital_list:
+# 	plt.plot(capital)
+# plt.show()
+
 ######################################################
 # 收益计算v0
 ######################################################
@@ -183,31 +198,65 @@ print("final_return:", accum_profit[-1])
 #################################### 收益计算_v0 end
 
 
-
+####################################
 ##### accumulation of transaction percentage，即换手率
+####################################
 preds = index_preds_target[:,0] # 每日持仓的总资产占比
 changes_preds = np.abs(preds[1:] - preds[:-1]) # 相邻两日的持仓占比之差（变化）
 accum_change_capital = np.cumsum(changes_preds) # 累积差值，获得总资产进出市场的次数
 
-### plot return curve
+################################################################
+# price_curve_prediction_continuous_color_simple
+# plot close price curve and fill prediction array as price curve color
+################################################################
+color_data = index_preds_target[:,0]
+line_data = target_closes.reshape((-1,1))
+
+def uniqueish_color(color_data):
+    """There're better ways to generate unique colors, but this isn't awful."""
+    # return plt.cm.gist_ncar(color_data)
+    # return plt.cm.binary(color_data)
+    return plt.cm.bwr(color_data)
+
+X = np.arange(len(line_data)).reshape((-1,1))
+y = line_data
+xy = np.concatenate((X,y), axis=1)
 
 plt.figure()
-ax1 = plt.subplot2grid((7, 3), (0, 0), colspan=3, rowspan=4)  # stands for axes
-ax1.plot(target_closes, c='blue', label='ETF500') # change index name
-ax1.plot(accum_profit, c='red', label='accum_profit')
+ax1 = plt.subplot2grid((6, 3), (0, 0), colspan=3, rowspan=4)
+#############
+### plot close_price curve and fill predictions as continuous color ######
+#############
+for start, stop, col in zip(xy[:-1], xy[1:], color_data):
+    x, y = zip(start, stop)
+    ax1.plot(x, y, color=uniqueish_color(col))
+ax1.plot(accum_profit, c='gray', alpha=0.5, label='accum_profit')
 ax1.legend(loc='best')
 ax1.set_title('from %s to %s return: %04f' % (date[0], date[-1], accum_profit[-1]))
 
-ax2 = plt.subplot2grid((7, 3), (4, 0), colspan=3, rowspan=2)
+#############
+### plot 换手率
+#############
+ax2 = plt.subplot2grid((6, 3), (4, 0), colspan=3, rowspan=2)
 ax2.plot(accum_change_capital, c='red', label='accum_change_capital')
 ax2.legend(loc='best')
-ax2.set_title("accumulated total transactions of full capital: %02f" % accum_change_capital[-1])
+ax2.set_title("ETF50 TurnOver Rate: %02f" % accum_change_capital[-1])
 
-ax3 = plt.subplot2grid((7, 3), (6, 0), colspan=3)
-X = np.arange(len(index_preds_target))
-ax3.bar(X, index_preds_target[:,0], facecolor='#9999ff', edgecolor='blue')
-ax3.set_title('revised_v1_no_cost') # change model name
+### plot pos as bars or as color map
+# ax3 = plt.subplot2grid((10, 3), (6, 0), colspan=3, rowspan=4)
+# X = np.arange(len(index_preds_target))
+# ax3.bar(X, index_preds_target[:,0], facecolor='#9999ff', edgecolor='blue')
+# ax3.set_title('pos as bars') # change model name
 
 plt.tight_layout()
 plt.show()
+
+
+# img = index_preds_target[:,0].reshape((-1,1)).transpose((1,0))
+# imgs = np.concatenate((img, img, img, img, img, img),axis=0)
+# plt.imshow(imgs, cmap='binary')
+# plt.title("pos as color array")
+# plt.show()
+
+
 # plt.savefig("/Users/Natsume/Downloads/data_for_all/stocks/model_performance/ETF300_model4_addcost.png")
