@@ -21,71 +21,80 @@ import tensorflow as tf
 import keras.backend as K
 from keras.backend.tensorflow_backend import _to_tensor
 import numpy as np
-def buy_hold_sell(x, lower_threshold=0.33, higher_threshold=0.66):
-	"""
-	x: tensor
-	return a tensor
-	"""
-	x_array = K.get_value(x)
-	for index in range(len(x_array)):
-		if x_array[index] < lower_threshold:
-			x_array[index] = 0.0
-		elif x_array[index] > higher_threshold:
-			x_array[index] = 1.0
-		else:
-			x_array[index] = 0.5
 
-	return K._to_tensor(x_array, x.dtype.base_dtype)
+def stepy(x):
+	if x < 0.33:
+		return 0.0
+	elif x > 0.66:
+		return 1.0
+	else:
+		return 0.5
 
+import numpy as np
+np_stepy = np.vectorize(stepy)
 
-	# pred_shape = K.get_variable_shape(x)
-	# lower_array = np.ones(pred_shape)*0.33
-	# higher_array = np.ones(pred_shape)*0.66
-	# lower_tensor = _to_tensor(lower_array, x.dtype.base_dtype)
-	# higher_tensor = _to_tensor(higher_array, x.dtype.base_dtype)
-	#
-	# buy_array = np.ones(pred_shape)
-	# not_sure_array = np.ones(pred_shape)*0.5
-	# sell_array = np.zeros(pred_shape)
-	# buy_tensor = _to_tensor(buy_array, x.dtype.base_dtype)
-	# not_sure_tensor = _to_tensor(not_sure_array, x.dtype.base_dtype)
-	# sell_tensor = _to_tensor(sell_array, x.dtype.base_dtype)
-	#
-	# r = tf.where(tf.less(higher_tensor, x), buy_tensor,
-    # x)
-	# r = tf.where(tf.less(x, lower_tensor), sell_tensor,
-    # x)
-	# r = tf.where(lower_tensor <= x <= higher_tensor, not_sure_tensor, x)
-	# if K.less(higher_tensor, x):
-	# 	r = buy_tensor
-	# return r
+def d_stepy(x): # derivative
+	if x < 0.33:
+		return 0.0
+	elif x > 0.66:
+		return 1.0
+	else:
+		return 0.5
+np_d_stepy = np.vectorize(d_stepy)
 
+import tensorflow as tf
+from tensorflow.python.framework import ops
 
+np_d_stepy_32 = lambda x: np_d_stepy(x).astype(np.float32)
 
-x = K.ones((2,5)) * 0.7
-buy_hold_sell(x)
+def py_func(func, inp, Tout, stateful=True, name=None, grad=None):
 
+    # Need to generate a unique name to avoid duplicates:
+    rnd_name = 'PyFuncGrad' + str(np.random.randint(0, 1E+8))
 
+    tf.RegisterGradient(rnd_name)(grad)  # see _MySquareGrad for grad example
+    g = tf.get_default_graph()
+    with g.gradient_override_map({"PyFunc": rnd_name}):
+        return tf.py_func(func, inp, Tout, stateful=stateful, name=name)
 
-#
-# def relu(x, alpha=0., max_value=None):
-#     """Rectified linear unit.
-#     With default values, it returns element-wise `max(x, 0)`.
-#     # Arguments
-#         x: A tensor or variable.
-#         alpha: A scalar, slope of negative section (default=`0.`).
-#         max_value: Saturation threshold.
-#     # Returns
-#         A tensor.
-#     """
-#     if alpha != 0.:
-#         negative_part = tf.nn.relu(-x)
-#     x = tf.nn.relu(x)
-#     if max_value is not None:
-#         max_value = _to_tensor(max_value, x.dtype.base_dtype) # useful
-#         zero = _to_tensor(0., x.dtype.base_dtype) # useful
-#         x = tf.clip_by_value(x, zero, max_value)
-#     if alpha != 0.:
-#         alpha = _to_tensor(alpha, x.dtype.base_dtype)
-#         x -= alpha * negative_part
-#     return x
+def tf_d_stepy(x,name=None):
+    with ops.op_scope([x], name, "d_stepy") as name:
+        y = tf.py_func(np_d_stepy_32,
+                        [x],
+                        [tf.float32],
+                        name=name,
+                        stateful=False)
+        return y[0]
+
+def stepygrad(op, grad):
+    x = op.inputs[0]
+
+    n_gr = tf_d_stepy(x)
+    return grad * n_gr
+
+np_stepy_32 = lambda x: np_stepy(x).astype(np.float32)
+
+def tf_stepy(x, name=None):
+
+    with ops.op_scope([x], name, "stepy") as name:
+        y = py_func(np_stepy_32,
+                        [x],
+                        [tf.float32],
+                        name=name,
+                        grad=stepygrad)  # <-- here's the call to the gradient
+        return y[0]
+
+with tf.Session() as sess:
+
+    x = tf.constant([0.2,0.7,0.4,0.6])
+    y = tf_stepy(x)
+    tf.initialize_all_variables().run()
+
+    print(x.eval(), y.eval(), tf.gradients(y, [x])[0].eval())
+
+# print("use keras")
+# x = K.ones((10,1)) * 0.7
+# step_tensor = tf_stepy(x)
+# sess = tf.Session()
+# tf.initialize_all_variables()
+# print(sess.run(step_tensor))

@@ -57,6 +57,8 @@
 - subplot_structure
 - sigmoid_distribution
 - line_continuous_color
+- plot_weights_curves_of_a_model
+- examine_model_through_weights
 
 
 

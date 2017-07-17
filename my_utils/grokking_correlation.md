@@ -1,5 +1,7 @@
 # Can we tell correlation between inputs and outputs by observing weights curves?
 grokking_deep_learning_correlation
+examine_model_through_weights
+
 
 By contemplating on the book illustrations on pages 111,112,114,115, it makes me wonder does Andrew suggest we can verify correlation from observing weights curves. Is it possible? Is there anything useful can be gained by observing weights curves?
 
@@ -167,6 +169,11 @@ Can the model weights tell us why this model does not learn anything?
 - most of epochs both weights remain the same
 - so, no matter how much features of inputs differ from each other, the outputs will not change that much;
 - therefore, this model failed to learn the pattern
+
+**Another Interesting Question from this 3-nodes model**
+Why 3-nodes model (missing just one node) perform so much worse than 4-nodes model (see graphs above)?
+- does it mean 3 intermediate_outputs or 3 selective correlations between inputs and intermediate_outputs are not enough to reconstruct the correlation between inputs and outputs?
+- does it mean more-nodes model is more powerful than less-nodes model?
 
 
 ----

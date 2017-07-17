@@ -36,25 +36,13 @@ def risk_estimation(y_true, y_pred):
 ######################
 # my custom buy_hold_sell activation function
 #####################
-def buy_hold_sell(x, lower_threshold=0.33, higher_threshold=0.66):
-	"""
-	x: tensor
-	return a tensor
-	"""
-	lower_tensor = _to_tensor(lower_threshold, x.dtype.base_dtype)
-	higher_tensor = _to_tensor(higher_threshold, x.dtype.base_dtype)
-	buy_tensor = _to_tensor(1.0, x.dtype.base_dtype)
-	not_sure_tensor = _to_tensor(0.5, x.dtype.base_dtype)
-	sell_tensor = _to_tensor(0.0, x.dtype.base_dtype)
 
-	r = tf.where(tf.less(higher_tensor, x), buy_tensor,
-    x)
-	r = tf.where(tf.less(x, lower_tensor), sell_tensor,
-    x)
-	r = tf.where(lower_tensor <= x <= higher_tensor, not_sure_tensor, x)
 
-	return r
+# def buy_hold_sell(x, lower_threshold=0.33, higher_threshold=0.66):
+from keras_step_function import tf_stepy
 
+def buy_hold_sell(x):
+	return tf_stepy(x)
 
 get_custom_objects().update({'custom_activation': Activation(buy_hold_sell)})
 
@@ -108,7 +96,7 @@ class WindPuller(object):
 		# to only output 1, 0.5, 0 as predictions to reduce trading frequency
 		# for custom function, don't use "buy_hold_sell", just buy_hold_sell
 		#######################
-        # self.model.add(Activation(buy_hold_sell))
+        self.model.add(Activation(buy_hold_sell))
 
 		# compile model
         opt = RMSprop(lr=lr)
@@ -141,5 +129,5 @@ class WindPuller(object):
 # """
 # test model building
 # """
-# model = WindPuller(input_shape = (30, 61))
-# model.summary()
+wp = WindPuller(input_shape = (30, 61))
+wp.model.summary()

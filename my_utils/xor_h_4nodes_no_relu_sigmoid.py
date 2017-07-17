@@ -5,6 +5,7 @@ print_number_format_control
 plot_ax_title_size
 plot_figure_suptitle
 subplot_structure
+plot_weights_curves_of_a_model
 
 - use (X, y) to train a network to imitate xor function, in reality most of time, we don't know what exact the true function we want to learn
 - a model with 2 layers, 9 parameters in total, perform a xor function
