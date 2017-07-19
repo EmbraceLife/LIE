@@ -47,9 +47,8 @@ def get_stock_preds_target(stock_path):
 	# wp_best = wp.load_model("/Users/Natsume/Downloads/data_for_all/stocks/floyd_train/qcg_train_only_ma/qcg_model_2000.h5")
 	# model_path = "/Users/Natsume/Desktop/best_model_in_training.h5"
 	# model_path = "/Users/Natsume/Desktop/floyd_revised/during_best.h5"
-	model_path = "/Users/Natsume/Downloads/data_for_all/stocks/floyd_train/sigmoid_version_300_20170719/during_best.h5"
-
 	# model_path = "/Users/Natsume/Desktop/best_model_in_training1.h5"
+	model_path = "/Users/Natsume/Downloads/data_for_all/stocks/floyd_train/sigmoid_version_300_20170719/during_best.h5"
 	wp_best = load_model(model_path)
 
 	# predict with model on training, validation and test sets
