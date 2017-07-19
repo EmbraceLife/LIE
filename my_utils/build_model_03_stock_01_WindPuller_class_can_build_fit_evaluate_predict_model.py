@@ -36,27 +36,25 @@ def risk_estimation(y_true, y_pred):
 ######################
 # my custom buy_hold_sell activation function
 #####################
-
-
-# def buy_hold_sell(x, lower_threshold=0.33, higher_threshold=0.66):
-from keras_step_function import tf_stepy
-
-def buy_hold_sell(x):
-	return tf_stepy(x)
-
-get_custom_objects().update({'custom_activation': Activation(buy_hold_sell)})
+# from keras_step_function import tf_stepy
+#
+# def buy_hold_sell(x):
+# 	return tf_stepy(x)
+#
+# get_custom_objects().update({'custom_activation': Activation(buy_hold_sell)})
 
 
 #######################
-# revised deep trader
-## version trained locally used -1 not -100
+# classification style
+# to work with y_pred as [buy, half, sell]
 #######################
-def risk_estimation(y_true, y_pred):
-    return -100 * K.mean(y_true * y_pred) # -0.0002 is removed from original
+# def risk_estimation_bhs(y_true, y_pred):
+    # return -100 * K.mean((y_true - 0.0002) * K.constant([1.0, 0.75, 0.5, 0.25, 0.0]) * y_pred) # -0.0002 is removed from original
+    # return -100 * K.mean((y_true - 0.0002) * K.constant([1.0, 0.5, 0.0]) * y_pred) # -0.0002 is removed from original
 
 class WindPuller(object):
 
-    def __init__(self, input_shape, lr=0.01, n_layers=2, n_hidden=8, rate_dropout=0.2, loss=risk_estimation):
+    def __init__(self, input_shape, lr=0.01, n_layers=2, n_hidden=8, rate_dropout=0.2, loss=risk_estimation): # risk_estimation, risk_estimation_bhs
 
         print("initializing..., learing rate %s, n_layers %s, n_hidden %s, dropout rate %s." %(lr, n_layers, n_hidden, rate_dropout))
 
@@ -78,25 +76,31 @@ class WindPuller(object):
                                 recurrent_initializer='orthogonal', bias_initializer='zeros',
                                 dropout=rate_dropout, recurrent_dropout=rate_dropout))
 
-		# add a dense layer, with BatchRenormalization, relu_limited
-        self.model.add(Dense(1, kernel_initializer=initializers.glorot_uniform()))
-
 		#######################
 		# original deep trader
 		#######################
+		# # add a dense layer, with BatchRenormalization, relu_limited
+        # self.model.add(Dense(1, kernel_initializer=initializers.glorot_uniform()))
+
         # self.model.add(BatchRenormalization(axis=-1, beta_init=Constant(value=0.5)))
         # self.model.add(Activation(relu_limited))
 
 		#######################
-		# revised deep trader
+		# revised version 1
 		#######################
+        self.model.add(Dense(1, kernel_initializer=initializers.glorot_uniform()))
         self.model.add(Activation('sigmoid'))
 
 		#######################
-		# to only output 1, 0.5, 0 as predictions to reduce trading frequency
-		# for custom function, don't use "buy_hold_sell", just buy_hold_sell
+		# revised 2 for classification style solution
 		#######################
-        self.model.add(Activation(buy_hold_sell))
+        # self.model.add(Dense(5, kernel_initializer=initializers.glorot_uniform()))
+        # self.model.add(Activation('softmax'))
+
+		#######################
+		# revised 1.5 for buy_hold_sell activation function
+		#######################
+        # self.model.add(Activation(buy_hold_sell))
 
 		# compile model
         opt = RMSprop(lr=lr)
@@ -129,5 +133,5 @@ class WindPuller(object):
 # """
 # test model building
 # """
-wp = WindPuller(input_shape = (30, 61))
-wp.model.summary()
+# wp = WindPuller(input_shape = (30, 61))
+# wp.model.summary()

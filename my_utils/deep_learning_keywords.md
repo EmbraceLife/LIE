@@ -59,6 +59,7 @@
 - line_continuous_color
 - plot_weights_curves_of_a_model
 - examine_model_through_weights
+- plot_math_functions
 
 
 
@@ -88,3 +89,4 @@
 - turnover_rate_curve
 - price_curve_prediction_continuous_color_detailed
 - price_curve_prediction_continuous_color_simple
+- keras_step_function

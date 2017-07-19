@@ -46,11 +46,37 @@ def get_stock_preds_target(stock_path):
 	# wp = wp.load_model("/Users/Natsume/Downloads/DeepTrade_keras/author_log_weights/model.30.best")
 	# wp_best = wp.load_model("/Users/Natsume/Downloads/data_for_all/stocks/floyd_train/qcg_train_only_ma/qcg_model_2000.h5")
 	# model_path = "/Users/Natsume/Desktop/best_model_in_training.h5"
-	model_path = "/Users/Natsume/Desktop/floyd_revised/during_best.h5"
+	# model_path = "/Users/Natsume/Desktop/floyd_revised/during_best.h5"
+	model_path = "/Users/Natsume/Downloads/data_for_all/stocks/floyd_train/sigmoid_version_300_20170719/during_best.h5"
+
+	# model_path = "/Users/Natsume/Desktop/best_model_in_training1.h5"
 	wp_best = load_model(model_path)
 
 	# predict with model on training, validation and test sets
 	pred_capital_pos = wp_best.predict(stock_features)
+
+###############################
+# preds (1, 0.75, 0.5, 0.25, 0) situation
+###############################
+	# pred_pos = []
+	# ### if preds has more than 1 col, then make it just 1 col
+	# if pred_capital_pos.shape[1] == 5:
+	# 	pred_capital_pos = np.argmax(pred_capital_pos, axis=1)
+	# 	for idx in range(len(pred_capital_pos)):
+	# 		if pred_capital_pos[idx] == 0:
+	# 			pred_pos.append(1.0)
+	# 		elif pred_capital_pos[idx] == 1:
+	# 			pred_pos.append(0.75)
+	# 		elif pred_capital_pos[idx] == 2:
+	# 			pred_pos.append(0.50)
+	# 		elif pred_capital_pos[idx] == 3:
+	# 			pred_pos.append(0.25)
+	# 		else:
+	# 			pred_pos.append(0.0)
+	# 	pred_capital_pos = np.array(pred_pos)
+############################################################## end
+
+
 	pred_capital_pos = np.reshape(pred_capital_pos, (-1, 1))
 	true_price_change = np.reshape(stock_target, (-1, 1))
 
@@ -117,6 +143,6 @@ def get_middle_layer_output(stock_path):
 """
 Example
 """
-# index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/index000001.csv"
-# #
-# index_preds_target = get_middle_layer_output(index_path)
+index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/index000001.csv"
+#
+index_preds_target = get_stock_preds_target(index_path)

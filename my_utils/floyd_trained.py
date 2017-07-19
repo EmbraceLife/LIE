@@ -34,6 +34,8 @@ floyd run --env keras --data oWCUSE9DFBy4X8TY6kw4Tg --gpu "python prep_data_03_s
 # train on floyd
 floyd run --data oWCUSE9DFBy4X8TY6kw4Tg --gpu "python build_model_03_stock_03_train_evaluate_save_best_model_in_training.py " --env keras
 
+# check how far and how well the model is training on floyd
+floyd logs daniel/train_revised_version/8
 
 # how to stop a running file on floyd
 - go to Floyd/Experiments

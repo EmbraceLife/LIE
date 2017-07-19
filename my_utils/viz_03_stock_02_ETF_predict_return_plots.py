@@ -26,7 +26,7 @@ from prep_data_03_stock_01_csv_2_pandas_2_arrays_DOHLCV import csv_df_arrays
 index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF50.csv"
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF500.csv"
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF300.csv"
-# index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF100.csv"
+# index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/index50.csv"
 
 date,open_prices,_,_, closes, _ = csv_df_arrays(index_path)
 
@@ -194,76 +194,144 @@ daily_capital.append(accum_capital)
 # 			daily_capital.append(accum_capital)
 
 
-
-
-
 ######################################################
-# revised trading cost based on MonteCarlo's suggestion
+# 如何计算累积市值或累积收益，换手率
+# 将预测值看作持股数量占比（全仓持股总数固定不变），不再是市值在总资产中占比
 #####################################################
-add_cost = True # False # True
-daily_stock_shares = []
+
+# 原理： 从最简单的变化入手，现有模型上修改，现有交易理解上改进
+# 改进预测值理解： 不是市值占比，而是持股数占比
+# 持股总数不变，可以提前设置，比如总数设置为10000股； 预测总股数比率， 80% 就是8000股；
+# 设置：总投资额 = 1； 总持股数 = 1
+# 预测值 or index_preds_target[0,0] == 预测当日开盘后需要的持股数占比
+init_capital = 1.0
 daily_capital = []
+daily_trade_pct = []
+add_cost = True # True
+threshold = True # True
 
-for idx in range(len(index_preds_target)):
+# 第一天的交易股数占比：当前预测值， index_preds_target[0,0]
+# 第一天的市值： 第一天开盘买入，当天结束时的市值 = 当天总资产（比如，1） + 当天持仓市值在收盘时的增值部分 = 当天总资产  + 当天开盘后形成的持股数占比 * 当天开盘价 * 当天价格变化比 = 1 + index_preds_target[0,0] * open_prices[0] * index_preds_target[0,1]
+day_one_capital = 1 + index_preds_target[0,0] * open_prices[0] * index_preds_target[0,1]
+# 第一天的交易成本： 当天开盘后形成的持股数占比 * 当天开盘价 * 0.001 = index_preds_target[0,0] * open_prices[0] * 0.001
+day_one_trade_pct = index_preds_target[0,0]
+day_one_cost = day_one_trade_pct * open_prices[0] * 0.001
+# 第一天收盘实际市值： 第一天的市值 - 第一天的交易成本
+day_one_capital_add_cost = day_one_capital - day_one_cost
+# 收集每日交易股数占比
+daily_trade_pct.append(day_one_trade_pct)
+# 收集
+if add_cost:
+	daily_capital.append(day_one_capital_add_cost)
 
-	if idx == 0:
-		# 第一天的市值： 第一天开盘买入，当天结束时的市值 = 当天总资产 + 当天持仓市值在收盘时的增值部分 = 当天总资产（1 + 持仓市值占总资产比 * 当天价格变化）
-		today_capital_before_cost = 1. * (1. + index_preds_target[0,0]*index_preds_target[0,1])
-
-		# 第一天的持股数量： 第一天开盘时总购买的资产金额／第一天开盘价
-		daily_stock_shares.append(1/open_prices[idx])
-
-		# 如果需要计算交易成本
-		if add_cost:
-			# 第一天的交易成本 = 首日买入持有市值*交易成本比率
-			today_cost = 1 * index_preds_target[0,0] * 0.001
-			# 第一天的市值 = 为计算交易成本的市值 - 交易成本
-			today_capital_after_cost = today_capital_before_cost - today_cost
-
-			daily_capital.append(today_capital_after_cost)
-		else:
-			daily_capital.append(today_capital_before_cost)
-
-
-	else: # 以后的每一天
-
-		# 如果不计算交易成本
-		# 今天的总市值=昨天总市值*（1+今天开盘后要买入的市值占比*今日收盘与昨日收盘价格变化率）
-		# 如果需要也可以使用， 今天的总市值=昨天总市值*（1+今天开盘后要买入的市值占比*今日收盘与昨日收盘价格变化率），只需要修改目标值生成的计算方法就行。
-		today_capital_before_cost = daily_capital[idx-1]*(1 + index_preds_target[idx,0]*index_preds_target[idx,1])
-
-		# 今天的持股数量 = 今天开盘前总资产*今天开盘后要有的总持股市值占比／今天开盘价; 并收集起来
-		daily_stock_shares.append( (daily_capital[idx-1]*index_preds_target[idx,0])/open_prices[idx])
+else:
+	daily_capital.append(day_one_capital)
 
 
-		# 如果需要计算交易成本
-		if add_cost:
-			# 第二天的市值（计算交易成本）
-			# 今天的交易成本 = | 今天开盘时需要拥有的总持股数 - 昨天开盘时需要拥有的总持股数 | * 今天开盘价 * 0.001
-			today_cost = np.abs(daily_stock_shares[idx] - daily_stock_shares[idx-1]) * open_prices[idx] * 0.001
+# 第二天及以后的变化：
+for idx in range(1, len(index_preds_target)):
 
-			# 今天计算交易成本后的总市值 = 今天的总市值（不计算成本） - 今天交易成本
-			today_capital_after_cost = today_capital_before_cost - today_cost
+# 第二天的交易股数占比： 当前预测值 - 昨天预测值 = index_preds_target[idx,0] - index_preds_target[idx-1,0]
+	day_two_trade_pct = np.abs(index_preds_target[idx,0] - index_preds_target[idx-1,0])
 
-			daily_capital.append(today_capital_after_cost)
-		else:
-			daily_capital.append(today_capital_before_cost)
+# 第二天及以后的变化 + 阀值控制
+# 第二天的交易股数占比： 当前预测值 - 昨天预测值
+# 阀值： 如果， 第二天的交易股数占比 < 0.1; 那么，当前预测值 = 昨天预测值; 即，不做交易，继续持有不变
+	if threshold and day_two_trade_pct < 0.83:
+		day_two_trade_pct = 0.0
+		index_preds_target[idx,0] = index_preds_target[idx-1,0]
 
+# 第二天的市值： 第二天开盘买入，当天结束时的市值 = 昨天总资产 + 当天持仓市值在收盘时的增值部分 = 昨天收盘总资产  + 当天开盘后形成的持股数占比 * 当天开盘价 * 当天价格变化 = 昨天收盘总资产 + index_preds_target[idx,0] * open_prices[idx] * index_preds_target[idx,1]
+	day_two_capital = daily_capital[idx-1] + index_preds_target[idx,0] * open_prices[idx] * index_preds_target[idx,1]
+
+
+# 第二天的交易成本： 第二天的交易股数占比 * 0.001 * 第二天的开盘价
+	day_two_cost = day_two_trade_pct * open_prices[idx] * 0.001
+# 第二天收盘实际市值： 第二天的市值 - 第二天的交易成本
+	day_two_capital_add_cost = day_two_capital - day_two_cost
+
+# 收集每日交易股数占比
+	daily_trade_pct.append(day_two_trade_pct)
+
+# 收集
+	if add_cost:
+		daily_capital.append(day_two_capital_add_cost)
+
+	else:
+		daily_capital.append(day_two_capital)
 
 ### 统计总收益
 accum_profit = np.array(daily_capital)-1 # 累积总资产减去初始资产 = 累积收益
 print("final date:", date[-1])
 print("final_return:", accum_profit[-1])
 
-#################################### 收益计算_v0 end
+# 如何计算换手率？
+# 所以第二天交易股数占比总和
+turnover_rate = np.cumsum(np.array(daily_trade_pct))
 
-
-####################################
-##### accumulation of transaction percentage，即换手率
-####################################
-preds = index_preds_target[:,0] # 每日持仓的总资产占比
-changes_preds = np.abs(preds[1:] - preds[:-1]) # 相邻两日的持仓占比之差（变化）
-accum_change_capital = np.cumsum(changes_preds) # 累积差值，获得总资产进出市场的次数
+######################################################
+# revised trading cost based on MonteCarlo's suggestion
+#####################################################
+# add_cost = True # False # True
+# daily_stock_shares = []
+# daily_capital = []
+#
+# for idx in range(len(index_preds_target)):
+#
+# 	if idx == 0:
+# 		# 第一天的市值： 第一天开盘买入，当天结束时的市值 = 当天总资产 + 当天持仓市值在收盘时的增值部分 = 当天总资产（1 + 持仓市值占总资产比 * 当天价格变化）
+# 		today_capital_before_cost = 1. * (1. + index_preds_target[0,0]*index_preds_target[0,1])
+#
+# 		# 第一天的持股数量： 第一天开盘时总购买的资产金额／第一天开盘价
+# 		daily_stock_shares.append(1/open_prices[idx])
+#
+# 		# 如果需要计算交易成本
+# 		if add_cost:
+# 			# 第一天的交易成本 = 首日买入持有市值*交易成本比率
+# 			today_cost = 1 * index_preds_target[0,0] * 0.001
+# 			# 第一天的市值 = 为计算交易成本的市值 - 交易成本
+# 			today_capital_after_cost = today_capital_before_cost - today_cost
+#
+# 			daily_capital.append(today_capital_after_cost)
+# 		else:
+# 			daily_capital.append(today_capital_before_cost)
+#
+#
+# 	else: # 以后的每一天
+#
+# 		# 如果不计算交易成本
+# 		# 今天的总市值=昨天总市值*（1+今天开盘后要买入的市值占比*今日收盘与昨日收盘价格变化率）
+# 		# 如果需要也可以使用， 今天的总市值=昨天总市值*（1+今天开盘后要买入的市值占比*今日收盘与昨日收盘价格变化率），只需要修改目标值生成的计算方法就行。
+# 		today_capital_before_cost = daily_capital[idx-1]*(1 + index_preds_target[idx,0]*index_preds_target[idx,1])
+#
+# 		# 今天的持股数量 = 今天开盘前总资产*今天开盘后要有的总持股市值占比／今天开盘价; 并收集起来
+# 		daily_stock_shares.append( (daily_capital[idx-1]*index_preds_target[idx,0])/open_prices[idx])
+#
+#
+# 		# 如果需要计算交易成本
+# 		if add_cost:
+# 			# 第二天的市值（计算交易成本）
+# 			# 今天的交易成本 = | 今天开盘时需要拥有的总持股数 - 昨天开盘时需要拥有的总持股数 | * 今天开盘价 * 0.001
+# 			today_cost = np.abs(daily_stock_shares[idx] - daily_stock_shares[idx-1]) * open_prices[idx] * 0.001
+#
+# 			# 今天计算交易成本后的总市值 = 今天的总市值（不计算成本） - 今天交易成本
+# 			today_capital_after_cost = today_capital_before_cost - today_cost
+#
+# 			daily_capital.append(today_capital_after_cost)
+# 		else:
+# 			daily_capital.append(today_capital_before_cost)
+#
+#
+# ### 统计总收益
+# accum_profit = np.array(daily_capital)-1 # 累积总资产减去初始资产 = 累积收益
+# print("final date:", date[-1])
+# print("final_return:", accum_profit[-1])
+#
+# ##### accumulation of transaction percentage，即换手率
+#
+# preds = index_preds_target[:,0] # 每日持仓的总资产占比
+# changes_preds = np.abs(preds[1:] - preds[:-1]) # 相邻两日的持仓占比之差（变化）
+# turnover_rate = np.cumsum(changes_preds) # 累积差值，获得总资产进出市场的次数
 
 ################################################################
 # price_curve_prediction_continuous_color_simple
@@ -292,15 +360,15 @@ for start, stop, col in zip(xy[:-1], xy[1:], color_data):
     ax1.plot(x, y, color=uniqueish_color(col))
 ax1.plot(accum_profit, c='gray', alpha=0.5, label='accum_profit')
 ax1.legend(loc='best')
-ax1.set_title('ETF50, added cost, from %s to %s return: %04f' % (date[0], date[-1], accum_profit[-1]))
+ax1.set_title('ETF50**, add cost and threshold, from %s to %s return: %04f' % (date[0], date[-1], accum_profit[-1]))
 
 #############
 ### plot 换手率
 #############
 ax2 = plt.subplot2grid((6, 3), (4, 0), colspan=3, rowspan=2)
-ax2.plot(accum_change_capital, c='red', label='accum_change_capital')
+ax2.plot(turnover_rate, c='red', label='turnover_rate')
 ax2.legend(loc='best')
-ax2.set_title("ETF50 TurnOver Rate: %02f" % accum_change_capital[-1])
+ax2.set_title("ETF50 TurnOver Rate: %02f" % turnover_rate[-1])
 
 ### plot pos as bars or as color map
 # ax3 = plt.subplot2grid((10, 3), (6, 0), colspan=3, rowspan=4)
