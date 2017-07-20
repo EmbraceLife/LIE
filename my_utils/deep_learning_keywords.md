@@ -90,3 +90,9 @@
 - price_curve_prediction_continuous_color_detailed
 - price_curve_prediction_continuous_color_simple
 - keras_step_function
+- understand_y_pred_differently_solve_trade_frequency
+- threshold_reduce_noise_trade
+
+## Discussions and Experiments
+- reduce_trade_frequency
+- risk_estimation_relu_limited_sigmoid

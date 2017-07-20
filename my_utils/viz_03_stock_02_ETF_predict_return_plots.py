@@ -22,8 +22,8 @@ from matplotlib.colors import ListedColormap, BoundaryNorm
 
 # 获取标的收盘价和日期序列
 from prep_data_03_stock_01_csv_2_pandas_2_arrays_DOHLCV import csv_df_arrays
-# index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/index000001.csv"
-index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF50.csv"
+index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/index000001.csv"
+# index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF50.csv"
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF500.csv"
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF300.csv"
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/index50.csv"
@@ -117,7 +117,7 @@ daily_capital=[]
 # plt.show()
 
 ######################################################
-# 收益计算v0, 前期复杂的交易成本计算方法
+# 最早期设计的总资产和换手率计算方法
 ######################################################
 """
 ### 如何计算累积的每日的总资产（包括计算交易成本）？代码在下面可见
@@ -206,8 +206,9 @@ daily_capital.append(accum_capital)
 # turnover_rate = np.cumsum(changes_preds) # 累积差值，获得总资产进出市场的次数
 
 ######################################################
-# 如何计算累积市值或累积收益，换手率
-# 将预测值看作持股数量占比（全仓持股总数固定不变），不再是市值在总资产中占比
+# 降频方案：将预测值看作持股数量占比（全仓持股总数固定不变），不再是市值在总资产中占比
+# 基于此方案的总资产和换手率计算方法
+# understand_y_pred_differently_solve_trade_frequency
 #####################################################
 
 # 原理： 从最简单的变化入手，现有模型上修改，现有交易理解上改进
@@ -218,8 +219,8 @@ daily_capital.append(accum_capital)
 init_capital = 1.0
 daily_capital = []
 daily_trade_pct = []
-add_cost = False # False # True
-threshold = False # False # True
+add_cost = True
+threshold = True
 
 # 第一天的交易股数占比：当前预测值， index_preds_target[0,0]
 # 第一天的市值： 第一天开盘买入，当天结束时的市值 = 当天总资产（比如，1） + 当天持仓市值在收盘时的增值部分 = 当天总资产  + 当天开盘后形成的持股数占比 * 当天开盘价 * 当天价格变化比 = 1 + index_preds_target[0,0] * open_prices[0] * index_preds_target[0,1]
@@ -245,10 +246,12 @@ for idx in range(1, len(index_preds_target)):
 # 第二天的交易股数占比： 当前预测值 - 昨天预测值 = index_preds_target[idx,0] - index_preds_target[idx-1,0]
 	day_two_trade_pct = np.abs(index_preds_target[idx,0] - index_preds_target[idx-1,0])
 
+############################
+# threshold_reduce_noise_trade
 # 第二天及以后的变化 + 阀值控制
 # 第二天的交易股数占比： 当前预测值 - 昨天预测值
 # 阀值： 如果， 第二天的交易股数占比 < 0.1; 那么，当前预测值 = 昨天预测值; 即，不做交易，继续持有不变
-	if threshold and day_two_trade_pct < 0.1:
+	if threshold and day_two_trade_pct < 0.85:
 		day_two_trade_pct = 0.0
 		index_preds_target[idx,0] = index_preds_target[idx-1,0]
 
