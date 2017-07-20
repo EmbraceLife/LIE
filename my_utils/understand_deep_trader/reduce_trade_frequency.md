@@ -26,6 +26,7 @@ Train on 84332 samples, validate on 17500 samples
 def risk_estimation(y_true, y_pred):
     return -100. * K.mean((y_true - 0.0002) * y_pred)
 ```
+
 - 特征值：（?, 30, 61）
 - 目标值： (?, 1)
 
@@ -103,3 +104,32 @@ def risk_estimation(y_true, y_pred):
 	- 延展数据，看模型能否学到更新变化，提升效果：
 		- 训练：用2年前的数据训练，用1年前-2年数据验证，用近一年数据预测
 		- 训练：用1年前的数据训练，用前半年年数据验证，用近后半年数据预测
+
+
+### 严重漏洞
+- 损失函数不变的话，
+```python
+def risk_estimation(y_true, y_pred):
+    return -100. * K.mean((y_true - 0.0002) * y_pred)
+```
+- MonteCarlo提出：持股数占比*涨跌幅，这个结果是没有意义的；只有`市值*涨跌幅`才有意义!!!
+
+
+### 解决方案
+- 要实现预测值为持股数占比，损失函数需要变成以下的样子
+```python
+def risk_estimation(y_true, y_pred):
+    return -100. * K.mean((y_true - 0.0002) * y_pred * open_prices)
+```
+- 但损失函数无法接受第三个变量，如open_prices；那么能不能改变y_true来适应呢？
+
+方案1: 将 `* open_prices`这个部分直接嵌入到`y_true`当中
+- 在设计`y_true`时，将其定义为`y_true = (daily_price_change - 0.0002) * open_prices`; 而不再是`y_true = daily_price_change`
+- 这样我们就能得到：
+
+```python
+def risk_estimation(y_true, y_pred):
+	return -100. * K.mean(y_true*y_pred)
+        #  = -100. * K.mean(((daily_price_change - 0.0002)* open_price) * y_pred)
+```
+这个方案逻辑上有问题吗？可行吗？
