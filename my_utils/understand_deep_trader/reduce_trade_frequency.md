@@ -115,7 +115,7 @@ def risk_estimation(y_true, y_pred):
 - MonteCarlo提出：持股数占比*涨跌幅，这个结果是没有意义的；只有`市值*涨跌幅`才有意义!!!
 
 
-### 解决方案
+### 解决方案1
 - 要实现预测值为持股数占比，损失函数需要变成以下的样子
 ```python
 def risk_estimation(y_true, y_pred):
@@ -140,3 +140,66 @@ def risk_estimation(y_true, y_pred):
         #  = -100. * K.mean(((daily_price_change - 0.0002)* open_prices_norm) * y_pred)
 ```
 这个方案逻辑上有问题吗？可行吗？
+
+### 解决方案2
+- MonteCarlo:
+	- 应该是openprice
+	- day1，有现金（初始市值）A元，预测市值占比为a1，那么股数为A*a1/openprice，付出手续费=股数*openprice*0.001=A*a1*0.001，剩余现金=A*（1-a1)-手续费
+	```python
+	init_capital = 1 # 初始总现金
+	y_pred = index_preds_target[:,0] # 预测值，当日持仓市值占比
+	y_true = index_preds_target[:,1] # 相邻两天收盘价变化率
+	open_prices = open_prices/open_prices[0] # 每日开盘价，标准化处理 (受否必须再减1？)
+	closes = closes/closes[0] # 每日收盘价，标准化处理
+	daily_shares_pos = [] # 用于收集每日的持股数
+	daily_cash_left = [] # 用于收集每日的现金剩余量
+	daily_capital = [] # 用于收集每日收盘时总资金
+
+	for idx in range(len(y_pred)):
+		if idx == 0: # 第一天
+			y_pred[idx] # 第一天的预测市值占比
+			open_prices[idx] # 第一日开盘价
+			shares_pos = init_capital * y_pred[idx] * open_prices[idx]  # 第一天的持仓股数
+			daily_shares_pos.append(shares_pos) # 收集第一天的持股数
+
+			cost = shares_pos * open_prices[idx] * 0.001 = init_capital * y_pred[idx] * 0.001 # 持股数*股价*0.001 = 持仓市值*0.001 = 交易成本
+			# 第一天只要预测值不是0，交易成本就免不了；不用考虑阀值
+
+			cash_left = init_capital * (1 - y_pred[idx]) - cost # 剩余现金 = 市值意外的现金 - 交易成本
+			daily_cash_left.append(cash_left)
+			capital_day_1 = daily_shares_pos[idx] * closes[idx] + daily_cash_left[idx] # 当日收盘时的总资金
+			daily_capital.append(capital_day_1) # 收集第一日总资金
+
+
+	# day2，日初市值=前一日股数*前一日closeprice+前一日剩余现金；今日股数=日初市值*今日预测市值占比a2/openprice，手续费=abs(今日股数-昨日股数)*openprice**0.001，剩余现金=日初市值（1-a2）-今日手续费
+
+		else: # 从第二天起
+			closes[idx-1] # 前一日的收盘价
+			daily_shares_pos[idx-1] # 前一日的持股数
+			daily_cash_left[idx-1] # 前一日现金剩余
+			daily_capital[idx-1] # 当日（即第二日）开盘前的总资金, 即第一日收盘时的总资金
+
+			y_pred[idx] # 当日预测市值占比
+			open_prices[idx] # 当日开盘价
+			shares_pos = daily_capital[idx-1] * y_pred[idx] / open_prices[idx] # = 当日开盘前总资金 * 开盘市值占比 ／ 当日开盘价格 = 当日持股数
+			daily_shares_pos.append(shares_pos) # 收集第二天的持股数
+
+			cost = np.abs(shares_pos - daily_shares_pos[idx-1]) * open_prices[idx] * 0.001 # = 今日交易成本 = |今日与昨日持仓股数之差| * 当日开盘价 * 0.001
+
+			# 通过阀值来降低噪音和交易频率
+
+			if threshold and
+
+			cash_left = capital_open_day_2 * (1 - y_pred[idx]) - cost
+			daily_cash_left.append(cash_left) # 当日现金结余
+
+			capital_day_2 = daily_shares_pos[idx] * closes[idx] + daily_cash_left[idx] # 当日收盘时的总资金 = 当日持股数 * 当日收盘价 + 当日现金结余 = 当日收盘市值 + 当日现金结余
+			daily_capital.append(capital_day_2) # 收集当日总资金
+
+
+	# 计算累积总资金曲线
+	profit_cumsum = np.cumsum(np.array(daily_capital)）-1 # 累积总资金曲线， 减去初始资金 1，获得收益累积曲线
+
+	# 换手率曲线
+
+	```
