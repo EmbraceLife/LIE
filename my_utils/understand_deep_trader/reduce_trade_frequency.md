@@ -141,10 +141,8 @@ def risk_estimation(y_true, y_pred):
 ```
 这个方案逻辑上有问题吗？可行吗？
 
-### 解决方案2
-- MonteCarlo:
-	- 应该是openprice
-	- day1，有现金（初始市值）A元，预测市值占比为a1，那么股数为A*a1/openprice，付出手续费=股数*openprice*0.001=A*a1*0.001，剩余现金=A*（1-a1)-手续费
+### Solution2: best so far
+- MonteCarlo:模拟真实的交易思想和流程
 - 对应MonteCarlo的建议写成的代码，[在这里](https://github.com/EmbraceLife/LIE/blob/master/my_utils/viz_03_stock_02_ETF_predict_return_plots.py#L320)
 - 同样的模型，经过以上的方式进行计算每日总资金和交易成本和降噪处理，好像表现更好了（如果我的代码没有系统错误的话）
 - ETF50（全部计算过交易成本），分别是无降噪处理，90%， 95%，97%, 99% 降噪
