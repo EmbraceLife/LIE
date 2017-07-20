@@ -145,61 +145,18 @@ def risk_estimation(y_true, y_pred):
 - MonteCarlo:
 	- 应该是openprice
 	- day1，有现金（初始市值）A元，预测市值占比为a1，那么股数为A*a1/openprice，付出手续费=股数*openprice*0.001=A*a1*0.001，剩余现金=A*（1-a1)-手续费
-	```python
-	init_capital = 1 # 初始总现金
-	y_pred = index_preds_target[:,0] # 预测值，当日持仓市值占比
-	y_true = index_preds_target[:,1] # 相邻两天收盘价变化率
-	open_prices = open_prices/open_prices[0] # 每日开盘价，标准化处理 (受否必须再减1？)
-	closes = closes/closes[0] # 每日收盘价，标准化处理
-	daily_shares_pos = [] # 用于收集每日的持股数
-	daily_cash_left = [] # 用于收集每日的现金剩余量
-	daily_capital = [] # 用于收集每日收盘时总资金
-
-	for idx in range(len(y_pred)):
-		if idx == 0: # 第一天
-			y_pred[idx] # 第一天的预测市值占比
-			open_prices[idx] # 第一日开盘价
-			shares_pos = init_capital * y_pred[idx] * open_prices[idx]  # 第一天的持仓股数
-			daily_shares_pos.append(shares_pos) # 收集第一天的持股数
-
-			cost = shares_pos * open_prices[idx] * 0.001 = init_capital * y_pred[idx] * 0.001 # 持股数*股价*0.001 = 持仓市值*0.001 = 交易成本
-			# 第一天只要预测值不是0，交易成本就免不了；不用考虑阀值
-
-			cash_left = init_capital * (1 - y_pred[idx]) - cost # 剩余现金 = 市值意外的现金 - 交易成本
-			daily_cash_left.append(cash_left)
-			capital_day_1 = daily_shares_pos[idx] * closes[idx] + daily_cash_left[idx] # 当日收盘时的总资金
-			daily_capital.append(capital_day_1) # 收集第一日总资金
-
-
-	# day2，日初市值=前一日股数*前一日closeprice+前一日剩余现金；今日股数=日初市值*今日预测市值占比a2/openprice，手续费=abs(今日股数-昨日股数)*openprice**0.001，剩余现金=日初市值（1-a2）-今日手续费
-
-		else: # 从第二天起
-			closes[idx-1] # 前一日的收盘价
-			daily_shares_pos[idx-1] # 前一日的持股数
-			daily_cash_left[idx-1] # 前一日现金剩余
-			daily_capital[idx-1] # 当日（即第二日）开盘前的总资金, 即第一日收盘时的总资金
-
-			y_pred[idx] # 当日预测市值占比
-			open_prices[idx] # 当日开盘价
-			shares_pos = daily_capital[idx-1] * y_pred[idx] / open_prices[idx] # = 当日开盘前总资金 * 开盘市值占比 ／ 当日开盘价格 = 当日持股数
-			daily_shares_pos.append(shares_pos) # 收集第二天的持股数
-
-			cost = np.abs(shares_pos - daily_shares_pos[idx-1]) * open_prices[idx] * 0.001 # = 今日交易成本 = |今日与昨日持仓股数之差| * 当日开盘价 * 0.001
-
-			# 通过阀值来降低噪音和交易频率
-
-			if threshold and
-
-			cash_left = capital_open_day_2 * (1 - y_pred[idx]) - cost
-			daily_cash_left.append(cash_left) # 当日现金结余
-
-			capital_day_2 = daily_shares_pos[idx] * closes[idx] + daily_cash_left[idx] # 当日收盘时的总资金 = 当日持股数 * 当日收盘价 + 当日现金结余 = 当日收盘市值 + 当日现金结余
-			daily_capital.append(capital_day_2) # 收集当日总资金
-
-
-	# 计算累积总资金曲线
-	profit_cumsum = np.cumsum(np.array(daily_capital)）-1 # 累积总资金曲线， 减去初始资金 1，获得收益累积曲线
-
-	# 换手率曲线
-
-	```
+- 对应MonteCarlo的建议写成的代码，[在这里](https://github.com/EmbraceLife/LIE/blob/master/my_utils/viz_03_stock_02_ETF_predict_return_plots.py#L320)
+- 同样的模型，经过以上的方式进行计算每日总资金和交易成本和降噪处理，好像表现更好了（如果我的代码没有系统错误的话）
+- ETF50（全部计算过交易成本），分别是无降噪处理，80%，90%， 95%，97%, 99% 降噪
+![](https://lh3.googleusercontent.com/aXapk-htAaTP9uRRJUq9a6pp0hOf_YE6g4s_9SQr2LtAS3hoCUUuj1PT1W1qREIhUOkFUJ_r-bS7V_WUYkjX9IkVprwQE4IAoPX-y-_fvdoi24Cy6O5Db0phZT2MmTYjr7f-ArnUxNIrInOJC-BhPKFMHMrCYoN9zqSf1fs-980KBfd42An_VDuQTmT0PJmPpt1gB-HG9oiIQUTv7A-lQnIXZQHd6pv5R0EkcHW6bZAkvGg5tWMzQYE_owMBdJ5LaL_ZGvd-BPqTIbKgoeXFTn_hsh-llppOMJq2q_vksgX-RzLGaFtFopajxn01JqIch_vbe5EpFxnItD0zJzk1T_rkAHMZzq_hSfLw15r9c26FO1lI1RUrChsk01GoHmAOk3b5TsOQbMpOS9fNtQLF9hp_fkI1rn9I0aHDLdtz_FmKWOQ0GyfFvraXSfwygz3tRwxMS_vo7BMaWl7kYitREOSvdzo6BdAReLGUbee9PHMdffCvVX-CTYG9eiG1K3g80DOdukPnXAQu2h9k5tgtnw71O8KtyrmYNOFpxZmPO2pnW8cYX_ydJmtoNSP_jY5w8NrqeMWjJLR8US6auoZkWXSR2QaEf8WBZGzZlNrfHfBTQFsOuYpsl0YG=w2412-h1224-no)
+![](https://lh3.googleusercontent.com/Q7Mltm3sYJj3IoymphTL1CL8YCirnd_zB_v7C0ahnyl1Kzr-4cqUe2Mb_RWREeoglQ0IkTunn-ajJ7-OGY5kK2cj9zPrCMpLDHUfyPUpxx7sZENUUDCe3nhA6js14VE2Ww9tguUs8atyEkn_-_62fVPdFJpM8CeY7gwqan6FFv0dUIb1hQs7g9Gf9zem09AIylZbBjin8ZW06h7Rp2LzCNIAVItg3QKbAWLdshujIe4hnncMQZpJQqE5xf-zs6Yi17rrrVHZDFkpIlxoS-JNTsQAVeZuQsbANf7ex5SFqf2aw8l5170fHuD__S-ESwQ74tE_n6e2uBf2ipEYy275469GvpyKndaecr6Ry0xV9RQ8s8HrZ2ZVIO5DdrLDGfRr2V7-wH4j2me3UCKMXoR59za_rNfMYXLGoeoBcLC9nOW7d08saGPAfDrdQTkbyhgaG3kPgL0RinfDBS9eilL-bdOW1xW5LGGZz91VHqLDNDnz6kpWYubOoyyZe0s8k0k-WaZOznfflwQYJR-vpe8FlQoDgN9n9MJSWbZBMuYNUaxuLgJysJtwqHfnWcbZZECvNguabwUQX4Y3nY3MUCbm26uSO_E40L1U7leoUIJ0KfZuwa3ZA95VsBOh=w2412-h1224-no)
+![](https://lh3.googleusercontent.com/eGxEJnkMnIsK1IjeKRJ7oEf63yOscPKDU6yeZ_P1h02F2epidTr6zzA4zr_avIMq0jv0fBD_nWQATi3PFmt7wrewCzLAkYXmGg-cOGnfZPlrjSIGBLzSnhUG0s6TTWKkkVqfuogf5y4GogI-GvoxSiLk2zZvZwMH3zQrnZ83u3pZg2kNEtSWtsUIBtJryeTUfsTtp5YKA3emp9zSM-_RzAeBB9jWpIpbnFcf3ycjDCSHQd2nAvI62X950uOcIos9XUOhHnBiLBCVjZ4TILHkpuZfIBZDpgAm3jSpuxjBxhFZb9sbTGQyUYLD_4dLXS1corTvbOwcbPuye1C1JXldM153kK42vgtiHhNEaOLU5GBTQjXcOr8gsBOU2cLLPg54FcjLrEAKISMolB5FlIPXxlcpoGZclHzcxaz3D0X70xNlpPR-1EG0jE5o2oVczGjRVFgG6Jo8qs5vR54y2GE69GHBTF4Y4EHKGgMfX-O48byHjAb5rIZfRF6-Z7zs7wcBd06yQtxKRYnyq1wITESWF468sE03H6WbjO-MIshQT38FoLxGlmO0Ds6HyLPXBsg_O6FXlm0WujNF9SWXNv8cgcdSSZFNDVd3hdrvXtrcqVNrLpisKjIpgxBi=w2412-h1224-no)
+![](https://lh3.googleusercontent.com/ffVy7Vz7sZos82LaGXmv_FSMU2Kbu6KAZJhXFI0VYTYJnCzSX23Kb0PN2CnzwYoBGHk3ny7g1fO_Yu8fU3AMXanEBpYyZiHFg3FRCTQnkH4X99Z8mnF3oeZGpZt0MqniUbikXtCb1JQVYdWAEitz3wt2Ml0qBMCsPoSt69JSsMbQEbs1cvAMTkq8lUrwqfYmjc27kA2jO5pLxhgCeGwIx71STr_Aufwnq2ugKck4jaReXlTadcNIHASCzOYtUCNmI8nbIoVGM-A3v7yk_VZICH8tXcj7IYU3qm46CZQpq9MoByf--VyOvny7ahhwIH1y_fVzjmPk63FrCXzHJbVmyIuAZ-s6zYy06G5RDGjrK0WWhr-VDpF-2c1P4nfyqQsxnqG-mB0_NfFtelMJ6MXUyUzBi5Pv6HHGO2TcaIp0hDBsJwsm2rw_rbS6jvkct10Oae4eYn56Ve4QT8yE-kQQXTNfbLlQJ4axnSkfoT_MmYyy2tH9WJGx8JMRK3mFlyvkQbRtJaXuU29zngwx742nXEbm_6qc3BDodIrJo9AmVO8qGiSazb37ZpahYIKp-U1vHvfsdwdOx5rLa84MXZTJazWiOKnoz3poQKlZSs9FGcqXG1p1Rp2ZYA1b=w2412-h1224-no)
+![](https://lh3.googleusercontent.com/BAfu9t60mYGnJFG3SMLFReC-nFwQAxtlfRA4fCWL_aVUFHAwsmPcpX6XcD-nRvBWdUtCmpXrKL0iBgKS1N3EXaWAwcL_vd-4eMq0ozQjfQeAtiBaN-V1QXdgScUbe0N-Prhn3EGSb5pZk213X58M43K_bAyOSZutGYMQ8fZ-1bwiUAB99grvI8GQPlW8zSwSTwMxltCloja_RYIPEcxtdJhxB8WDiUbmKAIhP1bR8p5Y_WrqCyIsdQa7TxygzIS6gIHs3aNhwIM2ipv3yBNbSRWpXN7wVVMSPqCqtq2bTqLv6p8tjBRKSvzfrrlmQxeR9KRuY83oDmYpAj79bI5e5BHSMU7xijCnLKTIOfhVn9ypmAihN83SnzW8FfO8xi1DtrwnFVxLLTlXc97MYIA_M1Xx1PurG4oUheRWVnM4-3LMG1p62rm-UWKiEpswl0YnhPzytjgpUnQLR160Q8T6HjEq-oPVMzMpaO398SyN4CCjmYodeF3O6rPrZKMGl6VcpEzn6ZGJPWsJOvqoxtMscfkYnnDH49NsXP4U4QV46hqzg2tZdniKmOIDi8uL7TgkIa7Ro6dtMu_x5chCoxaB6iPH-CgkEc_6KOs4_6fJi8G1zOU9YezLOnhi=w2412-h1224-no)
+![](https://lh3.googleusercontent.com/67JICpQvz1sTSbtPHYLljh1szhZMSns0Zop8-KASWBefgYU_xo-2MeOhCK6JIEs0bqUsAgfH3U6xviJn17u5EnMmda0JScD2cYdeeQYGx4-pDW2tJvNMPNG4tYN5mlYd5He_ijRsJcq6E-9sCPs7MOkKDqdsUTY0_5R5xIxLzOleZovxTPUwbysvqDsRG8Y0s2kqCZvzhZBXa3pJVgSQjAsDdCNKk31vUAEEog2jwH8pmYEOGXL3sY4bXTBeeO053cfxkVFLC-rzmYi8eFdIXOpeJQnGZ4YMMtsLDfzqw29fqNt_dFdQYCUQmqQ7gWVsuwymgDuPiUaI61Ag4JXJ-dG0UURwZqVaDxjWty-IKV-hmA71HvGI51CmySf2Tzf36dqEzbcmw2rS4oKJNeLjTv_9t3lD13JWMCOKyu8yGSNXsffCgTIDCgkEGuylyjzjmBOlYPivcp0H7l1hazLwqWVHfbLX0bnrAe7oy8st1_VnFFVGw8eDesLs-Ye-EZMwhXNsSc9-kITL2SeHRVh-8KEOYur2naVP8DHMUGlkhZU9iAp_CAq1y-9HGNHsK5q01Y6U2obIo2Dwih0GWYqPeKxp979ylTUV3j0sUuuW4KuNm-LN1Pz_dFxW=w2412-h1224-no)
+![]()
+- ETF300（全部计算过交易成本），分别是无降噪处理，90%， 95%， 99% 降噪
+![](https://lh3.googleusercontent.com/uZ91iSMBv-pIOspmE7iUUpBCljAi-W24omCA6Pq5WcrdmRSvNL2FqgIcZefPhht7syrp3h_GrZgYX0UsgpCtNbHekPKOPnm0PYvY4dcLuCHuXerq1HHRZ-n_2u6uuaxlTEawrX5YbnWaw3cVBkhFszXdR30BAK6mS1kMSny_LLOBqOSA47Ugvh-rQf2O0lKeZc2fAKHfp6dLVMynD62ftcghiw5ew1nEqianzzUpgSPIbVturcG1YMPQavGZPSMEeK1b1f4TpK_wyRVn01RMyvfr_BhC1n6Wq6plnLuF_rfhcWBWLWtfIrlGP5c775rgsvhw_mIqSDRRpfZcvzKlkxAKzACcD7gkLSBA-hnbPu1dhvhMgW9A2-qU7b4ViGOVC_E-EkfAgVM-pfPYeIplna1d4OEDTqhTidbLItX86qg8X7zm4Ri67BMJH4sG3WU9RVPuGk0aIroKaYJ5UXuzqxKVddYqx4j7jE3p8-4u68h-a5yKL5ZceBs-nCM_JgwFWgJn73SheoLKSkEwUPBbfju4QldwOFGhqFlFBWsvEAn8q5VXnKYKu2USMag4AhvsP3r-2hdWpYK7Bhzobt268QYeaIIfg_eo51sOo9HaaP0Vic2xvxIwVbYn=w2412-h1224-no)
+![](https://lh3.googleusercontent.com/E-6iYmxxW19myTH0I0GzGywdMekru52Ppw51ZnMorFx2IM3Ks1rE0fFKgzZyoPY-dTVOlnloGIxp_AeZG3Y0ZEF0d_hYQJM418LFCEUEU_JtUsRkpmKNpYCRv7de0P_ln-X1N1HaMjkMbiv5HLyVxWXLgcVkVV3G7716b0KG1t1FAaSSyq_kaj5q8kYwzHmf7-SFm6l1o2OkeDN69fH1doH9h7jpopUyl51aOoHqFb6ILij3cacOSjkvPY0Qpd27A52RVfazKPRhjWX2q67MTEcoXyyeU9yB146n7V3xCfbIfUn0GDrn-fpFUgXmylH_rVR5CRfDGMzVku_ML0-xEk6yHDsOlKOAAUA7OK6GPrcGdOJgtGPHkv1VCGOuKUq5tZ-wE6LJ-akJyN0WpLmnqwXi1sb0BDuYnL1MEIuM9PEJLtG9pwKaM6ZmPpFZo-n-FcRaLxavwcOOVYY4AqrBLYMICRuc0es6PRuZ3vfcnzua9pSJYglvWnOiAAg1je6Q2Akufx-j3YLMkdQLrJ2b3_HepWCHUl1AmjhJuQB_fxQ2_T74ChUP8gF0J4tUQpIEFumnacCCka2t08qo51nFItn0RaWkTrSrpBQr1SBLA6zbyhQ2yoJXcKcP=w2412-h1224-no)
+![](https://lh3.googleusercontent.com/Ys8KWO1Ct0j13yHUHSICiFuZrBCgHAsWggbF57cYU2PZ7Zf7pZ6wtAYDKZKBy6iNFnoY2gOHm_5qvGJUlDpLbSWpJNEnv6LYEM2-2xSLVJAxeVq63TXsUYmXGPcSl252gzi0tpKftkwtxO-Upr3z7CTR44c7UcEeCGID8l1nxX6OdUacjaYVnB1-CJq1ck2Em2GEY8F_BnA1evjEsyZxUONFuxb7mKm_dhEGW1Ce6LBV-IvbO3BYwwDOkzWAkD6PERYle7Mw2R_QlpWpqnN6jxHpQfaZ4gkSdTIwj-0JItaWkUAwp4BjBucBC4xX0Q1RPODwwyCXxcL2QSVAtsD2saO5YHjDJI6XC3rNP3OAwqirPah4ilemiBk-gdCpBKvLJHx_ypwDnntgIq6eX3T9mxCZJilx7odosREQOvNnpzAEM7fqwHOQ4-SHrDJ-UHjIsMKNCNBtPGbM9HQtfB_TF_DB3FpyBfqsJBuYHMa9sCNR4rP0Q4tbxZR3nFuCglgaPrpK_dXndU-hiwaMOdq7kJacvMHoVb5KBNAesxgqGs6BYDhGDTkzPHRF0pW5TxZIEGRhnYnmfm2zufyiPzTv2PRPpNXXNGa496bUb9IpfP2Z47VnsdEtgBel=w2412-h1224-no)
+![](https://lh3.googleusercontent.com/NetcjvCqAHw5m1bLP2NzBdOduiO_ugcfiCEa8hWm0Vr5lgv2rzL2J97jG-3ONpVWdzIt_7RaBDnlwkfPooxTknCHyGeZ0bQe-BXPZb-IQ4It1yA5zAdm-QhJNS7UWsoUNUTQFqw_MvbvhrGE6wKgjqWoZwlfCmhtsiJNbeBhKoio3I1L1XExUTswulQVrz82ibCw6twoCS8mH2MwY8R5vPXCDJ21CU4h3zfve5lU9z5u4vOgCF7yYTwbVTOD-SOc0TicLKtx4gBgdOn4HHtTbOXP4oq30Q5k3LXlILRBvHrBmO7Ew-uWsqzxiTj9dvKa4orkLIM56pQndsk-vYWg-xD9CR06TIZVpROY98XzpTCUCTX02w9vPsgmCNw0M1ARzf1MCwjBj3Wbf_iVbKBwF-6s3nm8ZPUjC_CiHvDjqHSLqrGkh3bJvh1C7IMfekhUnviHHLZPzWM3SHS7F01ngUELNnKkS_jcLvDgJxIrDW8_a7zU3gJwqe0PLxZY-UBbHQtdriw8B2UWO7s-Hcxw3BwuuIkkFEv1R3bzJAiR8eWKbxs_NOOKsfRKSo3vdxz3TGlcgFdNslr2UjhIpzoZqzbWark9HAVNhoHz6_XSMj8RxH8ZFThmP2jt=w2412-h1224-no)
