@@ -124,12 +124,19 @@ def risk_estimation(y_true, y_pred):
 - 但损失函数无法接受第三个变量，如open_prices；那么能不能改变y_true来适应呢？
 
 方案1: 将 `* open_prices`这个部分直接嵌入到`y_true`当中
-- 在设计`y_true`时，将其定义为`y_true = (daily_price_change - 0.0002) * open_prices`; 而不再是`y_true = daily_price_change`
+- 在设计`y_true`时，将其定义为
+
+```python
+open_prices_norm = open_prices / open_prices[0]
+y_true = (daily_price_change - 0.0002) * open_prices_norm
+# 不再是 `y_true = daily_price_change`
+```
+
 - 这样我们就能得到：
 
 ```python
 def risk_estimation(y_true, y_pred):
-	return -100. * K.mean(y_true*y_pred)
-        #  = -100. * K.mean(((daily_price_change - 0.0002)* open_price) * y_pred)
+	return -100. * K.mean(y_true * y_pred)
+        #  = -100. * K.mean(((daily_price_change - 0.0002)* open_prices_norm) * y_pred)
 ```
 这个方案逻辑上有问题吗？可行吗？
