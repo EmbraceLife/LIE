@@ -23,9 +23,9 @@ from matplotlib.colors import ListedColormap, BoundaryNorm
 # 获取标的收盘价和日期序列
 from prep_data_03_stock_01_csv_2_pandas_2_arrays_DOHLCV import csv_df_arrays
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/index000001.csv"
-# index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF50.csv"
+index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF50.csv"
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF500.csv"
-index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF300.csv"
+# index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF300.csv"
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/index50.csv"
 
 date,open_prices,_,_, closes, _ = csv_df_arrays(index_path)
@@ -332,13 +332,13 @@ daily_cash_left = [] # 用于收集每日的现金剩余量
 daily_capital = [] # 用于收集每日收盘时总资金
 
 use_threshold = True
-threshold = 0.95
+threshold = 0.99
 
 for idx in range(len(y_pred)):
 	if idx == 0: # 第一天
 		y_pred[idx] # 第一天的预测市值占比
 		open_prices[idx] # 第一日开盘价
-		shares_pos = init_capital * y_pred[idx] * open_prices[idx]  # 第一天的持仓股数
+		shares_pos = init_capital * y_pred[idx] / open_prices[idx]  # 第一天的持仓股数
 		daily_shares_pos.append(shares_pos) # 收集第一天的持股数
 
 		cost = shares_pos * open_prices[idx] * 0.001 # = init_capital * y_pred[idx] * 0.001 = 持股数*股价*0.001 = 持仓市值*0.001 = 交易成本
@@ -435,7 +435,7 @@ for start, stop, col in zip(xy[:-1], xy[1:], color_data):
     ax1.plot(x, y, color=uniqueish_color(col))
 ax1.plot(accum_profit, c='gray', alpha=0.5, label='accum_profit')
 ax1.legend(loc='best')
-ax1.set_title('sigmoid_mock_95_etf300 from %s to %s return: %04f' % (date[0], date[-1], accum_profit[-1]))
+ax1.set_title('sigmoid_mock_99_etf50 from %s to %s return: %04f' % (date[0], date[-1], accum_profit[-1]))
 
 #############
 ### plot 换手率
