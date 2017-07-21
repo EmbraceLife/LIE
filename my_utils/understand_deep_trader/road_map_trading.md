@@ -1,5 +1,10 @@
 # a road map to deep trading
 
+## 与happynoom和MonteCarlo的交流分享
+- [risk_estimation和relu_limited的理解](https://3509763625.docs.qq.com/23b5pWBEvG3?type=1&_wv=1)
+- [修改预测值处理的模型与阶梯函数降频率](https://3509763625.docs.qq.com/nmCvtlHlRRp?type=1&_wv=1)
+- [分类模型取代阶梯](https://3509763625.docs.qq.com/23tqbz0wutN?type=1&_wv=1)
+
 ## what I learnt so far
 - create theory and intuition on deep learning help innovation
 - sigmoid as last output layer produces a model with only buy and sell two options
@@ -27,3 +32,9 @@ tomorrow to trade or not:  no trade # 预测明早是否交易
 ```
 - 在开始用模型交易前，必须做的事项还有哪些呢？
 - 开始真实模型交易时，需要记录哪些数据来帮助改进？
+
+**MonteCarlo建议**
+实际交易前 建议先模拟交易一段时间，就是自己在Excel表格里虚拟记录交易过程和绩效，除了钱是假的，其他的都尽量保持与真实交易一致，模拟交易一段时间后，再看交易记录与模型跑出来的结果有无差别，当中有无可以改进的地方
+
+**模拟交易跟踪记录**
+- [表格](https://3509763625.docs.qq.com/v6K3ACleLBm?opendocxfrom=tim )

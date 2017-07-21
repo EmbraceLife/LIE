@@ -39,12 +39,21 @@ index_preds_target[:, 0]:预测值，即下一日的持仓的总资产占比
 index_preds_target[:, 1]:下一日的当天价格变化
 """
 
+#####################3
+# plot with different time span
+####################
+# 700 days
+# 30 days
+# 90 days
+# time_span = 700
+# time_span = 90
+time_span = 30
 
 
 # zoom in and out for the last 700 trading days
-open_prices = open_prices[-700:]
-closes = closes[-700:]
-index_preds_target = index_preds_target[-700:]
+open_prices = open_prices[-time_span:]
+closes = closes[-time_span:]
+index_preds_target = index_preds_target[-time_span:]
 
 
 
@@ -316,6 +325,10 @@ daily_capital.append(accum_capital)
 # # color_data 经过阀值调节过的预测值
 # color_data = index_preds_target[:,0]
 
+
+
+
+
 ##############################################################################
 # MonteCarlo: 尽可能还原真实交易场景，不考虑无交易成本的情况
 # 	- 应该是openprice
@@ -413,14 +426,14 @@ print("threshold value: ", threshold) # 设定的阀值
 morning_action = "no trade" if np.abs(estimate_tomorrow_shares_hold - daily_shares_pos[-1])/daily_shares_pos[-1] < threshold else "do trade"
 print("tomorrow to trade or not: ", morning_action) # 预测明早是否交易
 #####################
-# print("Now is tomorrow, morning trading time start....")
-# open_price_morning =
-# print("today's open price:", open_price_morning)
-# estimate_morning_shares_hold = daily_capital[-1] * y_pred[-1] / open_price_morning
-# print("estimate how many shares to hold this morning:", estimate_morning_shares_hold)
-# print("estimate how many shares to hold this morning:", daily_capital[-1] * y_pred[-1] / open_prices_this_morning)
-# morning_action = "no trade" if np.abs(estimate_tomorrow_shares_hold - daily_shares_pos[-1])/daily_shares_pos[-1] < threshold else "do trade"
-# print("tomorrow to trade or not: ", morning_action)
+print("Now is tomorrow, morning trading time start....")
+open_price_morning = 3.791 # 20170721
+print("today's open price:", open_price_morning)
+estimate_morning_shares_hold = daily_capital[-1] * y_pred[-1] / open_price_morning
+print("estimate how many shares to hold this morning:", estimate_morning_shares_hold)
+print("estimate how many shares to trade this morning:", estimate_morning_shares_hold - daily_shares_pos[-1])
+morning_action = "no trade" if np.abs(estimate_tomorrow_shares_hold - daily_shares_pos[-1])/daily_shares_pos[-1] < threshold else "do trade"
+print("tomorrow to trade or not: ", morning_action)
 
 
 # 换手率曲线
@@ -460,6 +473,8 @@ X = np.arange(len(line_data)).reshape((-1,1))
 y = line_data
 xy = np.concatenate((X,y), axis=1)
 
+
+
 plt.figure()
 ax1 = plt.subplot2grid((8, 3), (0, 0), colspan=3, rowspan=4)
 #############
@@ -468,6 +483,7 @@ ax1 = plt.subplot2grid((8, 3), (0, 0), colspan=3, rowspan=4)
 for start, stop, col in zip(xy[:-1], xy[1:], color_data):
     x, y = zip(start, stop)
     ax1.plot(x, y, color=uniqueish_color(col))
+
 ax1.plot(accum_profit, c='gray', alpha=0.5, label='accum_profit')
 ax1.legend(loc='best')
 ax1.set_title('sigmoid_mock_90_etf300 from %s to %s return: %04f' % (date[0], date[-1], accum_profit[-1]))
