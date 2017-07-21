@@ -358,7 +358,7 @@ for idx in range(len(y_pred)):
 		y_pred[idx] # 第一天的预测市值占比
 		open_prices[idx] # 第一日开盘价
 		# shares_pos = init_capital * y_pred[idx] / open_prices[idx]  # 用第一天的数据预测第二天一开盘要有的持仓股数；因为没有第二天的开盘价，所以只能用第一天的收盘价
-		shares_pos = np.round(init_capital * y_pred[idx] / open_prices[idx], -2)  # 第一天的持仓股数, 四舍五入，取100整数值
+		shares_pos = init_capital * y_pred[idx] / open_prices[idx]  # 第一天的持仓股数, 四舍五入，取100整数值
 		daily_shares_pos.append(shares_pos) # 收集第一天的持股数
 		daily_differences.append(shares_pos) # 收集第一天的持股差
 		if daily_differences[idx] != 0.0:
@@ -388,7 +388,7 @@ for idx in range(len(y_pred)):
 		open_prices[idx] # 当日开盘价
 		# shares_pos = daily_capital[idx-1] * y_pred[idx] / open_prices[idx] # = 当日开盘前总资金 * 开盘市值占比 ／ 当日开盘价格 = 当日持股数， 精准值
 		# shares_pos = np.round(daily_capital[idx-1] * y_pred[idx] / closes[idx-1], -2) # = 当日开盘前总资金 * 开盘市值占比 ／ 昨日收盘价格 = 当日持股数, 四舍五入，取100整数值
-		shares_pos = np.round(daily_capital[idx-1] * y_pred[idx] / open_prices[idx], -2) # = 当日开盘前总资金 * 开盘市值占比 ／ 当日开盘价格 = 当日持股数, 四舍五入，取100整数值
+		shares_pos = daily_capital[idx-1] * y_pred[idx] / open_prices[idx] # = 当日开盘前总资金 * 开盘市值占比 ／ 当日开盘价格 = 当日持股数, 四舍五入，取100整数值
 		daily_shares_pos.append(shares_pos) # 收集第二天的持股数
 
 		# 通过阀值来降低噪音和交易频率
