@@ -409,6 +409,7 @@ estimate_tomorrow_shares_hold = daily_capital[-1] * y_pred[-1] / closes[-1]
 print("tomorrow's prediction: ", y_pred[-1]) # 预测明早的市值占比
 print("estimate how many shares to hold tomorrow:", estimate_tomorrow_shares_hold) # 预测明早持股数量
 print("estimate how many shares to trade tomorrow:", estimate_tomorrow_shares_hold - daily_shares_pos[-1]) # 预测明早买卖股票数量
+print("threshold value: ", threshold) # 设定的阀值
 morning_action = "no trade" if np.abs(estimate_tomorrow_shares_hold - daily_shares_pos[-1])/daily_shares_pos[-1] < threshold else "do trade"
 print("tomorrow to trade or not: ", morning_action) # 预测明早是否交易
 #####################

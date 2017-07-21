@@ -22,6 +22,7 @@ today's close price: 3.801 # 当天收盘价
 tomorrow's prediction:  0.999898433685  # 预测明早的市值占比
 estimate how many shares to hold tomorrow: 600292.232948 # 预测明早持股数
 estimate how many shares to trade tomorrow: -0.785707888892 # 预测明早买卖数量
+threshold value:  0.9 # 阀值设定
 tomorrow to trade or not:  no trade # 预测明早是否交易
 ```
 - 在开始用模型交易前，必须做的事项还有哪些呢？
