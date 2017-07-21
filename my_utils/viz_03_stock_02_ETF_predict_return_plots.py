@@ -23,9 +23,9 @@ from matplotlib.colors import ListedColormap, BoundaryNorm
 # 获取标的收盘价和日期序列
 from prep_data_03_stock_01_csv_2_pandas_2_arrays_DOHLCV import csv_df_arrays
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/index000001.csv"
-index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF50.csv"
+# index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF50.csv"
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF500.csv"
-# index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF300.csv"
+index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF300.csv"
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/index50.csv"
 
 date,open_prices,_,_, closes, _ = csv_df_arrays(index_path)
@@ -327,12 +327,14 @@ y_pred = index_preds_target[:,0] # 预测值，当日持仓市值占比
 y_true = index_preds_target[:,1] # 相邻两天收盘价变化率
 open_prices = open_prices # 每日开盘价，标准化处理 (受否必须再减1？)
 closes = closes # 每日收盘价，标准化处理
-daily_shares_pos = [] # 用于收集每日的持股数
+daily_shares_pos = [] # 用于收集每日的持股数，让实际交易便捷
 daily_cash_left = [] # 用于收集每日的现金剩余量
 daily_capital = [] # 用于收集每日收盘时总资金
+daily_differences = [] # 用于收集每日持股变化或买卖情况
+daily_action_on = [] # 用于收集每日是否交易
 
 use_threshold = True
-threshold = 0.99
+threshold = 0.9
 
 for idx in range(len(y_pred)):
 	if idx == 0: # 第一天
@@ -340,6 +342,11 @@ for idx in range(len(y_pred)):
 		open_prices[idx] # 第一日开盘价
 		shares_pos = init_capital * y_pred[idx] / open_prices[idx]  # 第一天的持仓股数
 		daily_shares_pos.append(shares_pos) # 收集第一天的持股数
+		daily_differences.append(shares_pos) # 收集第一天的持股差
+		if daily_differences[idx] != 0.0:
+			daily_action_on.append(True)
+		else:
+			daily_action_on.append(False)
 
 		cost = shares_pos * open_prices[idx] * 0.001 # = init_capital * y_pred[idx] * 0.001 = 持股数*股价*0.001 = 持仓市值*0.001 = 交易成本
 		# 第一天只要预测值不是0，交易成本就免不了；不用考虑阀值
@@ -363,16 +370,24 @@ for idx in range(len(y_pred)):
 		shares_pos = daily_capital[idx-1] * y_pred[idx] / open_prices[idx] # = 当日开盘前总资金 * 开盘市值占比 ／ 当日开盘价格 = 当日持股数
 		daily_shares_pos.append(shares_pos) # 收集第二天的持股数
 
-
 		# 通过阀值来降低噪音和交易频率
+		daily_differences.append(daily_shares_pos[idx] - daily_shares_pos[idx-1]) # 收集第二天的持股差
 		daily_share_difference = np.abs(daily_shares_pos[idx] - daily_shares_pos[idx-1]) # 昨天和今天的持股差值的绝对值
 		daily_share_difference_rate = np.abs(daily_shares_pos[idx] - daily_shares_pos[idx-1])/daily_shares_pos[idx-1] # 昨天与今天持仓股数差值的比率
+
+		# 收集今日开盘是否要做买卖交易
+		if daily_differences[idx] != 0.0:
+			daily_action_on.append(True)
+		else:
+			daily_action_on.append(False)
 
 		# 如果持股差值在阀值范围之内，那么
 		if use_threshold and daily_share_difference_rate < threshold:
 			daily_share_difference_rate = 0 # 将差值化为0
 			daily_shares_pos[idx] = daily_shares_pos[idx-1] # 将今日持股数维持昨日持股数
-			y_pred[idx] = y_pred[idx-1]
+			y_pred[idx] = y_pred[idx-1] # 昨天的预测值等于今天预测值（预测值都是在指导当日开盘的行动）
+			daily_action_on[idx] = False # 如果股数变化在降噪范围之内，不做交易
+
 
 		cost = daily_share_difference * open_prices[idx] * 0.001 # = 今日交易成本 = |今日与昨日持仓股数之差| * 当日开盘价 * 0.001
 
@@ -385,8 +400,27 @@ for idx in range(len(y_pred)):
 
 # 计算累积总资金曲线
 accum_profit = (np.array(daily_capital)/daily_capital[0])-1# 累积总资金曲线， 减去初始资金 1，获得收益累积曲线
-print("final date:", date[-1])
-print("final_return:", accum_profit[-1])
+print("final date:", date[-1]) # 最近日期
+print("final_return:", accum_profit[-1]) # 累积总收益
+###############
+print("Now, after today's trading, before tomorrow morning ....")
+print("today's close price:", closes[-1]) # 当日收盘价
+estimate_tomorrow_shares_hold = daily_capital[-1] * y_pred[-1] / closes[-1]
+print("tomorrow's prediction: ", y_pred[-1]) # 预测明早的市值占比
+print("estimate how many shares to hold tomorrow:", estimate_tomorrow_shares_hold) # 预测明早持股数量
+print("estimate how many shares to trade tomorrow:", estimate_tomorrow_shares_hold - daily_shares_pos[-1]) # 预测明早买卖股票数量
+morning_action = "no trade" if np.abs(estimate_tomorrow_shares_hold - daily_shares_pos[-1])/daily_shares_pos[-1] < threshold else "do trade"
+print("tomorrow to trade or not: ", morning_action) # 预测明早是否交易
+#####################
+# print("Now is tomorrow, morning trading time start....")
+# open_price_morning =
+# print("today's open price:", open_price_morning)
+# estimate_morning_shares_hold = daily_capital[-1] * y_pred[-1] / open_price_morning
+# print("estimate how many shares to hold this morning:", estimate_morning_shares_hold)
+# print("estimate how many shares to hold this morning:", daily_capital[-1] * y_pred[-1] / open_prices_this_morning)
+# morning_action = "no trade" if np.abs(estimate_tomorrow_shares_hold - daily_shares_pos[-1])/daily_shares_pos[-1] < threshold else "do trade"
+# print("tomorrow to trade or not: ", morning_action)
+
 
 # 换手率曲线
 # 换手率：定义理解，持股数从1到0，从0到1， 一共产生2次换手；但不知道要除去什么来获得比率？所以，尝试计算换手的股票总数 （下面）
@@ -426,7 +460,7 @@ y = line_data
 xy = np.concatenate((X,y), axis=1)
 
 plt.figure()
-ax1 = plt.subplot2grid((6, 3), (0, 0), colspan=3, rowspan=4)
+ax1 = plt.subplot2grid((8, 3), (0, 0), colspan=3, rowspan=4)
 #############
 ### plot close_price curve and fill predictions as continuous color ######
 #############
@@ -435,21 +469,23 @@ for start, stop, col in zip(xy[:-1], xy[1:], color_data):
     ax1.plot(x, y, color=uniqueish_color(col))
 ax1.plot(accum_profit, c='gray', alpha=0.5, label='accum_profit')
 ax1.legend(loc='best')
-ax1.set_title('sigmoid_mock_99_etf50 from %s to %s return: %04f' % (date[0], date[-1], accum_profit[-1]))
+ax1.set_title('sigmoid_mock_90_etf300 from %s to %s return: %04f' % (date[0], date[-1], accum_profit[-1]))
 
 #############
 ### plot 换手率
 #############
-ax2 = plt.subplot2grid((6, 3), (4, 0), colspan=3, rowspan=2)
+ax2 = plt.subplot2grid((8, 3), (4, 0), colspan=3, rowspan=2)
 ax2.plot(turnover_rate, c='red', label='turnover_rate')
 ax2.legend(loc='best')
 ax2.set_title("TurnOver Rate: %02f" % turnover_rate[-1])
 
-### plot pos as bars or as color map
-# ax3 = plt.subplot2grid((10, 3), (6, 0), colspan=3, rowspan=4)
-# X = np.arange(len(index_preds_target))
-# ax3.bar(X, index_preds_target[:,0], facecolor='#9999ff', edgecolor='blue')
-# ax3.set_title('pos as bars') # change model name
+### plot daily_shares_pos curve
+ax3 = plt.subplot2grid((8, 3), (6, 0), colspan=3, rowspan=2)
+init_shares_full = init_capital/open_prices[0]
+daily_shares_rate = np.array(daily_shares_pos)/init_shares_full
+ax3.plot(daily_shares_rate, c='k', label='daily_shares_rate')
+ax3.legend(loc='best')
+ax3.set_title('init_share_number: %d, latest_share_number: %d' % (init_shares_full, daily_shares_pos[-1])) # change model name
 
 plt.tight_layout()
 plt.show()
