@@ -92,7 +92,9 @@
 - keras_step_function
 - understand_y_pred_differently_solve_trade_frequency
 - threshold_reduce_noise_trade
+- y_pred_open_close_on_same_day
 
 ## Discussions and Experiments
 - reduce_trade_frequency
 - risk_estimation_relu_limited_sigmoid
+- road_map_trading

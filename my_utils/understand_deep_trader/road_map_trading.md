@@ -1,4 +1,4 @@
-# a road map to deep trading
+# road_map_trading
 
 ## 与happynoom和MonteCarlo的交流分享
 - [risk_estimation和relu_limited的理解](https://3509763625.docs.qq.com/23b5pWBEvG3?type=1&_wv=1)
