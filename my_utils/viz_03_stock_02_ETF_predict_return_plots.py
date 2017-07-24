@@ -349,14 +349,21 @@ daily_differences = [] # 用于收集每日持股变化或买卖情况，有正�
 daily_action_on = [] # 用于收集每日是否交易， [true or false]
 daily_costs = [] # 用于收集每日交易成本
 
+# 第一天的值
+daily_shares_pos.append(0) # 用于收集每日的持股数，让实际交易便捷
+daily_cash_left.append(init_capital) # 用于收集每日的现金剩余量
+daily_capital.append(init_capital) # 用于收集每日收盘时总资金
+daily_differences.append(0) # 用于收集每日持股变化或买卖情况，有正有负
+daily_action_on.append(False) # 用于收集每日是否交易， [true or false]
+daily_costs.append(0) # 用于收集每日交易成本
 
 use_threshold = True
 threshold = 0.9
 
-for idx in range(len(y_pred)):
-	if idx == 0: # 第一天
-		y_pred[idx] # 第一天的预测市值占比
-		open_prices[idx] # 第一日开盘价
+for idx in range(len(y_pred)-1):
+	if idx == 0: # 第二天
+		y_pred[idx] # 第二天开盘的预测市值占比
+		open_prices[idx+1] # 第一日开盘价
 		# shares_pos = init_capital * y_pred[idx] / open_prices[idx]  # 用第一天的数据预测第二天一开盘要有的持仓股数；因为没有第二天的开盘价，所以只能用第一天的收盘价
 		shares_pos = init_capital * y_pred[idx] / open_prices[idx]  # 第一天的持仓股数, 四舍五入，取100整数值
 		daily_shares_pos.append(shares_pos) # 收集第一天的持股数
