@@ -45,11 +45,11 @@ index_preds_target[:, 1]:下一日的当天价格变化
 
 # 30 days
 # 90 days
-time_span = 700  # 从今天回溯700 days
+# time_span = 700  # 从今天回溯700 days
 # time_span = 90  # 从今天回溯90 days
 # time_span = 30  # 从今天回溯30 days
 # time_span = 1  # 从今天回溯1 days
-# time_span = 2  # 昨天开始交易，到今天收盘，交易开始两天了
+time_span = 3  # 昨天开始交易，到今天收盘，交易开始两天了
 
 
 # zoom in and out for the last 700 trading days
@@ -427,6 +427,7 @@ print("final_return:", accum_profit[-1]) # 累积总收益
 ###############
 print("Now, after today's trading, before tomorrow morning ....")
 print("today's close price:", closes[-1]) # 当日收盘价
+print("today's open price:", open_prices[-1]) # 当日收盘价
 print("tomorrow's prediction: ", y_pred[-1]) # 预测明早的市值占比
 
 ### how many shares to hold tomorrow morning
@@ -437,6 +438,7 @@ print("estimate how many shares to hold tomorrow:", estimate_tomorrow_shares_hol
 print("estimate how many shares to trade tomorrow:", estimate_tomorrow_shares_hold - np.round(daily_shares_pos[-2], -2) if len(daily_shares_pos)>1 else estimate_tomorrow_shares_hold) # 预测明早买卖股票数量
 print("threshold value: ", threshold) # 设定的阀值
 
+morning_action = "no trade"
 ### do we trade tomorrow morning or not
 if len(daily_shares_pos) < 2 and y_pred[0] != 0.0:
 	morning_action = "do trade"
@@ -454,14 +456,15 @@ print("today's trading cost: ", daily_costs[-1])
 print("today's cash left:", daily_cash_left[-1])
 
 #####################
-print("Now is tomorrow, morning trading time start....")
-open_price_morning = 3.791 # 20170721
-print("today's open price:", open_price_morning)
-estimate_morning_shares_hold = np.round(daily_capital[-1] * y_pred[-1] / open_price_morning, -2)
-print("estimate how many shares to hold this morning:", estimate_morning_shares_hold)
-print("estimate how many shares to trade this morning:", estimate_morning_shares_hold - np.round(daily_shares_pos[-2],-2) if len(daily_shares_pos)>1 else estimate_morning_shares_hold)
-morning_action = "no trade" if np.abs(estimate_tomorrow_shares_hold - daily_shares_pos[-1])/daily_shares_pos[-1] < threshold else "do trade"
-print("tomorrow to trade or not: ", morning_action)
+# print("Now is tomorrow, morning trading time start....")
+# open_price_morning = 3.791 # 20170721
+# print("today's open price:", open_price_morning)
+# estimate_morning_shares_hold = np.round(daily_capital[-1] * y_pred[-1] / open_price_morning, -2)
+# print("estimate how many shares to hold this morning:", estimate_morning_shares_hold)
+# print("estimate how many shares to trade this morning:", estimate_morning_shares_hold - np.round(daily_shares_pos[-2],-2) if len(daily_shares_pos)>1 else estimate_morning_shares_hold)
+# morning_action = "no trade" if np.abs(estimate_tomorrow_shares_hold - daily_shares_pos[-1])/daily_shares_pos[-1] < threshold else "do trade"
+# print("tomorrow to trade or not: ", morning_action)
+
 
 
 # 换手率曲线
