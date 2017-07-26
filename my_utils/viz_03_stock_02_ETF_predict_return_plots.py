@@ -49,7 +49,11 @@ index_preds_target[:, 1]:下一日的当天价格变化
 # time_span = 90  # 从今天回溯90 days
 # time_span = 30  # 从今天回溯30 days
 # time_span = 1  # 从今天回溯1 days
+<<<<<<< HEAD
 time_span = 3  # 昨天开始交易，到今天收盘，交易开始两天了
+=======
+time_span = 4  # 昨天开始交易，到今天收盘，交易开始两天了
+>>>>>>> previous_algo
 
 
 # zoom in and out for the last 700 trading days
@@ -348,75 +352,100 @@ daily_capital = [] # 用于收集每日收盘时总资金
 daily_differences = [] # 用于收集每日持股变化或买卖情况，有正有负
 daily_action_on = [] # 用于收集每日是否交易， [true or false]
 daily_costs = [] # 用于收集每日交易成本
-
+shares_pos_no0 = [] # 用于收集非0每日持股数量
+# 第一天的值
+daily_shares_pos.append(0) # 用于收集每日的持股数，让实际交易便捷
+daily_cash_left.append(init_capital) # 用于收集每日的现金剩余量
+daily_capital.append(init_capital) # 用于收集每日收盘时总资金
+daily_differences.append(0) # 用于收集每日持股变化或买卖情况，有正有负
+daily_action_on.append(False) # 用于收集每日是否交易， [true or false]
+daily_costs.append(0) # 用于收集每日交易成本
 
 use_threshold = True
 threshold = 0.9
 
-for idx in range(len(y_pred)):
-	if idx == 0: # 第一天
-		y_pred[idx] # 第一天的预测市值占比
-		open_prices[idx] # 第一日开盘价
-		# shares_pos = init_capital * y_pred[idx] / open_prices[idx]  # 用第一天的数据预测第二天一开盘要有的持仓股数；因为没有第二天的开盘价，所以只能用第一天的收盘价
-		shares_pos = init_capital * y_pred[idx] / open_prices[idx]  # 第一天的持仓股数, 四舍五入，取100整数值
+for idx in range(len(y_pred)-1):
+	if idx == 0: # 第二天
+		y_pred[idx] # 第二天开盘的预测市值占比
+		open_prices[idx+1] # 第一日开盘价
+		# y_pred[idx] can be 0 or non 0 here
+		shares_pos = daily_capital[idx] * y_pred[idx] / open_prices[idx+1]  # 第一天的持仓股数, 四舍五入，取100整数值
 		daily_shares_pos.append(shares_pos) # 收集第一天的持股数
+
+		# record all shares_pos are non 0
+		if shares_pos != 0.0:
+			shares_pos_no0.append(shares_pos)
+
 		daily_differences.append(shares_pos) # 收集第一天的持股差
-		if daily_differences[idx] != 0.0:
+		# 如果第二天的交易差不是0，那么交易；否则不交易
+		if daily_differences[idx+1] != 0.0:
 			daily_action_on.append(True)
 		else:
 			daily_action_on.append(False)
 
-		cost = shares_pos * open_prices[idx] * 0.001 # = init_capital * y_pred[idx] * 0.001 = 持股数*股价*0.001 = 持仓市值*0.001 = 交易成本
+		# 因为持仓股数可以是0， 所以交易成本也可以是0
+		cost = shares_pos * open_prices[idx+1] * 0.001 # = init_capital * y_pred[idx] * 0.001 = 持股数*股价*0.001 = 持仓市值*0.001 = 交易成本
 		# 第一天只要预测值不是0，交易成本就免不了；不用考虑阀值
 		daily_costs.append(cost)
 
-		cash_left = init_capital * (1 - y_pred[idx]) - cost # 剩余现金 = 市值意外的现金 - 交易成本
+		cash_left = daily_capital[idx] * (1 - y_pred[idx]) - cost # 剩余现金 = 市值意外的现金 - 交易成本
 		daily_cash_left.append(cash_left)
-		capital_day_1 = daily_shares_pos[idx] * closes[idx] + daily_cash_left[idx] # 当日收盘时的总资金 = 当日持仓股数*当日收盘价 + 当日剩余现金
-		daily_capital.append(capital_day_1) # 收集第一日总资金
+		capital_day_2 = daily_shares_pos[idx+1] * closes[idx+1] + daily_cash_left[idx+1] # 当日收盘时的总资金 = 当日持仓股数*当日收盘价 + 当日剩余现金
+		daily_capital.append(capital_day_2) # 收集第一日总资金
 
 
 
 
-	else: # 从第二天起
-		closes[idx-1] # 前一日的收盘价
-		daily_shares_pos[idx-1] # 前一日的持股数
-		daily_cash_left[idx-1] # 前一日现金剩余
-		daily_capital[idx-1] # 当日（即第二日）开盘前的总资金, 即第一日收盘时的总资金
+	else: # 从第三天起
+		closes[idx] # 前一日的收盘价
+		daily_shares_pos[idx] # 前一日的持股数
+		daily_cash_left[idx] # 前一日现金剩余
+		daily_capital[idx] # 当日（即第二日）开盘前的总资金, 即第一日收盘时的总资金
 
 		y_pred[idx] # 当日预测市值占比
-		open_prices[idx] # 当日开盘价
-		# shares_pos = daily_capital[idx-1] * y_pred[idx] / open_prices[idx] # = 当日开盘前总资金 * 开盘市值占比 ／ 当日开盘价格 = 当日持股数， 精准值
-		# shares_pos = np.round(daily_capital[idx-1] * y_pred[idx] / closes[idx-1], -2) # = 当日开盘前总资金 * 开盘市值占比 ／ 昨日收盘价格 = 当日持股数, 四舍五入，取100整数值
-		shares_pos = daily_capital[idx-1] * y_pred[idx] / open_prices[idx] # = 当日开盘前总资金 * 开盘市值占比 ／ 当日开盘价格 = 当日持股数, 四舍五入，取100整数值
+		open_prices[idx+1] # 当日开盘价
+
+		# 第三天的预测值可以是0
+		# shares_pos = daily_capital[idx] * y_pred[idx] / open_prices[idx+1] # use next day's open price is more accurate, but not convenient to prepare
+		shares_pos = daily_capital[idx] * y_pred[idx] / closes[idx]
 		daily_shares_pos.append(shares_pos) # 收集第二天的持股数
 
 		# 通过阀值来降低噪音和交易频率
-		daily_differences.append(daily_shares_pos[idx] - daily_shares_pos[idx-1]) # 收集第二天的持股差
-		daily_share_difference = np.abs(daily_shares_pos[idx] - daily_shares_pos[idx-1]) # 昨天和今天的持股差值的绝对值
-		daily_share_difference_rate = daily_share_difference/daily_shares_pos[idx-1] # 昨天与今天持仓股数差值的比率
+		daily_differences.append(daily_shares_pos[idx+1] - daily_shares_pos[idx]) # 收集第三天的持股差，可负可正
+		daily_share_difference = np.abs(daily_shares_pos[idx+1] - daily_shares_pos[idx]) # 昨天和今天的持股差值的绝对值
 
-		# 收集今日开盘是否要做买卖交易
-		if daily_differences[idx] != 0.0:
-			daily_action_on.append(True)
-		else:
-			daily_action_on.append(False)
+		# 如果昨天持股数不是0
+		if daily_shares_pos[idx] != 0.0:
+			# 昨天与今天持仓股数差值与昨天持股数的比率，如下
+			daily_share_difference_rate = daily_share_difference/daily_shares_pos[idx]
+		else: # 如果昨天持股数是0，那么差值比也是0
+			if len(shares_pos_no0) != 0:
+				daily_share_difference_rate=daily_share_difference/shares_pos_no0[-1]
+			else:
+				daily_share_difference_rate = 0.0
 
-		# 如果持股差值在阀值范围之内，那么
+
+
+		# 如果持股差值在阀值范围之内，那么不交易
 		if use_threshold and daily_share_difference_rate < threshold:
-			daily_share_difference_rate = 0 # 将差值化为0
-			daily_shares_pos[idx] = daily_shares_pos[idx-1] # 将今日持股数维持昨日持股数
-			y_pred[idx] = y_pred[idx-1] # 昨天的预测值等于今天预测值（预测值都是在指导当日开盘的行动）
-			daily_action_on[idx] = False # 如果股数变化在降噪范围之内，不做交易
+			daily_share_difference_rate = 0.0 # 将持股差值比化为0
+			daily_share_difference = 0.0 # 让持股差值化为0
+			daily_shares_pos[idx+1] = daily_shares_pos[idx] # 将今日持股数维持昨日持股数
 
+			daily_cash_left.append(daily_cash_left[idx])
+			daily_action_on.append(False) # 如果股数变化在降噪范围之内，不做交易
+		else: # 如果在阀值以外或者忽略阀值，
+			daily_action_on.append(True)
+			cash_left = daily_capital[idx] * (1 - y_pred[idx]) - cost
+			daily_cash_left.append(cash_left) # 当日现金结余 = 今日开盘前（即昨日收盘时）总资金 * （1-今日市值在总资产占比）- 今日交易成本
 
-		cost = daily_share_difference * open_prices[idx] * 0.001 # = 今日交易成本 = |今日与昨日持仓股数之差| * 当日开盘价 * 0.001
+		cost = daily_share_difference * open_prices[idx+1] * 0.001 # = 今日交易成本 = |今日与昨日持仓股数之差| * 当日开盘价 * 0.001
 		daily_costs.append(cost)
 
-		cash_left = daily_capital[idx-1] * (1 - y_pred[idx]) - cost
-		daily_cash_left.append(cash_left) # 当日现金结余 = 今日开盘前（即昨日收盘时）总资金 * （1-今日市值在总资产占比）- 今日交易成本
-
-		capital_day_2 = daily_shares_pos[idx] * closes[idx] + daily_cash_left[idx] # 当日收盘时的总资金 = 当日持股数 * 当日收盘价 + 当日现金结余 = 当日收盘市值 + 当日现金结余
+		# 收集当日持股数量，非0
+		shares_pos_no0.append(daily_shares_pos[idx+1])
+		# 当日收盘时的总资金 = 当日持股数 * 当日收盘价 + 当日现金结余 = 当日收盘市值 + 当日现金结余
+		capital_day_2 = daily_shares_pos[idx+1] * closes[idx+1] + daily_cash_left[idx+1]
 		daily_capital.append(capital_day_2) # 收集当日总资金
 
 
@@ -426,45 +455,33 @@ print("final date:", date[-1]) # 最近日期
 print("final_return:", accum_profit[-1]) # 累积总收益
 ###############
 print("Now, after today's trading, before tomorrow morning ....")
-print("today's close price:", closes[-1]) # 当日收盘价
 print("today's open price:", open_prices[-1]) # 当日收盘价
-print("tomorrow's prediction: ", y_pred[-1]) # 预测明早的市值占比
+print("today's close price:", closes[-1]) # 当日收盘价
+print("prediction for yesterday morning action:", y_pred[-3])
+print("prediction for morning action:", y_pred[-2])
+print("prediction for tomorrow: ", y_pred[-1]) # 预测明早的市值占比
 
+
+estimate_yesterdayMorning_shares_hold = daily_shares_pos[-2]
+print("estimate how many shares to hold yesterday morning:", estimate_yesterdayMorning_shares_hold) # 预测明早持股数量
+estimate_thisMorning_shares_hold = daily_shares_pos[-1]
+print("estimate how many shares to hold this morning:", estimate_thisMorning_shares_hold) # 预测明早持股数量
 ### how many shares to hold tomorrow morning
 estimate_tomorrow_shares_hold = np.round(daily_capital[-1] * y_pred[-1] / closes[-1], -2)
 print("estimate how many shares to hold tomorrow:", estimate_tomorrow_shares_hold) # 预测明早持股数量
 
-#### how many shares to trade tomorrow morning
-print("estimate how many shares to trade tomorrow:", estimate_tomorrow_shares_hold - np.round(daily_shares_pos[-2], -2) if len(daily_shares_pos)>1 else estimate_tomorrow_shares_hold) # 预测明早买卖股票数量
-print("threshold value: ", threshold) # 设定的阀值
-
-morning_action = "no trade"
-### do we trade tomorrow morning or not
-if len(daily_shares_pos) < 2 and y_pred[0] != 0.0:
-	morning_action = "do trade"
-elif np.abs(estimate_tomorrow_shares_hold - np.round(daily_shares_pos[-1], -2))/np.round(daily_shares_pos[-1],-2) < threshold:
-	morning_action = "no trade"
-else:
-	 "do trade"
-print("tomorrow to trade or not: ", morning_action) # 预测明早是否交易
-
 #### how much capital do we have tomorrow morning
+print("end of day_before_yesterday's capital: ", daily_capital[-3]) # 当日收盘时总资产
+print("end of yesterday's capital: ", daily_capital[-2]) # 当日收盘时总资产
 print("end of today's capital: ", daily_capital[-1]) # 当日收盘时总资产
 
 #### how much trade cost and cash left today
 print("today's trading cost: ", daily_costs[-1])
 print("today's cash left:", daily_cash_left[-1])
-
-#####################
-# print("Now is tomorrow, morning trading time start....")
-# open_price_morning = 3.791 # 20170721
-# print("today's open price:", open_price_morning)
-# estimate_morning_shares_hold = np.round(daily_capital[-1] * y_pred[-1] / open_price_morning, -2)
-# print("estimate how many shares to hold this morning:", estimate_morning_shares_hold)
-# print("estimate how many shares to trade this morning:", estimate_morning_shares_hold - np.round(daily_shares_pos[-2],-2) if len(daily_shares_pos)>1 else estimate_morning_shares_hold)
-# morning_action = "no trade" if np.abs(estimate_tomorrow_shares_hold - daily_shares_pos[-1])/daily_shares_pos[-1] < threshold else "do trade"
-# print("tomorrow to trade or not: ", morning_action)
-
+### check out all y_preds and daily_shares_pos and daily_capital so final_return
+print("all predictions so far: ", y_pred)
+print("all positions so far:", daily_shares_pos)
+print("all capitals so far:", daily_capital)
 
 
 # 换手率曲线
@@ -477,9 +494,13 @@ print("today's cash left:", daily_cash_left[-1])
 
 # ##### accumulation of transaction percentage，即换手率
 # # 这里我们用市值占比率，从0到1， 从1到0， 来理解计算换手率
-y_pred # 通过阀值更新后实际每日持仓的总资产占比
-changes_preds = np.abs(y_pred[1:] - y_pred[:-1]) # 相邻两日的持仓占比之差（变化）
-turnover_rate = np.cumsum(changes_preds) # 累积差值，获得总资产进出市场的次数
+# y_pred # 通过阀值更新后实际每日持仓的总资产占比
+# changes_preds = np.abs(y_pred[1:] - y_pred[:-1]) # 相邻两日的持仓占比之差（变化）
+# turnover_rate = np.cumsum(changes_preds) # 累积差值，获得总资产进出市场的次数
+
+daily_shares_pos # 通过阀值更新后实际每日持仓的总资产占比
+changes_pos_rate = np.abs(np.array(daily_shares_pos[1:]) - np.array(daily_shares_pos[:-1]))/np.array(daily_shares_pos).max() # 相邻两日的持仓占比之差（变化）
+turnover_rate = np.cumsum(changes_pos_rate) # 累积差值，获得总资产进出市场的次数
 
 ## color data for close prices： 经过阀值调节过的预测值
 color_data = y_pred
