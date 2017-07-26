@@ -60,6 +60,7 @@
 - plot_weights_curves_of_a_model
 - examine_model_through_weights
 - plot_math_functions
+- dropout_layer_behaviour
 
 
 

@@ -1,5 +1,7 @@
 """
 test_train_middle_layer_output_array_loaded_best_model
+dropout_layer_behaviour
+
 
 Example on middle layer output on train and test mode
 
@@ -66,14 +68,29 @@ model_seq = Sequential()
 model_seq.add(Dropout(0.3, input_shape=(10,)))
 model_seq.add(BatchNormalization())
 model_seq.add(Dense(1))
+# check out weights before training
+# model_seq.get_weights()
 
+# compile and train
 model_seq.compile(optimizer='SGD', loss='mse')
-model_seq.fit(input_array_small, target_small, epochs=100)
-model_seq.save("to_delete.h5")
 
+model_seq.fit(input_array_small, target_small, epochs=10)
+model_seq.get_weights()
+model_seq.save("to_delete.h5")
 model_best = load_model("to_delete.h5")
+
+###### compare two weights from two different training
+# model_seq.get_weights()
+
+###### check output
 batchNorm_test = K.function([model_best.input, K.learning_phase()], [model_best.layers[-2].output])([input_array_small, 0])[0]
 batchNorm_train = K.function([model_best.input, K.learning_phase()], [model_best.layers[-2].output])([input_array_small, 1])[0]
+
+
+# dropout_layer_behaviour
+
+##### in test, there is 0 neuron output to be 0.0
 drop_test = K.function([model_best.input, K.learning_phase()], [model_best.layers[-3].output])([input_array_small, 0])[0]
+##### in train, there are 30% neuron output to be 1500 items of 0.0
 drop_train = K.function([model_best.input, K.learning_phase()], [model_best.layers[-3].output])([input_array_small, 1])[0]
 preds = model_best.predict(input_array_small)
