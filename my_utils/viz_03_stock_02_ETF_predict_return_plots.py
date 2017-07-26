@@ -45,11 +45,11 @@ index_preds_target[:, 1]:下一日的当天价格变化
 
 # 30 days
 # 90 days
-time_span = 700  # 从今天回溯700 days
+# time_span = 700  # 从今天回溯700 days
 # time_span = 90  # 从今天回溯90 days
 # time_span = 30  # 从今天回溯30 days
 # time_span = 1  # 从今天回溯1 days
-# time_span = 3  # 昨天开始交易，到今天收盘，交易开始两天了
+time_span = 4  # 昨天开始交易，到今天收盘，交易开始两天了
 
 
 # zoom in and out for the last 700 trading days
@@ -348,7 +348,7 @@ daily_capital = [] # 用于收集每日收盘时总资金
 daily_differences = [] # 用于收集每日持股变化或买卖情况，有正有负
 daily_action_on = [] # 用于收集每日是否交易， [true or false]
 daily_costs = [] # 用于收集每日交易成本
-
+shares_pos_no0 = [] # 用于收集非0每日持股数量
 # 第一天的值
 daily_shares_pos.append(0) # 用于收集每日的持股数，让实际交易便捷
 daily_cash_left.append(init_capital) # 用于收集每日的现金剩余量
@@ -358,7 +358,7 @@ daily_action_on.append(False) # 用于收集每日是否交易， [true or false
 daily_costs.append(0) # 用于收集每日交易成本
 
 use_threshold = True
-threshold = 0.95
+threshold = 0.9
 
 for idx in range(len(y_pred)-1):
 	if idx == 0: # 第二天
@@ -367,6 +367,11 @@ for idx in range(len(y_pred)-1):
 		# y_pred[idx] can be 0 or non 0 here
 		shares_pos = daily_capital[idx] * y_pred[idx] / open_prices[idx+1]  # 第一天的持仓股数, 四舍五入，取100整数值
 		daily_shares_pos.append(shares_pos) # 收集第一天的持股数
+
+		# record all shares_pos are non 0
+		if shares_pos != 0.0:
+			shares_pos_no0.append(shares_pos)
+
 		daily_differences.append(shares_pos) # 收集第一天的持股差
 		# 如果第二天的交易差不是0，那么交易；否则不交易
 		if daily_differences[idx+1] != 0.0:
@@ -397,7 +402,8 @@ for idx in range(len(y_pred)-1):
 		open_prices[idx+1] # 当日开盘价
 
 		# 第三天的预测值可以是0
-		shares_pos = daily_capital[idx] * y_pred[idx] / open_prices[idx+1]
+		# shares_pos = daily_capital[idx] * y_pred[idx] / open_prices[idx+1] # use next day's open price is more accurate, but not convenient to prepare
+		shares_pos = daily_capital[idx] * y_pred[idx] / closes[idx]
 		daily_shares_pos.append(shares_pos) # 收集第二天的持股数
 
 		# 通过阀值来降低噪音和交易频率
@@ -409,7 +415,10 @@ for idx in range(len(y_pred)-1):
 			# 昨天与今天持仓股数差值与昨天持股数的比率，如下
 			daily_share_difference_rate = daily_share_difference/daily_shares_pos[idx]
 		else: # 如果昨天持股数是0，那么差值比也是0
-			daily_share_difference_rate=0.0
+			if len(shares_pos_no0) != 0:
+				daily_share_difference_rate=daily_share_difference/shares_pos_no0[-1]
+			else:
+				daily_share_difference_rate = 0.0
 
 
 
@@ -429,9 +438,10 @@ for idx in range(len(y_pred)-1):
 		cost = daily_share_difference * open_prices[idx+1] * 0.001 # = 今日交易成本 = |今日与昨日持仓股数之差| * 当日开盘价 * 0.001
 		daily_costs.append(cost)
 
-
-
-		capital_day_2 = daily_shares_pos[idx+1] * closes[idx+1] + daily_cash_left[idx+1] # 当日收盘时的总资金 = 当日持股数 * 当日收盘价 + 当日现金结余 = 当日收盘市值 + 当日现金结余
+		# 收集当日持股数量，非0
+		shares_pos_no0.append(daily_shares_pos[idx+1])
+		# 当日收盘时的总资金 = 当日持股数 * 当日收盘价 + 当日现金结余 = 当日收盘市值 + 当日现金结余
+		capital_day_2 = daily_shares_pos[idx+1] * closes[idx+1] + daily_cash_left[idx+1]
 		daily_capital.append(capital_day_2) # 收集当日总资金
 
 
@@ -447,21 +457,27 @@ print("prediction for yesterday morning action:", y_pred[-3])
 print("prediction for morning action:", y_pred[-2])
 print("prediction for tomorrow: ", y_pred[-1]) # 预测明早的市值占比
 
-estimate_thisMorning_shares_hold = np.round(daily_capital[-2] * y_pred[-2] / open_prices[-1], -2)
+
+estimate_yesterdayMorning_shares_hold = daily_shares_pos[-2]
+print("estimate how many shares to hold yesterday morning:", estimate_yesterdayMorning_shares_hold) # 预测明早持股数量
+estimate_thisMorning_shares_hold = daily_shares_pos[-1]
 print("estimate how many shares to hold this morning:", estimate_thisMorning_shares_hold) # 预测明早持股数量
 ### how many shares to hold tomorrow morning
 estimate_tomorrow_shares_hold = np.round(daily_capital[-1] * y_pred[-1] / closes[-1], -2)
 print("estimate how many shares to hold tomorrow:", estimate_tomorrow_shares_hold) # 预测明早持股数量
 
 #### how much capital do we have tomorrow morning
-print("start of today's capital: ", daily_capital[-2]) # 当日收盘时总资产
+print("end of day_before_yesterday's capital: ", daily_capital[-3]) # 当日收盘时总资产
+print("end of yesterday's capital: ", daily_capital[-2]) # 当日收盘时总资产
 print("end of today's capital: ", daily_capital[-1]) # 当日收盘时总资产
 
 #### how much trade cost and cash left today
 print("today's trading cost: ", daily_costs[-1])
 print("today's cash left:", daily_cash_left[-1])
-
-
+### check out all y_preds and daily_shares_pos and daily_capital so final_return
+print("all predictions so far: ", y_pred)
+print("all positions so far:", daily_shares_pos)
+print("all capitals so far:", daily_capital)
 
 
 # 换手率曲线
