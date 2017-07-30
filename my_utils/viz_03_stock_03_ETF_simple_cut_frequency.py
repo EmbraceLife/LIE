@@ -162,6 +162,11 @@ print("shares_pos: ", daily_shares_pos)
 print("capitals: ", daily_capital)
 
 ############################################################
+# how_many_trades
+############################################################
+
+
+############################################################
 # replace_value_with_earlier_value
 ############################################################
 # fill all 0s with the value precedding it
@@ -180,16 +185,19 @@ print("all non_0 shares_pos", daily_shares_pos_non0)
 ############################################################
 # 买入持有，不要频繁交易，在2014年至2015上半年，是最优策略；
 # 频繁买卖，会损失很多盈利
+# view_all_outputs_together
 ############################################################
 
 display_dataset = np.concatenate((np.array(origin_pred).reshape((-1,1)), np.array(y_pred).reshape((-1,1))[:-1], np.array(daily_shares_pos).reshape((-1,1)), np.array(daily_shares_pos_non0).reshape((-1,1)), np.array(daily_capital).reshape((-1,1)), np.array(open_prices).reshape((-1,1)), np.array(date).reshape((-1,1))), axis=1)
 import pandas as pd
 display_pd = pd.DataFrame(display_dataset)
+display_pd.columns = ['origin_pred', 'y_pred', 'daily_shares_pos', 'daily_shares_pos_non0', 'daily_capital', 'open_prices', 'date']
 print("display_dataset", display_pd.head(100))
 
 ############################################################
-# How to calculate 换手率
+# How to calculate 换手率 turnover_rate
 ############################################################
+# the first value of this list is ignored
 changes_pos_rate = np.abs(np.array(daily_shares_pos[1:]) - np.array(daily_shares_pos[:-1]))/np.array(daily_shares_pos_non0[:-1]) # 相邻两日的持仓占比之差（变化）
 # we don't care whether changes_pos_rate[idx] is how much away from 1.0
 for idx in range(len(changes_pos_rate)):
@@ -198,14 +206,101 @@ for idx in range(len(changes_pos_rate)):
 
 turnover_rate = np.cumsum(changes_pos_rate) # 累积差值，获得总资产进出市场的次数
 
+
+############################################################
+# calc 胜率 winning_ratio
+############################################################
+#################### how many trades = how many times postions changed
+num_trade_actions = np.sum(changes_pos_rate)
+################### how many winning trades = how many times current_trade_end_capital is greater than previous_trade_end_capital
+trades_record = np.copy([0.0] + changes_pos_rate.tolist())
+# find the index of every close_position date
+count_trade = 0
+for idx in range(1, len(trades_record)):
+
+	if trades_record[idx] == 1.0:
+		count_trade+=1
+	if count_trade % 2 == 0.0 and trades_record[idx] == 1.0:
+		trades_record[idx] = 2.0
+# find daily capital on close_position date
+close_pos_capital = np.array(daily_capital)[trades_record == 2.0]
+num_full_trades = close_pos_capital.shape[0]
+# compare one close_pos_capital with another to find the winning trades
+winning_trades_sum = ((close_pos_capital[1:]-close_pos_capital[:-1])>0).sum()
+winning_rate = winning_trades_sum/num_full_trades
+print("winning rate: ", winning_rate)
+
+############################################################
+# create an array to display winning trades
+# 胜：红色bar；负：绿色bar
+# full_trades_positions, winning_trades_positions
+############################################################
+# make bar data for a full trade
+# still full dataset, but make full_trades_positions as 1s
+full_trades_positions = np.copy(trades_record)
+for idx in range(len(full_trades_positions)):
+	if full_trades_positions[idx] == 2.0:
+		full_trades_positions[idx] = 1.0
+	else:
+		full_trades_positions[idx] = 0.0
+# get full_trades_capital only, not the full capital dataset
+full_trades_capital = np.array(daily_capital)[np.array(full_trades_positions) == 1.0]
+# check to see whether the first element is 1 or not
+full_trade_idx = 0
+winning_trades_positions = np.copy(full_trades_positions)
+for idx in range(len(winning_trades_positions)):
+	if winning_trades_positions[idx] == 1.0:
+		if full_trade_idx == 0:
+			if full_trades_capital[full_trade_idx] > 1000000:
+				winning_trades_positions[idx] = 1.0
+			else:
+				winning_trades_positions[idx] = 0.0
+
+		else:
+			if full_trades_capital[full_trade_idx] > full_trades_capital[full_trade_idx-1]:
+				winning_trades_positions[idx] = 1.0
+			else:
+				winning_trades_positions[idx] = 0.0
+		full_trade_idx+=1
+
+############################################################
+# 记录历史回撤  record_drawdown maximum_drawdown
+# drawdown: 今天总资产小于昨天总资金，今天出现回撤
+# maximum_drawdown: 最大回撤，是今天总资产相对于之前最高总资产，下降的幅度
+############################################################
+# record the highest capital so far 记录截止当下最高总资产
+highest_capital_so_far = [1000000]
+for idx in range(1,len(daily_capital)):
+	if daily_capital[idx] > daily_capital[idx-1]:
+		if daily_capital[idx] > highest_capital_so_far[idx-1]:
+			highest_capital_so_far.append(daily_capital[idx])
+		else:
+			highest_capital_so_far.append(highest_capital_so_far[idx-1])
+	else:
+		highest_capital_so_far.append(highest_capital_so_far[idx-1])
+
+# 每天的回撤记录
+capital_drawdown=[]
+capital_drawdown_rate=[]
+for idx in range(len(daily_capital)):
+	# 有回撤 >0, 无回撤 == 0
+	capital_drawdown.append(highest_capital_so_far[idx]-daily_capital[idx])
+	capital_drawdown_rate.append((highest_capital_so_far[idx]-daily_capital[idx])/highest_capital_so_far[idx])
+maximum_drawdown = np.array(capital_drawdown).max()
+maximum_drawdown_rate = np.array(capital_drawdown_rate).max()
+#### let's plot drawdown rate history curve
+
+
+
+
+################################################################
+# 将预测值融入价格曲线 # prediction_as_price_curve_color
+################################################################
 ## color data for close prices： 经过阀值调节过的预测值
 color_data = y_pred
 ## 用于画收盘价曲线的数据
 target_closes = closes/closes[0]
 
-################################################################
-# 将预测值融入价格曲线 # prediction_as_price_curve_color
-################################################################
 # different ways of setting color data
 
 line_data = target_closes.reshape((-1,1))-1 # close_price normalized to start from 1 onward, so minus 1 to bring it down to 0 original for plotting
@@ -223,7 +318,7 @@ xy = np.concatenate((X,y), axis=1)
 
 
 plt.figure()
-ax1 = plt.subplot2grid((8, 3), (0, 0), colspan=3, rowspan=4)
+ax1 = plt.subplot2grid((12, 3), (0, 0), colspan=3, rowspan=4)
 #############
 ### plot close_price curve and fill predictions as continuous color ######
 #############
@@ -236,30 +331,48 @@ ax1.legend(loc='best')
 ax1.set_title('ETF50(>0.9, <0.1) from %s to %s return: %04f' % (date[0], date[-1], accum_profit[-1]))
 
 #############
-### plot 换手率
+### drawdown curve
 #############
-ax2 = plt.subplot2grid((8, 3), (4, 0), colspan=3, rowspan=2)
-ax2.plot(turnover_rate, c='red', label='turnover_rate')
+ax2 = plt.subplot2grid((12, 3), (4, 0), colspan=3, rowspan=2)
+ax2.plot(capital_drawdown_rate, c='gray', label='drawdown_curve')
 ax2.legend(loc='best')
-ax2.set_title("TurnOver Rate: %02f" % turnover_rate[-1])
+ax2.set_title("maximum drawdown: rate: %02f, capital: %d" % (maximum_drawdown_rate, maximum_drawdown))
+
+##########################
+#### plot winning and losing trades
+##########################
+ax3 = plt.subplot2grid((12, 3), (6, 0), colspan=3, rowspan=2)
+X = np.arange(len(full_trades_positions))
+ax3.bar(X, full_trades_positions, facecolor='gray', edgecolor='gray')
+ax3.bar(X, winning_trades_positions, facecolor='red', edgecolor='red')
+
+ax3.set_title('winning trades: %d as red, total trades: %d' % (winning_trades_sum, num_full_trades)) # change model name
+
+
+#############
+### plot 换手率,
+#############
+ax4 = plt.subplot2grid((12, 3), (8, 0), colspan=3, rowspan=2)
+ax4.plot(turnover_rate, c='red', label='turnover_rate')
+ax4.legend(loc='best')
+ax4.set_title("TurnOver Rate: %02f" % turnover_rate[-1])
 
 ### plot daily_shares_pos curve
-ax3 = plt.subplot2grid((8, 3), (6, 0), colspan=3, rowspan=2)
+ax5 = plt.subplot2grid((12, 3), (10, 0), colspan=3, rowspan=2)
 init_shares_full = init_capital/open_prices[0]
 daily_shares_rate = np.array(daily_shares_pos)/init_shares_full
-ax3.plot(daily_shares_rate, c='k', label='daily_shares_rate')
-ax3.legend(loc='best')
-ax3.set_title('init_share_number: %d, latest_share_number: %d' % (init_shares_full, daily_shares_pos[-1])) # change model name
+ax5.plot(daily_shares_rate, c='k', label='daily_shares_rate')
+ax5.legend(loc='best')
+ax5.set_title('init_share_number: %d, latest_share_number: %d' % (init_shares_full, daily_shares_pos[-1])) # change model name
+
+
+
+
+
 
 plt.tight_layout()
 plt.show()
 
-
-# img = index_preds_target[:,0].reshape((-1,1)).transpose((1,0))
-# imgs = np.concatenate((img, img, img, img, img, img),axis=0)
-# plt.imshow(imgs, cmap='binary')
-# plt.title("pos as color array")
-# plt.show()
 
 
 # plt.savefig("/Users/Natsume/Downloads/data_for_all/stocks/model_performance/ETF300_model4_addcost.png")

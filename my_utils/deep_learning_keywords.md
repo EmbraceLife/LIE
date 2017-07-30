@@ -63,7 +63,7 @@
 - dropout_layer_behaviour
 - prediction_as_price_curve_color
 - replace_value_with_earlier_value
-
+- add_annotation_plot
 
 ## simple examples
 - xor_example
@@ -89,6 +89,7 @@
 - risk_estimation_design
 - relu_limited_design
 - turnover_rate_curve
+- turnover_rate
 - price_curve_prediction_continuous_color_detailed
 - price_curve_prediction_continuous_color_simple
 - keras_step_function
@@ -100,3 +101,15 @@
 - reduce_trade_frequency
 - risk_estimation_relu_limited_sigmoid
 - road_map_trading
+- mock_trade
+- view_all_outputs_together
+- winning_ratio
+- maximum_drawdown
+- full_trades_positions
+- winning_trades_positions
+
+## goals
+- keras only
+- key books
+- key examples
+- key papers
