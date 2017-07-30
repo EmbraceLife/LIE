@@ -23,9 +23,9 @@ from matplotlib.colors import ListedColormap, BoundaryNorm
 # 获取标的收盘价和日期序列
 from prep_data_03_stock_01_csv_2_pandas_2_arrays_DOHLCV import csv_df_arrays
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/index000001.csv"
-# index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF50.csv"
+index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF50.csv"
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF500.csv"
-index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF300.csv"
+# index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF300.csv"
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/index50.csv"
 
 date,open_prices,_,_, closes, _ = csv_df_arrays(index_path)
@@ -49,8 +49,8 @@ time_span = 700  # 从今天回溯700 days
 # time_span = 90  # 从今天回溯90 days
 # time_span = 30  # 从今天回溯30 days
 # time_span = 1  # 从今天回溯1 days
-
-# time_span = 6  # 昨天开始交易，到今天收盘，交易开始两天了
+# from 20170720 to 20170728
+# time_span = 7  # 昨天开始交易，到今天收盘，交易开始两天了
 
 
 
@@ -58,23 +58,23 @@ time_span = 700  # 从今天回溯700 days
 open_prices = open_prices[-time_span:]
 closes = closes[-time_span:]
 index_preds_target = index_preds_target[-time_span:]
-
+date = date[-time_span:]
 
 ################################################################
 # The latest algo to cut down trade frequency
 ################################################################
 init_capital = 1000000 # 初始总现金
 y_pred = index_preds_target[:,0] # 预测值，当日持仓市值占比
+print("original prediction before cutting frequency:", y_pred)
+origin_pred = np.copy(y_pred)
 y_true = index_preds_target[:,1] # 相邻两天收盘价变化率
-open_prices = open_prices # 每日开盘价，标准化处理 (受否必须再减1？)
-closes = closes # 每日收盘价，标准化处理
 daily_shares_pos = [] # 用于收集每日的持股数，让实际交易便捷
-daily_capital = []
+daily_capital = [] # 收集每日的总资产
 
 
 
-buy_threshold=0.99 # 0.9 for ETF50, 0.99 for ETF 300
-sell_threshold=0.01 # 0.1 for ETF50, 0.01 for ETF 300
+buy_threshold=0.9 # 0.9 for ETF50, 0.99 for ETF 300
+sell_threshold=0.1 # 0.1 for ETF50, 0.01 for ETF 300
 
 
 # add a 1.0 to the beginning of y_pred array
@@ -97,7 +97,7 @@ shares_pos = 0.0
 for idx in range(1, len(y_pred)-1):
 	if idx == 1:
 		if y_pred[idx] == 1.0: # 如果是当下y_pred是1.0
-			shares_pos = np.round(1000000/open_prices[idx], -2) # 全仓买入，100股为一手
+			shares_pos = np.trunc(1000000/open_prices[idx]/100)*100 # 全仓买入，100股为一手
 		elif y_pred[idx] == 0.0: # 如果当下是0.0；维持空仓
 			shares_pos = 0.0
 		else:
@@ -121,7 +121,7 @@ for idx in range(1, len(y_pred)-1):
 
 		elif y_pred[idx-1] == 0.0: # 如果上一个y_pred是1.0
 			if y_pred[idx] == 1.0: # 如果上一个y_pred是1.0，维持仓位
-				shares_pos = np.round(daily_capital[idx-1]/open_prices[idx], -2)
+				shares_pos = np.trunc(daily_capital[idx-1]/open_prices[idx]/100)*100
 			elif y_pred[idx] == 0.0: # 如果上一个y_pred是0.0，那么全仓买入
 				shares_pos = 0.0
 			else:
@@ -139,7 +139,7 @@ for idx in range(1, len(y_pred)-1):
 
 		elif y_pred[idx-1] == 0.5 and daily_shares_pos[idx-1] == 0.0: # 如果上一个y_pred是0.5,同时是满仓
 			if y_pred[idx] == 1.0: # 如果上一个y_pred是1.0，维持仓位
-				shares_pos = np.round(daily_capital[idx-1]/open_prices[idx], -2)
+				shares_pos = np.trunc(daily_capital[idx-1]/open_prices[idx]/100)*100
 			elif y_pred[idx] == 0.0: # 如果上一个y_pred是0.0，那么全仓买入
 				shares_pos = 0.0
 			else:
@@ -153,19 +153,58 @@ for idx in range(1, len(y_pred)-1):
 
 # 计算累积总资金曲线
 accum_profit = (np.array(daily_capital)/daily_capital[0])-1# 累积总资金曲线， 减去初始资金 1，获得收益累积曲线
-print("final date:", date[-1]) # 最近日期
+print("time span: from %s to %s" % (date[-time_span], date[-1])) # 最近日期
+print("last open price:", open_prices[-1])
+print("last close price:", closes[-1])
 print("final_return:", accum_profit[-1]) # 累积总收益
+print("predictions: ", y_pred)
+print("shares_pos: ", daily_shares_pos)
+print("capitals: ", daily_capital)
 
-changes_pos_rate = np.abs(np.array(daily_shares_pos[1:]) - np.array(daily_shares_pos[:-1]))/np.array(daily_shares_pos).max() # 相邻两日的持仓占比之差（变化）
+############################################################
+# replace_value_with_earlier_value
+############################################################
+# fill all 0s with the value precedding it
+# use of np.copy to make a copy and cut the link between daily_shares_pos_non0 and daily_shares_pos
+daily_shares_pos_non0 = np.copy(daily_shares_pos)
+# make sure all 0.0 are replaced by number precedding it
+for idx in range(1, len(daily_shares_pos_non0)):
+	if daily_shares_pos_non0[idx] == 0.0:
+		daily_shares_pos_non0[idx] = daily_shares_pos_non0[idx-1]
+# make sure all 0.0 are replaced by number succeeding it
+for idx in range(len(daily_shares_pos_non0)-2, -1, -1):
+	if daily_shares_pos_non0[idx] == 0.0:
+		daily_shares_pos_non0[idx] = daily_shares_pos_non0[idx+1]
+print("all non_0 shares_pos", daily_shares_pos_non0)
+
+############################################################
+# 买入持有，不要频繁交易，在2014年至2015上半年，是最优策略；
+# 频繁买卖，会损失很多盈利
+############################################################
+
+display_dataset = np.concatenate((np.array(origin_pred).reshape((-1,1)), np.array(y_pred).reshape((-1,1))[:-1], np.array(daily_shares_pos).reshape((-1,1)), np.array(daily_shares_pos_non0).reshape((-1,1)), np.array(daily_capital).reshape((-1,1)), np.array(open_prices).reshape((-1,1)), np.array(date).reshape((-1,1))), axis=1)
+import pandas as pd
+display_pd = pd.DataFrame(display_dataset)
+print("display_dataset", display_pd.head(100))
+
+############################################################
+# How to calculate 换手率
+############################################################
+changes_pos_rate = np.abs(np.array(daily_shares_pos[1:]) - np.array(daily_shares_pos[:-1]))/np.array(daily_shares_pos_non0[:-1]) # 相邻两日的持仓占比之差（变化）
+# we don't care whether changes_pos_rate[idx] is how much away from 1.0
+for idx in range(len(changes_pos_rate)):
+	if changes_pos_rate[idx] > 0.0:
+		changes_pos_rate[idx] = 1.0
+
 turnover_rate = np.cumsum(changes_pos_rate) # 累积差值，获得总资产进出市场的次数
 
 ## color data for close prices： 经过阀值调节过的预测值
 color_data = y_pred
 ## 用于画收盘价曲线的数据
 target_closes = closes/closes[0]
+
 ################################################################
-# price_curve_prediction_continuous_color_simple
-# plot close price curve and fill prediction array as price curve color
+# 将预测值融入价格曲线 # prediction_as_price_curve_color
 ################################################################
 # different ways of setting color data
 
@@ -194,7 +233,7 @@ for start, stop, col in zip(xy[:-1], xy[1:], color_data):
 
 ax1.plot(accum_profit, c='gray', alpha=0.5, label='accum_profit')
 ax1.legend(loc='best')
-ax1.set_title('ETF300(>0.99, <0.01) from %s to %s return: %04f' % (date[0], date[-1], accum_profit[-1]))
+ax1.set_title('ETF50(>0.9, <0.1) from %s to %s return: %04f' % (date[0], date[-1], accum_profit[-1]))
 
 #############
 ### plot 换手率

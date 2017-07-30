@@ -61,7 +61,8 @@
 - examine_model_through_weights
 - plot_math_functions
 - dropout_layer_behaviour
-
+- prediction_as_price_curve_color
+- replace_value_with_earlier_value
 
 
 ## simple examples
