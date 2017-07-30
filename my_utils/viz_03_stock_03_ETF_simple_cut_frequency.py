@@ -82,74 +82,74 @@ y_pred = np.concatenate((np.array([1]), y_pred),0)
 daily_shares_pos = [0.0] # 用于收集每日的持股数，让实际交易便捷
 daily_capital = [init_capital]
 
-# start from the second value of y_pred and end before the last y_pred
+# Important!!!! y_pred_1 work with open_prices_2
 for idx in range(1, len(y_pred)-1):
-	if y_pred[idx] > buy_threshold:
+	if y_pred[idx] > buy_threshold: # 大于买入阀值，才算买入，标记1.0
 		y_pred[idx] = 1.0
-	elif y_pred[idx] < sell_threshold:
+	elif y_pred[idx] < sell_threshold: # 小于卖出阀值，才能卖出，0.0
 		y_pred[idx] = 0.0
 	else:
-		y_pred[idx] = 0.5
+		y_pred[idx] = 0.5  # 其他值，全部是维持之前状态，0.5
 
 # 从第二个y_pred开始
 
 shares_pos = 0.0
 for idx in range(1, len(y_pred)-1):
-	if idx == 1:
-		if y_pred[idx] == 1.0: # 如果是当下y_pred是1.0
-			shares_pos = np.trunc(1000000/open_prices[idx]/100)*100 # 全仓买入，100股为一手
-		elif y_pred[idx] == 0.0: # 如果当下是0.0；维持空仓
+	if idx == 1: # 实际交易都是从第二天开始的
+		if y_pred[idx] == 1.0: # 如果第二天，当下y_pred是1.0
+			shares_pos = np.trunc(1000000/open_prices[idx]/100)*100 # 全仓买入，100股为一手，计算所买入的股数
+		elif y_pred[idx] == 0.0: # 如果第二天，当下是0.0；维持空仓
 			shares_pos = 0.0
 		else:
 			shares_pos = 0.0  # 如果是0.5，维持空仓
-		daily_shares_pos.append(shares_pos) # 总持仓
-		cost = shares_pos*open_prices[idx]*0.001
-		cash_left = 1000000 - shares_pos*open_prices[idx] - cost
-		end_day_capital = shares_pos*closes[idx] + cash_left
-		daily_capital.append(end_day_capital)
+		daily_shares_pos.append(shares_pos) # 收集第二天的持股数
+		cost = shares_pos*open_prices[idx]*0.001 # 计算当天交易成本
+		cash_left = 1000000 - shares_pos*open_prices[idx] - cost # 当天所剩现金
+		end_day_capital = shares_pos*closes[idx] + cash_left # 当天总资产
+		daily_capital.append(end_day_capital) # 收集当天的总资产
 
-	# 从第三个y_pred开始
+	# 从第三天开始
 	else:
-		if y_pred[idx-1] == 1.0: # 如果上一个y_pred是1.0
-			if y_pred[idx] == 1.0: # 如果上一个y_pred是1.0，维持仓位
+		if y_pred[idx-1] == 1.0: # 如果昨天的预测值y_pred是1.0
+			if y_pred[idx] == 1.0: # 如果用于当天交易的预测值是1.0，维持仓位
 				shares_pos = daily_shares_pos[idx-1]
-			elif y_pred[idx] == 0.0: # 如果上一个y_pred是0.0，那么全仓买入
-				shares_pos = 0.0
-			else:
+			elif y_pred[idx] == 0.0: # 如果用于当天交易的预测值是0.0，那么全仓卖出
+				shares_pos = 0.0 # 持股数为0
+			else: # 如果用于当天交易的预测值是0.5，那么维持昨天状态，维持昨天持股数
 				shares_pos = daily_shares_pos[idx-1]
 
 
-		elif y_pred[idx-1] == 0.0: # 如果上一个y_pred是1.0
-			if y_pred[idx] == 1.0: # 如果上一个y_pred是1.0，维持仓位
+		elif y_pred[idx-1] == 0.0: # 如果昨天的预测值y_pred是0.0
+			if y_pred[idx] == 1.0: # 如果用于当天交易的预测值是1.0，全仓买入
 				shares_pos = np.trunc(daily_capital[idx-1]/open_prices[idx]/100)*100
-			elif y_pred[idx] == 0.0: # 如果上一个y_pred是0.0，那么全仓买入
+			elif y_pred[idx] == 0.0: # 如果用于当天交易的预测值是0.0，那么维持空仓
 				shares_pos = 0.0
 			else:
-				shares_pos = 0.0
+				shares_pos = 0.0 # 如果用于当天交易的预测值是0.5，那么维持昨天持仓
 
 
-		elif y_pred[idx-1] == 0.5 and daily_shares_pos[idx-1]>0.0: # 如果上一个y_pred是0.5,同时是满仓
-			if y_pred[idx] == 1.0: # 如果上一个y_pred是1.0，维持仓位
+		elif y_pred[idx-1] == 0.5 and daily_shares_pos[idx-1]>0.0: # 如果昨天的预测值y_pred是0.5,同时昨天的持仓是满仓 （非0持股，就是满仓）
+			if y_pred[idx] == 1.0: # 如果用于当天交易的预测值是1.0，维持仓位
 				shares_pos = daily_shares_pos[idx-1]
-			elif y_pred[idx] == 0.0: # 如果上一个y_pred是0.0，那么全仓买入
+			elif y_pred[idx] == 0.0: # 如果用于当天交易的预测值是0.0，那么全仓卖出
 				shares_pos = 0.0
-			else:
+			else: # 如果用于当天交易的预测值是0.5， 那么维持昨天的持股数
 				shares_pos = daily_shares_pos[idx-1]
 
 
-		elif y_pred[idx-1] == 0.5 and daily_shares_pos[idx-1] == 0.0: # 如果上一个y_pred是0.5,同时是满仓
-			if y_pred[idx] == 1.0: # 如果上一个y_pred是1.0，维持仓位
+		elif y_pred[idx-1] == 0.5 and daily_shares_pos[idx-1] == 0.0: # 如果昨天的预测值y_pred是0.5,同时昨天的持仓是空仓 （非0持股，就是满仓）
+			if y_pred[idx] == 1.0: # 如果用于当天交易的预测值是1.0，满仓买入
 				shares_pos = np.trunc(daily_capital[idx-1]/open_prices[idx]/100)*100
-			elif y_pred[idx] == 0.0: # 如果上一个y_pred是0.0，那么全仓买入
+			elif y_pred[idx] == 0.0: # 如果用于当天交易的预测值是0.0，维持空仓
 				shares_pos = 0.0
-			else:
+			else: # 如果用于当天交易的预测值是0.5， 那么维持昨天的持股数，0.0
 				shares_pos = 0.0
 
-		daily_shares_pos.append(shares_pos) # 总持仓
-		cost = np.abs(np.array(shares_pos) - np.array(daily_shares_pos[idx-1]))*open_prices[idx]*0.001
-		cash_left = daily_capital[idx-1] - shares_pos*open_prices[idx] - cost
-		end_day_capital = shares_pos*closes[idx] + cash_left
-		daily_capital.append(end_day_capital)
+		daily_shares_pos.append(shares_pos) # 收集从第三天开始的总持仓
+		cost = np.abs(np.array(shares_pos) - np.array(daily_shares_pos[idx-1]))*open_prices[idx]*0.001 # 当天交易成本
+		cash_left = daily_capital[idx-1] - shares_pos*open_prices[idx] - cost # 当天的现金结余
+		end_day_capital = shares_pos*closes[idx] + cash_left # 当天总资产
+		daily_capital.append(end_day_capital) # 收集当天总资产
 
 # 计算累积总资金曲线
 accum_profit = (np.array(daily_capital)/daily_capital[0])-1# 累积总资金曲线， 减去初始资金 1，获得收益累积曲线
@@ -157,30 +157,27 @@ print("time span: from %s to %s" % (date[-time_span], date[-1])) # 最近日期
 print("last open price:", open_prices[-1])
 print("last close price:", closes[-1])
 print("final_return:", accum_profit[-1]) # 累积总收益
-print("predictions: ", y_pred)
-print("shares_pos: ", daily_shares_pos)
-print("capitals: ", daily_capital)
-
-############################################################
-# how_many_trades
-############################################################
+print("predictions: ", y_pred[-3:])
+print("shares_pos: ", daily_shares_pos[-1])
+print("capitals: ", daily_capital[-1])
 
 
 ############################################################
 # replace_value_with_earlier_value
+# 将持股数统计中的0.0，用紧邻的持股数代替
 ############################################################
 # fill all 0s with the value precedding it
 # use of np.copy to make a copy and cut the link between daily_shares_pos_non0 and daily_shares_pos
 daily_shares_pos_non0 = np.copy(daily_shares_pos)
-# make sure all 0.0 are replaced by number precedding it
+# 将前一天的持股数来取代后一天的0.0 股数
 for idx in range(1, len(daily_shares_pos_non0)):
 	if daily_shares_pos_non0[idx] == 0.0:
 		daily_shares_pos_non0[idx] = daily_shares_pos_non0[idx-1]
-# make sure all 0.0 are replaced by number succeeding it
+# 用后一天的持股数，来取代前一天的0
 for idx in range(len(daily_shares_pos_non0)-2, -1, -1):
 	if daily_shares_pos_non0[idx] == 0.0:
 		daily_shares_pos_non0[idx] = daily_shares_pos_non0[idx+1]
-print("all non_0 shares_pos", daily_shares_pos_non0)
+print("all non_0 shares_pos is done")
 
 ############################################################
 # 买入持有，不要频繁交易，在2014年至2015上半年，是最优策略；
@@ -210,7 +207,7 @@ turnover_rate = np.cumsum(changes_pos_rate) # 累积差值，获得总资产进�
 ############################################################
 # calc 胜率 winning_ratio
 ############################################################
-#################### how many trades = how many times postions changed
+#####changes_pos_rate: 0 为持仓或者空仓，1为买或卖；累积卖和买的总次数
 num_trade_actions = np.sum(changes_pos_rate)
 ################### how many winning trades = how many times current_trade_end_capital is greater than previous_trade_end_capital
 trades_record = np.copy([0.0] + changes_pos_rate.tolist())
@@ -224,11 +221,35 @@ for idx in range(1, len(trades_record)):
 		trades_record[idx] = 2.0
 # find daily capital on close_position date
 close_pos_capital = np.array(daily_capital)[trades_record == 2.0]
+#### num_full_trades： 完整买卖的总次数
 num_full_trades = close_pos_capital.shape[0]
 # compare one close_pos_capital with another to find the winning trades
 winning_trades_sum = ((close_pos_capital[1:]-close_pos_capital[:-1])>0).sum()
 winning_rate = winning_trades_sum/num_full_trades
 print("winning rate: ", winning_rate)
+
+
+############################################################
+# 盈亏比
+############################################################
+profits=[]
+losses=[]
+# 每次卖出时的总资产-前一次卖出时的总资产=每次完整交易产生的盈利和亏损
+profits_losses = close_pos_capital[1:]-close_pos_capital[:-1]
+for pl in profits_losses:
+	if pl > 0:
+		profits.append(pl)
+	else:
+		losses.append(pl)
+first_loss_profit = close_pos_capital[0]-init_capital
+total_profit = np.array(profits).sum()
+total_loss = np.array(losses).sum()
+print("profits/losses: ", -total_profit/total_loss)
+print("net_profit/init_capital:", (total_profit+total_loss)/init_capital)
+print("the difference may be due to the last trade is not close yet")
+
+
+
 
 ############################################################
 # create an array to display winning trades
@@ -355,7 +376,8 @@ ax3.set_title('winning trades: %d as red, total trades: %d' % (winning_trades_su
 ax4 = plt.subplot2grid((12, 3), (8, 0), colspan=3, rowspan=2)
 ax4.plot(turnover_rate, c='red', label='turnover_rate')
 ax4.legend(loc='best')
-ax4.set_title("TurnOver Rate: %02f" % turnover_rate[-1])
+ax4.set_title("TurnOver Rate: %d, profits/losses: %02f, net_profit/init_capital: %02f" % (turnover_rate[-1], -total_profit/total_loss, (total_profit+total_loss)/init_capital))
+
 
 ### plot daily_shares_pos curve
 ax5 = plt.subplot2grid((12, 3), (10, 0), colspan=3, rowspan=2)
