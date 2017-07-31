@@ -23,30 +23,30 @@ import numpy as np
 ########################################################################
 #### 1. load data from local folders, training locally
 ########################################################################
-train_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/train_features_path"
-train_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/train_targets_path"
-
-valid_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/valid_features_path"
-valid_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/valid_targets_path"
+# train_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/train_features_path"
+# train_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/train_targets_path"
+#
+# valid_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/valid_features_path"
+# valid_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/valid_targets_path"
 
 ############### No need for test set for now ##################
-# test_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/test_features_path"
-# test_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/test_targets_path"
+### test_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/test_features_path"
+### test_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/test_targets_path"
 
 
 ########################################################################
 ##### 1. loading data from Floyd input folder, For floyd training
 ########################################################################
 
-# train_features_path = "/input/train_features_path"
-# train_targets_path = "/input/train_targets_path"
-#
-# valid_features_path = "/input/valid_features_path"
-# valid_targets_path = "/input/valid_targets_path"
+train_features_path = "/input/train_features_path"
+train_targets_path = "/input/train_targets_path"
+
+valid_features_path = "/input/valid_features_path"
+valid_targets_path = "/input/valid_targets_path"
 
 ############### No need for test set for now ##################
-# test_features_path = "/input/test_features_path"
-# test_targets_path = "/input/test_targets_path"
+#### test_features_path = "/input/test_features_path"
+#### test_targets_path = "/input/test_targets_path"
 
 
 

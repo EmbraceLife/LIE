@@ -46,11 +46,13 @@ from ohlcv_to_features_targets import extract_feature
 import numpy as np
 from save_load_large_arrays import bz_save_array
 
-# set days for training, validation and testing
-days_for_valid = 700 # 1000 is too much dataset to be taken away from training
-days_for_test = 0 # number of test samples
-# input_shape = [30, 24] # [30, 61]  # [length of time series, length of feature]
-# window = input_shape[0]
+####### original data split ########################################
+# days_for_valid = 700 # 1000 is too much dataset to be taken away from training
+# days_for_test = 0 # number of test samples
+####### hope for better model ########################################
+days_for_valid = 125 # 1000 is too much dataset to be taken away from training
+days_for_test = 250 # number of test samples
+
 
 # create gobal variables for storing training, validation and testing features arrays and targets arrays
 train_features = None
@@ -60,13 +62,26 @@ train_targets = None
 test_features = None
 test_targets = None
 
-# create paths for storing those arrays above
-train_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/train_features_path"
-valid_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/valid_targets_path"
-valid_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/valid_features_path"
-train_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/train_targets_path"
-test_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/test_features_path"
-test_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/test_targets_path"
+##############################################################################
+# original dataset folders : 700 validation, 0 test set
+##############################################################################
+##### create paths for storing those arrays above
+# train_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/train_features_path"
+# valid_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/valid_targets_path"
+# valid_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/valid_features_path"
+# train_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/train_targets_path"
+# test_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/test_features_path"
+# test_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/test_targets_path"
+
+##############################################################################
+# new dataset folders: 250 validation, 250 test
+##############################################################################
+train_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets1/train_features_path"
+valid_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets1/valid_targets_path"
+valid_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets1/valid_features_path"
+train_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets1/train_targets_path"
+test_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets1/test_features_path"
+test_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets1/test_targets_path"
 
 ########################################################################
 ### How many indicators do we use to create features

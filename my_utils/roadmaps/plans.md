@@ -1,7 +1,9 @@
 
 ## goals
 - improving trading models
+	- share with friends
 - books: apply concepts and examples to trading
+	- share with friends
 - examples repos: as above
 - courses
 	- [nlp](https://github.com/dataschool/MLtext2): data school

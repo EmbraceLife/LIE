@@ -23,9 +23,9 @@ from matplotlib.colors import ListedColormap, BoundaryNorm
 # 获取标的收盘价和日期序列
 from stock_csv_pandas_array import csv_df_arrays
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/index000001.csv"
-index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF50.csv"
+# index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF50.csv"
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF500.csv"
-# index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF300.csv"
+index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF300.csv"
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/index50.csv"
 
 date,open_prices,_,_, closes, _ = csv_df_arrays(index_path)
@@ -45,8 +45,9 @@ index_preds_target[:, 1]:下一日的当天价格变化
 
 # 30 days
 # 90 days
-time_span = 700  # 从今天回溯700 days
-# time_span = 90  # 从今天回溯90 days
+# time_span = 700  # 从今天回溯700 days
+# time_span = 500  # 从今天回溯500 days
+time_span = 250  # 从今天回溯250 days
 # time_span = 30  # 从今天回溯30 days
 # time_span = 1  # 从今天回溯1 days
 # from 20170720 to 20170728
@@ -65,7 +66,18 @@ date = date[-time_span:]
 ################################################################
 init_capital = 1000000 # 初始总现金
 y_pred = index_preds_target[:,0] # 预测值，当日持仓市值占比
-print("original prediction before cutting frequency:", y_pred)
+count_1_99=0
+count_99_more=0
+count_01_less=0
+for idx in y_pred:
+	if idx >0.01 and idx < 0.99:
+		count_1_99+=1
+	elif idx>0.99:
+		count_99_more+=1
+	else:
+		count_01_less+=1
+print("total_prediction_count: %d, predictions over 0.99: %d, predictions below 0.01: %d; predictions in between: %d" % (y_pred.shape[0], count_99_more, count_01_less, count_1_99))
+# print("original prediction before cutting frequency:", y_pred)
 origin_pred = np.copy(y_pred)
 y_true = index_preds_target[:,1] # 相邻两天收盘价变化率
 daily_shares_pos = [] # 用于收集每日的持股数，让实际交易便捷
@@ -73,8 +85,8 @@ daily_capital = [] # 收集每日的总资产
 
 
 
-buy_threshold=0.9 # 0.9 for ETF50, 0.99 for ETF 300
-sell_threshold=0.1 # 0.1 for ETF50, 0.01 for ETF 300
+buy_threshold=0.85 # 0.9 for ETF50, 0.99 for ETF 300
+sell_threshold=0.15 # 0.1 for ETF50, 0.01 for ETF 300
 
 
 # add a 1.0 to the beginning of y_pred array
@@ -349,7 +361,7 @@ for start, stop, col in zip(xy[:-1], xy[1:], color_data):
 
 ax1.plot(accum_profit, c='gray', alpha=0.5, label='accum_profit')
 ax1.legend(loc='best')
-ax1.set_title('ETF50(>0.9, <0.1) from %s to %s return: %04f' % (date[0], date[-1], accum_profit[-1]))
+ax1.set_title('ETF300(>0.85, <0.15) from %s to %s return: %04f' % (date[0], date[-1], accum_profit[-1]))
 
 #############
 ### drawdown curve
