@@ -283,17 +283,17 @@ class IndicatorCreator(object):
 """
 
 from stock_csv_pandas_array import csv_df_arrays
-from stock_csv_object_array import read_csv_2_arrays
+# from stock_csv_object_array import read_csv_2_arrays
 
 def extract_feature(selector, file_path, window=30, with_label=True, flatten=False):
 	# selector: user_selected_indicators to create IndicatorCreator object
     indicators = IndicatorCreator(selector)
 
 	# differentiate csv files from indices and from individual stocks
-    if file_path.find("prices") > -1 or file_path.find("index")>-1 or file_path.find("ETF")> -1:
-    	dates, opens, highs, lows, closes, volumes = csv_df_arrays(file_path)
-    else: # to be commnet out
-    	_, dates, opens, highs, lows, closes, volumes = read_csv_2_arrays(file_path)
+    # if file_path.find("prices") > -1 or file_path.find("index")>-1 or file_path.find("ETF")> -1:
+    dates, opens, highs, lows, closes, volumes = csv_df_arrays(file_path)
+    # else: # to be commnet out
+    	# _, dates, opens, highs, lows, closes, volumes = read_csv_2_arrays(file_path)
 
     if with_label:
         moving_features, moving_labels = indicators.moving_extract(window=window, open_prices=opens, close_prices=closes, high_prices=highs, low_prices=lows, volumes=volumes, with_label=with_label, flatten=flatten)

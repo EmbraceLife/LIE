@@ -40,7 +40,7 @@ Returns:
 """
 
 import os
-from stock_csv_object_array import read_csv_2_arrays
+# from stock_csv_object_array import read_csv_2_arrays
 from stock_csv_pandas_array import csv_df_arrays
 from ohlcv_to_features_targets import extract_feature
 import numpy as np
@@ -83,7 +83,7 @@ user_indicators = ["ROCP", "OROCP", "HROCP", "LROCP", "MACD", "RSI", "VROCP", "B
 dataset_dir = "/Users/Natsume/Downloads/data_for_all/stocks/dataset"
 
 # count number of csv to use for creating features array and target arrays
-total_csv_combine = 25
+total_csv_combine = 27
 current_num_csv = 0
 
 # loop through every csv to convert from csv to arrays OHLCV, to arrays features and targets, and concatenate features and targets of different csv files
