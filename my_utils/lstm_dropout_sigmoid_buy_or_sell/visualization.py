@@ -47,11 +47,11 @@ index_preds_target[:, 1]:下一日的当天价格变化
 # 90 days
 # time_span = 700  # 从今天回溯700 days
 # time_span = 500  # 从今天回溯500 days
-time_span = 250  # 从今天回溯250 days
+# time_span = 250  # 从今天回溯250 days
 # time_span = 30  # 从今天回溯30 days
 # time_span = 1  # 从今天回溯1 days
 # from 20170720 to 20170728
-# time_span = 7  # 昨天开始交易，到今天收盘，交易开始两天了
+time_span = 8  # 昨天开始交易，到今天收盘，交易开始两天了
 
 
 
@@ -85,8 +85,8 @@ daily_capital = [] # 收集每日的总资产
 
 
 
-buy_threshold=0.85 # 0.9 for ETF50, 0.99 for ETF 300
-sell_threshold=0.15 # 0.1 for ETF50, 0.01 for ETF 300
+buy_threshold=0.9 # 0.9 for ETF50, 0.99 for ETF 300
+sell_threshold=0.1 # 0.1 for ETF50, 0.01 for ETF 300
 
 
 # add a 1.0 to the beginning of y_pred array
@@ -361,7 +361,7 @@ for start, stop, col in zip(xy[:-1], xy[1:], color_data):
 
 ax1.plot(accum_profit, c='gray', alpha=0.5, label='accum_profit')
 ax1.legend(loc='best')
-ax1.set_title('ETF300(>0.85, <0.15) from %s to %s return: %04f' % (date[0], date[-1], accum_profit[-1]))
+ax1.set_title('ETF300(>0.9, <0.1) from %s to %s return: %04f' % (date[0], date[-1], accum_profit[-1]))
 
 #############
 ### drawdown curve

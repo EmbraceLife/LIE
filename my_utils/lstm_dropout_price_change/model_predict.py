@@ -49,7 +49,8 @@ def get_stock_preds_target(stock_path):
 	# model_path = "/Users/Natsume/Desktop/floyd_revised/during_best.h5"
 	# model_path = "/Users/Natsume/Desktop/best_model_in_training1.h5"
 	# model_path = "/Users/Natsume/Downloads/data_for_all/stocks/floyd_train/sigmoid_version_300_20170719/during_best.h5"
-	model_path="/Users/Natsume/Downloads/data_for_all/stocks/floyd_train/lstm_sigmoid_valid125_test250/during_best.h5"
+	# model_path="/Users/Natsume/Downloads/data_for_all/stocks/floyd_train/lstm_sigmoid_valid125_test250/during_best.h5"
+	model_path="/Users/Natsume/Downloads/data_for_all/stocks/floyd_train/lstm_dropout_price_change/during_best.h5"
 
 	wp_best = load_model(model_path)
 
