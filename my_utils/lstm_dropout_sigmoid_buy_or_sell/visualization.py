@@ -45,13 +45,13 @@ index_preds_target[:, 1]:下一日的当天价格变化
 
 # 30 days
 # 90 days
-# time_span = 700  # 从今天回溯700 days
+time_span = 700  # 从今天回溯700 days
 # time_span = 500  # 从今天回溯500 days
 # time_span = 250  # 从今天回溯250 days
 # time_span = 30  # 从今天回溯30 days
 # time_span = 1  # 从今天回溯1 days
 # from 20170720 to 20170728
-time_span = 8  # 昨天开始交易，到今天收盘，交易开始两天了
+# time_span = 10  # 昨天开始交易，到今天收盘，交易开始两天了
 
 
 
@@ -85,8 +85,8 @@ daily_capital = [] # 收集每日的总资产
 
 
 
-buy_threshold=0.9 # 0.9 for ETF50, 0.99 for ETF 300
-sell_threshold=0.1 # 0.1 for ETF50, 0.01 for ETF 300
+buy_threshold=0.99 # 0.9 for ETF50, 0.99 for ETF 300
+sell_threshold=0.01 # 0.1 for ETF50, 0.01 for ETF 300
 
 
 # add a 1.0 to the beginning of y_pred array
@@ -166,8 +166,8 @@ for idx in range(1, len(y_pred)-1):
 # 计算累积总资金曲线
 accum_profit = (np.array(daily_capital)/daily_capital[0])-1# 累积总资金曲线， 减去初始资金 1，获得收益累积曲线
 print("time span: from %s to %s" % (date[-time_span], date[-1])) # 最近日期
-print("last open price:", open_prices[-1])
-print("last close price:", closes[-1])
+print("last open price:", open_prices[-2:])
+print("last close price:", closes[-2:])
 print("final_return:", accum_profit[-1]) # 累积总收益
 print("predictions: ", y_pred[-3:])
 print("shares_pos: ", daily_shares_pos[-1])
@@ -256,7 +256,9 @@ for pl in profits_losses:
 first_loss_profit = close_pos_capital[0]-init_capital
 total_profit = np.array(profits).sum()
 total_loss = np.array(losses).sum()
-print("profits/losses: ", -total_profit/total_loss)
+avg_profit = total_profit/winning_trades_sum
+avg_loss = total_loss/(num_full_trades-winning_trades_sum)
+print("avg_profits/avg_losses: ", -avg_profit/avg_loss)
 print("net_profit/init_capital:", (total_profit+total_loss)/init_capital)
 print("the difference may be due to the last trade is not close yet")
 
@@ -361,7 +363,7 @@ for start, stop, col in zip(xy[:-1], xy[1:], color_data):
 
 ax1.plot(accum_profit, c='gray', alpha=0.5, label='accum_profit')
 ax1.legend(loc='best')
-ax1.set_title('ETF300(>0.9, <0.1) from %s to %s return: %04f' % (date[0], date[-1], accum_profit[-1]))
+ax1.set_title('ETF300(>0.99, <0.01) from %s to %s return: %04f' % (date[0], date[-1], accum_profit[-1]))
 
 #############
 ### drawdown curve
@@ -388,7 +390,7 @@ ax3.set_title('winning trades: %d as red, total trades: %d' % (winning_trades_su
 ax4 = plt.subplot2grid((12, 3), (8, 0), colspan=3, rowspan=2)
 ax4.plot(turnover_rate, c='red', label='turnover_rate')
 ax4.legend(loc='best')
-ax4.set_title("TurnOver Rate: %d, profits/losses: %02f, net_profit/init_capital: %02f" % (turnover_rate[-1], -total_profit/total_loss, (total_profit+total_loss)/init_capital))
+ax4.set_title("TurnOver Rate: %d, avg_profits/avg_losses: %02f, net_profit/init_capital: %02f" % (turnover_rate[-1], -avg_profit/avg_loss, (total_profit+total_loss)/init_capital))
 
 
 ### plot daily_shares_pos curve

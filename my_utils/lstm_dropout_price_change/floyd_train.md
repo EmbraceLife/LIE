@@ -60,7 +60,7 @@ floyd init lstm_sigmoid_1_files
 - go to file `get_train_valid_datasets.py`
 	- switching between datasets folders locally and dataset folders on floyd
 ```
-floyd run --env keras --data JnGrjujE96R2C4eiUG5Xz5 --gpu "python get_train_valid_datasets.py"
+floyd run --env keras --data L2d6JLFS2TpxqxkqJNA6xm --gpu "python get_train_valid_datasets.py"
 ```
 
 # get ready to train on floyd
@@ -68,7 +68,7 @@ floyd run --env keras --data JnGrjujE96R2C4eiUG5Xz5 --gpu "python get_train_vali
 - change model folder by switching between local folder and floyd folder
 - change log folder by switching between local folder and floyd folder
 ```
-floyd run --data JnGrjujE96R2C4eiUG5Xz5 --gpu "python train_model.py " --env keras
+floyd run --data L2d6JLFS2TpxqxkqJNA6xm --gpu "python train_model.py " --env keras
 ```
 
 # check how far and how well the model is training on floyd
