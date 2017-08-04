@@ -45,10 +45,10 @@ index_preds_target[:, 1]:下一日的当天价格变化
 
 # 30 days
 # 90 days
-# time_span = 700  # 从今天回溯700 days
+time_span = 700  # 从今天回溯700 days
 # time_span = 500  # 从今天回溯500 days
 # time_span = 250  # 从今天回溯250 days
-time_span = 100
+# time_span = 100
 # time_span = 30  # 从今天回溯30 days
 # time_span = 1  # 从今天回溯1 days
 # from 20170720 to 20170728
@@ -98,8 +98,8 @@ sell_threshold = -0.0025
 
 
 
-# 加一个1.0 在预测值序列的前面， 为什么呢？ 因为y_pred是预测第二天的价格变化率
-y_pred = np.concatenate((np.array([1]), y_pred),0)
+# 加一个0.0而不是1.0在预测值序列的前面， 为什么呢？ 因为y_pred是预测第二天的价格变化率
+y_pred = np.concatenate((np.array([0.0]), y_pred),0)
 daily_shares_pos = [0.0] # 用于收集每日的持股数，让实际交易便捷
 daily_capital = [init_capital]
 
@@ -187,8 +187,7 @@ print("capitals: ", daily_capital[-1])
 # replace_value_with_earlier_value
 # 将持股数统计中的0.0，用紧邻的持股数代替
 ############################################################
-# fill all 0s with the value precedding it
-# use of np.copy to make a copy and cut the link between daily_shares_pos_non0 and daily_shares_pos
+# 让持股为0的交易日的持股数转化为前一天的持股数或后一天的持股数
 daily_shares_pos_non0 = np.copy(daily_shares_pos)
 # 将前一天的持股数来取代后一天的0.0 股数
 for idx in range(1, len(daily_shares_pos_non0)):
@@ -228,49 +227,66 @@ turnover_rate = np.cumsum(changes_pos_rate) # 累积差值，获得总资产进�
 ############################################################
 # calc 胜率 winning_ratio
 ############################################################
-#####changes_pos_rate: 0 为持仓或者空仓，1为买或卖；累积卖和买的总次数
+#####changes_pos_rate: 0 为持仓或者空仓，1为买或卖；
+### num_trade_actions： 累积卖和买的总次数
 num_trade_actions = np.sum(changes_pos_rate)
 ################### how many winning trades = how many times current_trade_end_capital is greater than previous_trade_end_capital
+### trades_record： 记录哪天发生过交易（不论是买入还是卖出）
 trades_record = np.copy([0.0] + changes_pos_rate.tolist())
 # find the index of every close_position date
 count_trade = 0
 for idx in range(1, len(trades_record)):
-
+	# 如果当天交易信号是1.0， 记录一次交易信号
 	if trades_record[idx] == 1.0:
 		count_trade+=1
+	# 如果交易信号的次数是2的整数倍，且当天也发生了一次交易
 	if count_trade % 2 == 0.0 and trades_record[idx] == 1.0:
+		# 那么将这一天的交易信号标记为2.0，作为平仓交易信号
 		trades_record[idx] = 2.0
-# find daily capital on close_position date
+# 收集平仓交易当天的收盘总资产
 close_pos_capital = np.array(daily_capital)[trades_record == 2.0]
-#### num_full_trades： 完整买卖的总次数
-num_full_trades = close_pos_capital.shape[0]
+# 收集开仓交易当天收盘的总资产
+close_pos_capital_0 = np.array(daily_capital)[trades_record == 1.0]
+# 收集开仓交易前一日收盘的总资产
+open_pos_capital=[]
+for idx in range(len(trades_record)):
+	if trades_record[idx] == 1.0:
+		index = idx-1
+		open_pos_capital.append(daily_capital[index])
+open_pos_capital_arr = np.array(open_pos_capital)
+# 每笔交易（已完结的交易）的盈亏额度
+closed_trades_profit_loss = close_pos_capital - open_pos_capital_arr[:-1]
+#### num_full_trades： 已经平仓的交易次数
+num_full_trades = closed_trades_profit_loss.shape[0]
 # compare one close_pos_capital with another to find the winning trades
-winning_trades_sum = ((close_pos_capital[1:]-close_pos_capital[:-1])>0).sum()
+winning_trades_sum = (closed_trades_profit_loss>0).sum()
+losing_trade_sum = (closed_trades_profit_loss<0).sum()
 winning_rate = winning_trades_sum/num_full_trades
 print("winning rate: ", winning_rate)
-
 
 ############################################################
 # 盈亏比
 ############################################################
-profits=[]
-losses=[]
-# 每次卖出时的总资产-前一次卖出时的总资产=每次完整交易产生的盈利和亏损
-profits_losses = close_pos_capital[1:]-close_pos_capital[:-1]
-for pl in profits_losses:
-	if pl > 0:
-		profits.append(pl)
+total_profit = 0.0
+total_loss = 0.0
+for profit_loss in closed_trades_profit_loss:
+	if profit_loss > 0.0:
+		total_profit+=profit_loss
 	else:
-		losses.append(pl)
-first_loss_profit = close_pos_capital[0]-init_capital
-total_profit = np.array(profits).sum()
-total_loss = np.array(losses).sum()
-avg_profit = total_profit/winning_trades_sum
-avg_loss = total_loss/(num_full_trades-winning_trades_sum)
-print("profits/losses: ", -avg_profit/avg_loss)
-print("net_profit/init_capital:", (total_profit+total_loss)/init_capital)
-print("the difference may be due to the last trade is not close yet")
+		total_loss-=profit_loss
+avg_profit_trade = total_profit/winning_trades_sum
+avg_loss_trade = total_loss/losing_trade_sum
+avg_profit_loss_rate = avg_profit_trade/avg_loss_trade
 
+############################################################
+# 截止最近一天的净盈利总额
+# 已完结交易的净盈利+未完结交易的净盈利
+############################################################
+# 已完结交易的净盈利
+closed_net_profit = closed_trades_profit_loss.sum()
+open_net_profit = daily_capital[-1] - open_pos_capital_arr[-1]
+total_net_profit = closed_net_profit + open_net_profit
+total_profit_rate = total_net_profit/daily_capital[0]
 
 
 
@@ -279,33 +295,39 @@ print("the difference may be due to the last trade is not close yet")
 # 胜：红色bar；负：绿色bar
 # full_trades_positions, winning_trades_positions
 ############################################################
-# make bar data for a full trade
-# still full dataset, but make full_trades_positions as 1s
-full_trades_positions = np.copy(trades_record)
-for idx in range(len(full_trades_positions)):
-	if full_trades_positions[idx] == 2.0:
-		full_trades_positions[idx] = 1.0
-	else:
-		full_trades_positions[idx] = 0.0
-# get full_trades_capital only, not the full capital dataset
-full_trades_capital = np.array(daily_capital)[np.array(full_trades_positions) == 1.0]
-# check to see whether the first element is 1 or not
-full_trade_idx = 0
-winning_trades_positions = np.copy(full_trades_positions)
-for idx in range(len(winning_trades_positions)):
-	if winning_trades_positions[idx] == 1.0:
-		if full_trade_idx == 0:
-			if full_trades_capital[full_trade_idx] > 1000000:
-				winning_trades_positions[idx] = 1.0
-			else:
-				winning_trades_positions[idx] = 0.0
+# 让所有平仓交易日的信号值为1.0； 其他所有日信号为0.0
+# 平仓交易日所在
+close_trades_positions = np.zeros(len(trades_record))
+# 开仓交易日所在
+open_trades_positions = np.zeros(len(trades_record))
+for idx in range(len(trades_record)):
+	if trades_record[idx] == 2.0:
+		close_trades_positions[idx] = 1.0
 
-		else:
-			if full_trades_capital[full_trade_idx] > full_trades_capital[full_trade_idx-1]:
-				winning_trades_positions[idx] = 1.0
-			else:
-				winning_trades_positions[idx] = 0.0
-		full_trade_idx+=1
+	if trades_record[idx] == 1.0:
+		open_trades_positions[idx] = 1.0
+close_trades_positions.sum()
+open_trades_positions.sum()
+
+# get full_trades_capital only, not the full capital dataset
+# full_trades_capital = np.array(daily_capital)[np.array(full_trades_positions) == 1.0]
+# check to see whether the first element is 1 or not
+# full_trade_idx = 0
+# winning_trades_positions = np.copy(full_trades_positions)
+# for idx in range(len(winning_trades_positions)):
+# 	if winning_trades_positions[idx] == 1.0:
+# 		if full_trade_idx == 0:
+# 			if full_trades_capital[full_trade_idx] > 1000000:
+# 				winning_trades_positions[idx] = 1.0
+# 			else:
+# 				winning_trades_positions[idx] = 0.0
+#
+# 		else:
+# 			if full_trades_capital[full_trade_idx] > full_trades_capital[full_trade_idx-1]:
+# 				winning_trades_positions[idx] = 1.0
+# 			else:
+# 				winning_trades_positions[idx] = 0.0
+# 		full_trade_idx+=1
 
 ############################################################
 # 记录历史回撤  record_drawdown maximum_drawdown
@@ -421,14 +443,14 @@ ax3.legend(loc='best')
 ax3.set_title("maximum drawdown: rate: %02f, capital: %d" % (maximum_drawdown_rate, maximum_drawdown))
 
 ##########################
-#### plot winning and losing trades
+#### 画出开仓和平仓所在的位置
 ##########################
 ax4 = plt.subplot2grid((14, 3), (8, 0), colspan=3, rowspan=2)
-X = np.arange(len(full_trades_positions))
-ax4.bar(X, full_trades_positions, facecolor='gray', edgecolor='gray')
-ax4.bar(X, winning_trades_positions, facecolor='red', edgecolor='red')
+X = np.arange(len(close_trades_positions))
+ax4.bar(X, open_trades_positions, facecolor='gray', edgecolor='gray')
+ax4.bar(X, close_trades_positions, facecolor='pink', edgecolor='pink')
 
-ax4.set_title('winning trades: %d as red, total trades: %d' % (winning_trades_sum, num_full_trades)) # change model name
+ax4.set_title('open position (gray), close position(pink), %d winning trades, %d trades in total' % (winning_trades_sum, num_full_trades)) # change model name
 
 
 #############
@@ -437,7 +459,7 @@ ax4.set_title('winning trades: %d as red, total trades: %d' % (winning_trades_su
 ax5 = plt.subplot2grid((14, 3), (10, 0), colspan=3, rowspan=2)
 ax5.plot(turnover_rate, c='red', label='turnover_rate')
 ax5.legend(loc='best')
-ax5.set_title("TurnOver Rate: %d, avg_profits/avg_losses: %02f, net_profit/init_capital: %02f" % (turnover_rate[-1], -avg_profit/avg_loss, (total_profit+total_loss)/init_capital))
+ax5.set_title("TurnOver Rate: %d, avg_profits/avg_losses: %02f, total_net_profit/init_capital: %02f" % (turnover_rate[-1], avg_profit_loss_rate, total_profit_rate))
 #
 #
 # ### plot daily_shares_pos curve

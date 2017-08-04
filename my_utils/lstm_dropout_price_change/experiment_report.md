@@ -2,3 +2,6 @@
 
 ## report 20170803
 [see report](https://paper.dropbox.com/doc/OX3lLHf5xzhebVHG8WrPu)
+
+## report 20170804
+[单笔交易盈亏算法的出错及更正](https://paper.dropbox.com/doc/YYhpO0ZUKOYZxQeYLdVi0)
