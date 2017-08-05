@@ -5,3 +5,5 @@
 
 ## report 20170804
 [单笔交易盈亏算法的出错及更正](https://paper.dropbox.com/doc/YYhpO0ZUKOYZxQeYLdVi0)
+
+[剩余现金的算法错误与更正](https://paper.dropbox.com/doc/Frgegi2cvC8uJSGhXGVXl)

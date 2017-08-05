@@ -51,7 +51,7 @@ time_span = 700  # 从今天回溯700 days
 # time_span = 30  # 从今天回溯30 days
 # time_span = 1  # 从今天回溯1 days
 # from 20170720 to 20170728
-# time_span = 10  # 昨天开始交易，到今天收盘，交易开始两天了
+# time_span = 11  # 昨天开始交易，到今天收盘，交易开始两天了
 
 
 
@@ -88,8 +88,8 @@ daily_capital = [] # 收集每日的总资产
 
 
 
-buy_threshold=0.99 # 0.9 for ETF50, 0.99 for ETF 300
-sell_threshold=0.01 # 0.1 for ETF50, 0.01 for ETF 300
+buy_threshold=0.999 # 0.9 for ETF50, 0.99 for ETF 300
+sell_threshold=0.001 # 0.1 for ETF50, 0.01 for ETF 300
 
 
 
@@ -97,6 +97,7 @@ sell_threshold=0.01 # 0.1 for ETF50, 0.01 for ETF 300
 y_pred = np.concatenate((np.array([0.0]), y_pred),0)
 daily_shares_pos = [0.0] # 用于收集每日的持股数，让实际交易便捷
 daily_capital = [init_capital]
+daily_cash_left = [init_capital] # 收集当日的现金结余
 
 # 将预测值（价格变化比）转变为涨跌预测，或者满仓或空仓预测
 # 实际上交易是从第二天开始的，第一天没有对应的预测值
@@ -122,6 +123,7 @@ for idx in range(1, len(y_pred)-1):
 		daily_shares_pos.append(shares_pos) # 收集第二天的持股数
 		cost = shares_pos*open_prices[idx]*0.001 # 计算当天交易成本
 		cash_left = 1000000 - shares_pos*open_prices[idx] - cost # 当天所剩现金
+		daily_cash_left.append(cash_left) # 收集第一天现金结余额
 		end_day_capital = shares_pos*closes[idx] + cash_left # 当天总资产
 		daily_capital.append(end_day_capital) # 收集当天的总资产
 
@@ -164,7 +166,11 @@ for idx in range(1, len(y_pred)-1):
 
 		daily_shares_pos.append(shares_pos) # 收集从第三天开始的总持仓
 		cost = np.abs(np.array(shares_pos) - np.array(daily_shares_pos[idx-1]))*open_prices[idx]*0.001 # 当天交易成本
-		cash_left = daily_capital[idx-1] - shares_pos*open_prices[idx] - cost # 当天的现金结余
+		if shares_pos == daily_shares_pos[idx-1]: # 如果今天的持股数 == 昨天持股数
+			cash_left = daily_cash_left[idx-1] # 没有交易和交易成本，昨天的现金剩余==今天的现金剩余
+		else: # 如果持股数发生了变化，那么有交易，今天的现金剩余要重新计算
+			cash_left = daily_capital[idx-1] - shares_pos*open_prices[idx] - cost # 当天的现金结余
+		daily_cash_left.append(cash_left)
 		end_day_capital = shares_pos*closes[idx] + cash_left # 当天总资产
 		daily_capital.append(end_day_capital) # 收集当天总资产
 
