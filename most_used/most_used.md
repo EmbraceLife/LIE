@@ -42,9 +42,10 @@
 	- try both if one is not working
 
 1. how to install keras from source:
-	- fork keras and add remote official url
-	- go inside keras folder
-	- `git pull upstream master`
+	- fork keras and add remote official url `git remote add upstream official-url-git`
+	- go inside keras folder `git checkout master`
+	- `git pull upstream master` and then `git checkout keras_trade`
+	- `git merge master` and `git commit -m 'sync'`
 	- `python setup.py install`
 
 1. how to install tenforflow from source: [see stackoverflow](https://stackoverflow.com/questions/43364264/how-to-installing-tensorflow-from-source-for-mac-solved/44299779#44299779)

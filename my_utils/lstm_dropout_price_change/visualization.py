@@ -45,14 +45,14 @@ index_preds_target[:, 1]:下一日的当天价格变化
 
 # 30 days
 # 90 days
-time_span = 700  # 从今天回溯700 days
+# time_span = 700  # 从今天回溯700 days
 # time_span = 500  # 从今天回溯500 days
 # time_span = 250  # 从今天回溯250 days
 # time_span = 100
 # time_span = 30  # 从今天回溯30 days
 # time_span = 1  # 从今天回溯1 days
 # from 20170720 to 20170728
-# time_span = 8  # 昨天开始交易，到今天收盘，交易开始两天了
+time_span = 12  # 昨天开始交易，到今天收盘，交易开始两天了
 
 
 

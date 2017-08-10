@@ -7,6 +7,9 @@ https://docs.python.org/3/library/pdb.html#debugger-commands official doc for `p
 https://pypi.python.org/pypi/pdbpp/ official doc for `pdb++`
 - to also use `pdb++`, just install it, then everything is the same as using pdb
 
+## install pdbpp
+`pip install pdbpp`
+
 ## most used pdb
 - `python -m pdb file-name.py`
 - or inside the py file insert `import pdb; pdb.set_trace()` where needed
