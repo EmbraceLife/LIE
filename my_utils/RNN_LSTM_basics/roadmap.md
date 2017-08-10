@@ -40,15 +40,28 @@
 - 两种tokenization方法
 	- one-hot encoding of tokens
 	- token embeddings
-- one_hot_encoding_words
-	- working code
+- one_hot_encoding_words [code]
 	- 将句子样本转化为基于单词的3D tensor
-	- tensor shape (num_samples, num_words_per_sample, num_vocab_total)
+	- tensor shape (num_samples, num_words_per_sample, num_vocab_total) == (2, 10, 11)
+	- 样本的单词数必须相等，总单词量必须相等，不够的单词用0.0代替，见红色方框
 	- ![see the tensor][tensor image]
-- one_hot_encoding_characters
+- one_hot_encoding_characters [code]
 	- working code
 	- 将句子样本转化为基于字母的3D tensor
-	- tensor shape (num_samples, num_characters_per_sample, num_characters_total)
-
+	- tensor shape (num_samples, num_characters_per_sample, num_characters_total) == (2, 50, 101)
+	- 样本1: 共23个字母； 样本2，共24个字母
+	- 同样会有很多0.0，类似上图
+- one_hot_encoding_keras [code]
+	- tensor shape (num_samples, total_unique_words)
+	- 会有多个1出现在同一行里，所有的1代表出现在样本中的单词
+	- ![see tensors][different vectorization]
+- one_hot_hashing_trick [code]
+	- 使用的场景：当可供使用的词汇总量巨大，如果每个单词都有一个唯一的编号，会占用巨大内存的情况下
+	- 区别：不再使用字典，为每一个单词配一个序号；而是给定一个单词总量，然后为每一个单词自动生成一个唯一的编码
+	- 优点： 占用较小内存，快速生成单词的唯一数字编码（无需知道其他单词编码）
+	- 缺点：如果样本单词总数接近或超过总词汇量时，该方法可能会出现一个编码对应两个单词的情况
+	- 克服缺点的方法：`(num_samples, num_words_per_sample, total_unique_words)`, 让 `total_unique_words` >> `num_words_per_sample`
+	- 得到的tensor shape （num_samples, num_words_per_sample, total_unique_words)
 
 [tensor image]: https://lh3.googleusercontent.com/qyV6lhrpBBlom5l4liapUwlYcZIVMMqvXKhWE4Bz8ZeJW1HgxmUyioiENDOHvEq3-R2Jn_RGpgLjfH_KNYTlmv5OhPvjeAD5eE1sVxsfthMAQ5noWVD1yh-KrQnNal5uK6crNPDfGZoYZQTy2Y2uHCs4xcGCB8fJMlpQIjcfCHYMBIr6UHS7N-GlX5gaeqMjOoVO-aljs7V7xvk0F3moiM7_opxHlxzBtGBmxA-T-HbRqcBCBUnZL-waXB1PCy0507jcsWckQFMjYV5qSMiHYgeOguCJdMuJB5xFCMSHhd0tbXZH3U9R3A-O40YkGwi-q5sObCz8SRPRFCTlpOUfUELI5uggTIm4kPwWkWoq2uR86u4rRdB4IFnNYdMhZ4kbxfrqsIK_NHbhbcbKKORW8Sk0bGSt0PvnshTXBut3Pmk6agpSTf4uZQE54kflur9_hxliaas3RhqYdezvwcFNPLXq5BuAi0tBQeze4pJdTt5l_DLlaMw90hY3va3KsrxORoD_ezhInUjiPvWuU2EWLUJU3SnZVkhrWG8Yw9aCnfJ95krska_kxa51xfesCJ9R7zB9zpaKo2vtu-7s1TRv9IRVZyzmf9REZukiQaJUUkaUDXXKsshElSH9=w958-h722-no
+[different vectorization]: https://lh3.googleusercontent.com/mE6XLfpxRUMN2K7M79CdWrehG957AohwajqV7oAoJa68bkj4USnYiRGxbRITas03NYlsAdyWBPwwQJByVP46jQ6o0UuEJwmXP-27WSqokaUMmfQbKCPKn8c0cddeKr8OK65ugf6_Am42syorZEGLcgyy52kXL_EuEhR9lIdW_F-EBhaI9VW8XS8XwWDnOOxhyOQ7iYrEj-POYKYjGJp6yDQKp8REVS-pSzEZeMLarhESUsuIL7gkUhK42QgA7WLxDY__mMnhClT6xPdJPX7klvu8HbpUYO34phU2ao0hjf1me7keu-Faq5VVu_gGD9ZwICPcO3DKeaOTvEj7BR2YAQSNPUMLP69XahU-8TNYCUjbt7oiJkwl4Xd9tWD2dq-7QgEmgO2OyCTHSQ9AzCxv-kI4MhWV7jvUFAyVRguTq6U_OHmZih3kp4gGiQOn2ZvTsoNsWESM4bR8-Ed4mN5wQBgkrWOPlO6oTvejQj_PdiLKp8UOBIR1p6Oby0ihRb1bbVffQtqi7yFL0YIoMDvujnVUY_IsFlPeWyoglsIFX97dGmIC5eq5dRjEU4YA1b6evi_d3BTh3jnnOd-nYqyUsmaIbFt_WYyE2MJ3Sw1TYC8IpgLXq2b0mC7f=w842-h346-no
