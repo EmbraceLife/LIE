@@ -13,6 +13,16 @@
 	- binary classification 二元分类
 - logistic regression 对猫的识别
 	- ![][image1]
+	- Input: 输入值是图片，一张图片的 tensor shape (64,64,3)
+	- Input: 将图片tensor转化为tensor shape（64*64*3, m), m 样本总数
+	- Target: 目标值，是猫1.0，不是猫0.0, tensor shape (1, m)
+	- ![pay attention to notations][image2]
+----
+
+## Logistic Regression
 
 
-[image1]:
+
+
+[image1]: https://lh3.googleusercontent.com/KqzCHNE4GoH-8Mgqdh7Y6PQkkR0xDcLyFvZbMTHX8cSDTmHB-0efMYrQe2njCjvGaP86tyZ8s2q3XnQ3nsPp9laAt7YgYpCONNkVm__m6mY_fjquRPFbFNn33hyHxu5m_vw1DYhXCWXrVBnjF8Fgdc4f7zOJATLkWnwjOy-2dqrfbc4u20s6L0H5JleMbThY7iZW2QG_PPqDkIgG0qg4F9GdybM-Ku1O_feYYzHFuieCWci4gV4qFjJmuPx4Y9eAq1P7bUx39_ht6BrNIhy02qDDr4vxWSvI7xzoZdR-HVJhkZrqJWidVrwAAIifMITCTLlB-aow1eB6cSSmCrF2227FklG2xUE8Sw2P6CU1qohuFw4hj5IbUVBfmGXPX_2Gmk61CuJYWUx2eFA5iUE3KnhzwPabhl7enmJmQrTR-l6FDa4Kf5g5zw51Ef7MUuKQNf1F_O4ZZmgh-uPgT93AQx0-G8dPp9Bw6uaXbGkw1XfXQ3XuYDN54uD0stA0Jtj_H9hWLDOeunfOBrbeK7XakoGBDQgvs1jGrpfsBlkqHt-LrVIAUnKqMu8mMIqpjRDvWYvqbHVrZ4qsqexRd3lpasfF3F06g1k44pLg1yYNrtU22uWcvulqF3eu=w1900-h1032-no
+[image2]: https://lh3.googleusercontent.com/czHGUpQPJZuJYckHZIyBijbxONm0J9UIfwTls8NnYFib8tnD0Dtfz0IHisZ3lGrjUb63PWU1s4DoJhnYFsquI6R5T2ak9wIsI0ALG5xtIwPhY4bYdV20A5W2gAS7gS-3owM99rR2QZ2qzsmIXTr4sldRT-v9cdt6CYQXTkmEo0CecxnuqgWkb-uNP5TJ0JrT5_eEhwRBeHIsB91bNW7g-1tcdB_tCWfBWjrP_exfhJqrp0EluONR7TLaaiFfjhklEQxYSM3MQS9jj9osoULGT48p-sqj9nbuHWBdEZy2XMjjhfxwyL2DjDcJyHyxCw_DVeC_jI9U-9JP_vlgNCO_w4fh9CNfbHFKwmBARehS_DyCDHEJm1najTQVg_woADiVORgZ8W5zP0lnlJKDtvrh35jmctw6CKbBfft_UjqDBb7XWnb_gvIkmHWC_4YU2AKfXb6nF4OJ5-OmKH_gfe6NhQ5AjR9sXI_se7nWKxSNlAdQQGT5bue_-vI5hgm_--Ckqw4jBOY4MVsz4HmJoKuk6xIKpmA1lk6up6YWfRHttCGLtMlC6EezcU8YSPNJCoWXUw2nG9oo6gK1NMQbgCX0TuxHDUCi1WuAAkFUh-d_e_5e8G1gW3GG2C8H=w1760-h978-no
