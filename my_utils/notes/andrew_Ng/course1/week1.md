@@ -1,0 +1,80 @@
+# Week one
+
+## goals
+- 哪些趋势驱动了深度学习的盛行, 深度学习在哪些领域及如何被应用的
+
+## objectives
+- Understand the major trends driving the rise of deep learning.
+- 深度学习是如何用于监督学习的
+- Understand what are the major categories of models (such as CNNs and RNNs), and when they should be applied.
+- 深度学习在什么情况下能和不能高效运转
+
+## intro
+- course 3 是deeplearningai提供的独特价值
+
+## What is neural network
+- 房价预测和单个神经元的神经网络，
+	- 房子面积（输入值）与价格（目标值）的关系
+	- 该模型是在模拟RELU函数
+	- ![][图解1]
+- 房价预测和多个神经元的神经网络，
+	- 房子面积，卧室数量，邮编，小区富裕程度(四个输入值)与价格（一个目标值）的关系
+	- 每一个神经元都可能在模拟RELU函数
+	- 我们无需考虑每个神经元代表的特征值处理（如家庭规模，超市距离，学区质量）
+	- 我们只需提供足够多的数据（输入值和目标值），模型自动刷选创造特征值
+	- ![][图解2]
+	- 三个神经元通过调节，四个weights的大小，来自动创建3个特征，至于特征是什么完全有神经元控制的参数weights决定   
+	- ![][图解3]
+- 特征的作用 [我的直觉]
+	- 当四个输入值无法直接与价格产生相关性
+		- 如果有直接相关性，一个神经元就够了，无需中间的3个神经元
+	- 用三个神经元，构建3个间接相关性，形成三个特征值
+	- 三个特征值，可能形成与价格的直接相关性，所以接下来用一个神经元就够了
+		- 价格所在，代表一个神经元
+----
+
+## Supervised Learning with Neural Networks
+- 监督学习是众多深度学习中应用最广和赚钱效应最大的类别
+	- 特点： 输入值+目标值 = 必须的数据组合
+- 监督学习的主要应用
+	- ![][图解4]
+	- 监督学习主要模型种类
+		- 标准模型
+		- CNN
+		- RNN
+		- 定制混合模型
+	- 三种监督模型结构
+		- 标准，CNN，RNN
+		- ![][图解5]
+- structured and unstructured data
+	- ![][图解6]
+	- 规范数据
+		- 能放入数据库中或Excel中
+	- 不规则数据
+		- 不能直接放入Excel里
+		- 音频，图片，文字等
+	- 人类天生擅长处理不规则数据，近2年深度学习帮助机器胜任不规则数据的处理
+----
+
+## why deep learning is taking off?
+- 深度学习起飞的条件： 巨量数据，强大计算能力，优秀的算法
+	- ![][图解7]
+	- 当数据量较小时，传统机器学习模型如（SVM，logistic regression等等），如果恰当使用feature engineering特征值处理，效果不会输给深度学习模型的效果，甚至表现更好
+	- 当数据量巨大，神经网络层数越多，神经元元多的模型，表现效果越好，远优于传统机器学习模型
+	- 当然，神经网络的大小会受制于计算能力的大小
+- 算法的用途
+	- ![][图解8]
+	- sigmoid vs RELU
+		- RELU让SGD算法提升运算能力，大幅缩短计算时间
+		- sigmoid会导致梯度爆炸和梯度消失，让深度学习的参数更新，运行很慢
+- 强大计算能力的必要性
+	- 工作循环：从想法到验证，到完善想法再验证，
+	- 强大的计算能力，可以缩短工作循环时间
+
+[图解1]: https://lh3.googleusercontent.com/4PFbPtzypvkR7S0u_JID0BJAAPPVNz0GIJYmnAxfw8f0-33y_R-YyoPfFHJk2R5ZjQ6JSZV2V85qdfGzyMRxMzONBo_4Hjmm_S7ERKa081AQGeAmx6hV4YayVgyNCOU4FtAkKwcf8Zb2pN8ylC6-wHjtL4ApAFb9r-faa2ly1PUqvgJ47xiFppyUGX3pTSjm6-ino4Ivac3E2Yhmr_8Y3nRSI5cqaSQofoA195XKlGZkg5iPobThaOj8FE_0otm68hDegmVAFIdoBVn06-j6-1QIQQW10oEt7rUdRy0KpiEmvEWFQyjlDXUTImhBRoN2JQ4pFxu4VAiL7PQVTwKLZqXrx8yqFC921rsYr69LxjbtRagmbpUvJ-0QzO6AHzCnPdsQkHnS-z7dNDPrCyZf4J188HU2pDmajjoonV8lVSRxt-7esVpb6stLqe3FB1C1OANpUvGENIC5JmjSNST7StsdnL_o1uZIf-MrbimrZCYzBGgq7TjgomWehiM8LJ1tKpwde7r7QB82WrrqDHWAGs58gOr2hHP1vh3Rl-04HTI03cnmMerMQ6db2Bq3kGw2CUKdsMko87Y_0ZFAPjMnYLxhLMgChIhvOrr95NvGztJcxh9QM-8gMjMF=w1738-h928-no
+[图解2]: https://lh3.googleusercontent.com/BglrkaFXAvK_mlj1uBFSDIeMV44Wp1DMF8ThsekgcRuVdI2-QwcYWqvYetrUYhcdcJv-hWZIDTBAI7oOP_3ZBh5YeWadWF7fhDubiUjYGemTeXC2lp1lN2p0qa9OFo0AoXkLwV9m37o0Powug9CAPJeW5FhIA7wm1HhBDpniN0F8N7h-WL2jvDczrRt_q9VjxnD3IxoSnBxFhzaxR1aPP9DaB_t1ZwwrV47lzQbZ4oIjYszxzjcg5e02hgAcvHT35AY-x3h0tVLuCoITcTaG5jtiBAZAurillWqfOHTOACXj9lC5hgHW4iQSd574ahJF1DzOoZm4849BZHFZacMShZbynOzo0w3-aXNoMrJddjlzv2JecTtlJfxOhBmu0YF_CyX98tlShfd1xAak67HMcsMmKBpIaErWLrnrmWCAQbN0uQANxSOWdGrYuOGnCKBMgP9acD6mkgA3VFFY3NjVHhQyGvlQuvto-QFlzTaTg9u4DQol2kZz4wXLMryetXgQpNIkRtvAdUdYVGF3H-e9KNR5WvCGbBx5RVU7HCQSpJk7WHSI0AFp45FgXKcn1ZE6UPn43eHhmSSecjuVLemMaF8etUYwkJzlG-nmzBv8Obp5eWfD56dzit3O=w1478-h860-no
+[图解3]: https://lh3.googleusercontent.com/nQL4AedyiAe1wF5M1RABVUuCyhBmqrbsci28guXAmQxHI9X6MwPzUCrUZSkdW5AlmISbV9HuYUqM27s8_xTqnU2OLbqj8pERLkd0fflu-P85SV-zOaV_B8-yPp8jTp-6RnxoEkDAyr_iXOi7MzGdiHMuFHv3myhL-trujY_-hI1YpdwaCkL0_4aKG_T00uaGOBxM-t4VsK7DDt5c9ab3R3E40nyY68CFPTiMkXRnEwRQ8q2WMlaERm5Nc246VHE9AV18vRKOD4126UB9Y1L8kQNxznaCOpIdoLBccLpaRwZ9g5xEQ2pv3iuskZbwqolWUPSoF1CU_WcwPY1Klaawbw4HVTYDymH7lTUd4iSHGEj_QCHgPFY4yE0R4ygTHZKO28B0AprzXhG98fbFh03Qg4sx1NHb6oKft1IxUW3-J4CQax2dQFe8of0qqn8_UybrnxbC3bsJV2L5oA4MHlqVNrA8eRSjz4Q6sEdfstl2ZG5tEFvPK2YVThg7IDGGvNdKx6PMU2PlobKwNyxZ-1-pEk6jwRGiR0cwY7wNqUQuChdHdfybLG31NLdGZdOjH2r9v-NI4D-FPonsSMOVhoZ9vskgjEScBoEOSOjKVTF-IS1GeI16JW0T0qhw=w1810-h972-no
+[图解4]: https://lh3.googleusercontent.com/KDFnXAG29aBN8Pyfx7eSm4GD0XWDIASMkvFj5wNdCwhCwc06htEqh5tf4Xid1dStI2By2VDj9ABnYk-D3EkIc0IPsDm6ShOhA6C8_IheoV2I6CY11yndJ-6iGQDtoAMPONDbUBHZmDdGEvDK9F2ZaS0t0KzKOHSqATWD2ovbYWEI7kvwCdQGyitHuV2flKEii7O7pNkdWoeP5llie_RZCcq3wDSQxyuUuDekaJSVBnmUJZKBen_nIVjIcl7KJNfKgSCFRk-8zlIj0Y6w9Q83sDf_eOHVnp_k419p-aoC8Ze73BvvhDMKbeI8Mo_tB5GcYtrNyqsNiBS9lgObtRaAauVw0EzdF6aWPId6MoAE_TlJesrjWhJYhQBwcI5N5CFvNqnSgPKn5Svv8cO9krxx2b-PSVTHs0bOR3rcOPxXWUSF8jtMo4uNdNMveQbhbVw9Dlmpjv6P-DKNAwht8aPH23tXr08RxjjIRVqi7q5uCmK_OwnIWCClz_NwMc_qKo7UhKhiKl2tLjuCi-psF--d27oA_QFfgJPw1JP1y1ivIqbW8I1aUidfpYlenua4--9ZTLcoa0BB0cBeKfBYY-uMgsgCNQgmuIb6PPFodCXJpy7oDad_9rOIfmSW=w1838-h926-no
+[图解5]: https://lh3.googleusercontent.com/5DjZYL-pX7W6QO8ACgad2UxUwgkpPssQIWYTRJCsJi4CWo3w-zZpZL-7-KMlaDFS6i2VQ7P93drfwUD0Eoz9bv7LOMBokEe3c7FrZlgFdnCextGfJ2KgcjlrAaUMymMFSNCoLZ3EcIt9DBaSp-6zPm4C-Q5RDCuKyYiehl-LkW3ighMvclvMvMBg1sw1er9_t7HsTtXKcE49HjEdqBhpPAEewOt3gneMUNrHRJ9oMHf1CctOTqGQTcdcLiXau1-RHFlAeI7BATv1LJCLVhaFdO8HH55R6kW9hd4PzXg268qh9IfCPKy9WfiAe-kgNqv2R1GwWZhZ6suhbEoFm6xumqfiXEEiDqOQqs7lSiF7NhZrptHTmiIezcI-ow7gh5T5DKRsiIBw3KRBI9ZcYe6DRBH-RoqaCqpgD5V2lkGU91sdxTcPqkGXYChCgLSQpj8VUTnOfYgkJGY92McbCcOw3n5zTMQbQ_qCfyL26yC7zkT-SdPrEUn61FH-aoG2B8-Hrx1adiAC-45wNniH-UiTH6-hvflKl6iiNfC1IlODn_St4qsrpMqIUCYpNPEg32m0PJZoFnLJo7xhqo2C-q0E_EaSpHUkTnR4rzZ0MhntEBAgcn5PTIdveDfY=w1904-h862-no
+[图解6]: https://lh3.googleusercontent.com/E3vWY7FPn1_xjWB2l8XXxNDQJxZHGwFh9vj5DNWwsG1Kp4tLsUohYZDJg1_AEwIkvDbFHcQvHAxblBgjLAh-gMTeDwZ76vsrDa8ZJ9aRi1__kWL9InQmISstHEWV0GuhKKIv9h4gb_kg3VfQXgsCxfQhj9ABNptADJF2607Fs3ZBLcW25ydv4BH3jOBYumWY4mkp4jVkCXWIPJKyjO6Ue9v-ALmVwd90wHpoScHgrddqyiM3bDiEtFsfzxFjglU1icsXGaXYr5dgAK06YHk74pK-UWizAf_8afmfZacp_RL-gSZdBVNjBTv23W9mK8MPu4eP_N1Cx2U1z71U34m12utynj9fB-xTMDDs-deVmMQz56Xy3ZyMgi_X66RYEtNlzHbvj6BdoLB-WEtyAy1W_5RjtQlsjc5LZ7Th5R5l2lfQpaf1ZkUfxQJy2c-guAJXgAlyWgECAuHFWqDLwJPKYo3_rL_7-QnWiUmIaaAWcbxK7CJlAS9npxOwHT6CnkVgDKJ5aWINStzeJqzfWBAsSLfJC9P4YOWJK5CsjDl0FATo6s4fofTNquBwWlbAfGToZ0gqE591UapvbCW_DjdeZSuGl9ZGRwyM4HSQUtHanr5JNhELRYhPL2Lb=w1860-h924-no
+[图解7]: https://lh3.googleusercontent.com/E2l0ypEJnpQEXEJP-rmizi9gopiGAI85mO63gxRXkOIVs_FHRWLSF0q61Bxn9TKCCD8REzSw2xO-1QAJGNt8sDjsgXOupEUEx7W-x-FhbEayhzMQnhYdkypRFpnlbtP2f3kF6O9xSao57FpDSquBMkHGPL_SkxhMYXEbRPzbZ-rqXwlQGGyd6X-Dm2yigCdbP7QPY9qhrhobaKBrjNl7_cJnhjFHmpCE0Hec7K0UI-kS15phhtX2gEd9sZxCP-A4c7v7fvNx6gmn7wklJNlmloUwzX60wvV6vRV5oulDaPG1Vqsx9t7lsgUjm5ZB5e5ynu4jVGviOraFc3YxiWaobIjGUwCLZhDTgR8ahJHSZHRA8fFR-Mqsbh1IByd7k0Ez6yz9oSgIwQl6mvM7RLlLFengVGxg2D8tlR1sCbtu_dTtPk858qjcY7MuVBT3BlM3S8UaGhgZWIq-LCkHQObtPEtLtl2Pto6RSbjTauRg0ur5hESvq2p6nBBKE_cSAPaEb1UkpYaiPg6x_2c_EXU1oVW2LJ1v111ehZz8S2XipQeEHi-78kwWhJToToz6ljAYPPddtyVaFD1sDGIxeeyFdBXcvC_WOmASeIQAqpx1cmPe6AoQY9TmwC6L=w1816-h974-no
