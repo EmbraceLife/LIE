@@ -12,11 +12,15 @@
 	- `option+cmd+shift+[` and `]`: to fold and unfold all
 	- `option+cmd+ [` and `]` : to fold and unfold where mouse is at
 
+
 1. how to write math notations in atom
 	- install `markdown preview plus` and `mathjax wrapper`
 	- `ctrl + shift + m` to toggle markdown view
 	- `ctrl + shift + x` to toggle math notation view
-
+	- resources
+		- math expressions http://www.rapidtables.com/math/symbols/Basic_Math_Symbols.htm#annotations:w0yVRvONEeaRnMP1yvzSZg
+		- math latex http://csrgxtu.github.io/2015/03/20/Writing-Mathematic-Fomulars-in-Markdown/
+		
 1. how to make alias in `.bash_profile` and `.pdbrc`: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/bash_profile-pdbrc.md)
 
 1. how to use pdb: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/152528672306f2868568d7b65dfefb1da6900986/tutorial-contents/pdb.md)
