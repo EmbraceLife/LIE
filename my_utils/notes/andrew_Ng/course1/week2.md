@@ -51,9 +51,23 @@
 ---
 
 ## Gradient Descent
-- ![][image6]
-- 碗型函数是怎么得到的？肯定不是由 $J(w,b) = \frac{1}{m}\sum_{i=1}^mL(\hat{y}, y)$ 画的；一个长得怎样的函数才能画出这样的碗型图呢？
-- 碗型函数，决定了convex特征，会有一个最小值；不会是波浪型，没有最小值
+![][image6]
+- 公式1: $\hat{y} = \sigma(w^Tx + b)$
+- 公式2: $\sigma(z) = \frac{1}{1+e^{-z}}$
+- 公式3_a: $L(\hat{y}, y) = -[y*log(\hat{y}) + (1-y)log(1-\hat{y})]$
+- 公式3_b: $L(\hat{y}, y) = \frac{1}{2}(\hat{y} - y)^2$
+- 公式4: $J(w,b) = \frac{1}{m}\sum_{i=1}^mL(\hat{y}, y)$
+
+#### 碗型函数和波浪碗形函数是怎么得到的？
+- 碗形函数的由来：
+	- 逻辑上应该是将`w`, `b`,代入公式1，2，3_a,4 可以得到一个基于 $f(w,b) = w^2 + b^2$ 原型的函数，（能得到吗？我目前不知道如何做这个代入过程的演算）
+	- 如果演算成立，那么就可以生成碗形图，如下图
+	- ![][image8]
+	- 碗型函数，决定了convex特征，会有一个最小值
+- 波浪形函数的由来：
+	- 如果 将`w`, `b`,通过代入公式1，2，3_b, 4 可以得到一个基于 $f(w,b) = sin(w)cos(b)$ 为原型的函数，(能得到吗？我目前不知道如何做这个代入过程的演算）
+	- 如果演算成立，这样的函数会呈现波浪型，没有唯一最小值， 如下图
+	- ![][image9]
 - ![][image7]
 - `w` and `b` and `J(w,b)`构建了碗形函数，单一一个变量`w`or `b` and `J(w)` or `J(b)`得到如上图
 - 如何利用当前的 $J(w)^{i}$ 和 $w^{i}$ 来判断 $w^{i}$ 应该的更新方向和量，得到 $w^{i+1}$，从而让下一个损失值 $J(w)^{i+1}$ 更逼近最小值
@@ -64,7 +78,7 @@
 
 ---
 
-## 
+##
 
 
 [image1]: https://lh3.googleusercontent.com/KqzCHNE4GoH-8Mgqdh7Y6PQkkR0xDcLyFvZbMTHX8cSDTmHB-0efMYrQe2njCjvGaP86tyZ8s2q3XnQ3nsPp9laAt7YgYpCONNkVm__m6mY_fjquRPFbFNn33hyHxu5m_vw1DYhXCWXrVBnjF8Fgdc4f7zOJATLkWnwjOy-2dqrfbc4u20s6L0H5JleMbThY7iZW2QG_PPqDkIgG0qg4F9GdybM-Ku1O_feYYzHFuieCWci4gV4qFjJmuPx4Y9eAq1P7bUx39_ht6BrNIhy02qDDr4vxWSvI7xzoZdR-HVJhkZrqJWidVrwAAIifMITCTLlB-aow1eB6cSSmCrF2227FklG2xUE8Sw2P6CU1qohuFw4hj5IbUVBfmGXPX_2Gmk61CuJYWUx2eFA5iUE3KnhzwPabhl7enmJmQrTR-l6FDa4Kf5g5zw51Ef7MUuKQNf1F_O4ZZmgh-uPgT93AQx0-G8dPp9Bw6uaXbGkw1XfXQ3XuYDN54uD0stA0Jtj_H9hWLDOeunfOBrbeK7XakoGBDQgvs1jGrpfsBlkqHt-LrVIAUnKqMu8mMIqpjRDvWYvqbHVrZ4qsqexRd3lpasfF3F06g1k44pLg1yYNrtU22uWcvulqF3eu=w1900-h1032-no
@@ -74,3 +88,5 @@
 [image5]: https://lh3.googleusercontent.com/o7FZdccz5FzTEb_W5kw6oLnq6x-nOz61paXKEqGoZ36r_eCaLIQRjY8o51okupX9vtY8AE0TXGZSmAfN6u3gin35vbEQV-8Ij28ih9mfmvALP6d8mOCF-nlFfaBwx4nuAtmzU_Y3zAeTa5qyrZD7W-PwaBlm9KNou_aLnIyTcJOqySkVP1k41BG97-nQlucHrMDMqeJ21vsRqKb8lmtSOheJOgIND_AN6L1c-nlnaQMUjq16sUnu29MBuqBkFQoOlD75XAU6IofURaVjxgUqN-A3rXuQQEZFS1rI8ISucaA8KmBq0hMeEjZtZj65dZPvmSRYcWVK_zbzxM4r1qBIRYTAFWfRgHKIrupQ0WMAsvWnyVjHNB_EJDDTy831N-PzwIHPJCgB4velciTKdXPiwLYaGBSX95gh7O384OjwU9DRMMPi32KKSa-ebiN36fQps5VSM5mFRiAvvFZJgAGg67iHs0cPm5p8VtZknMeE8WUEfBDRcFJnKv8xPIKk3QvlwVA1HVdyq9fKDfFh_inDZMBinE_2ySQVqIupjfIHR21yZzZVFZ8gmhaoIqupxqSmB06Z7fWz-9rEFwhEiUOiD_0vsZzuFKr28Wq43XQhlb6zQloD3UJj_Oal=w2090-h542-no
 [image6]: https://lh3.googleusercontent.com/ZBqjR9tg54EdEw1iF98ujFqsYDy93_H4fc3AhXUSO0E5a8q9ZIXN-exjtkcQXg-HLmY_NxloCC90OMPrq_bsNWj2O11NpxyWOta7GEl9myWZ3vvDC8xvh2TZz73WHfM6WX9W_oVM5R0B7NaO0PWH2mCWTxPcOHHiFxxcy1lv9SXr8rbpc_frK6pXl7ZL7Qp6zeiubUYY2rryBKpFeFwxc-9AC_ULl5t52bt7gGpZcc2vZ0-kKt5ooaqmX6kQG8r2c9nB-i87_xZh1H5cT2pcuFG9DN5dlO8aoNmGFFLPL1A3dflQDbD-nzgBvIGiHnlM7G2ZM-h7_ICpVt2IwPui9pCwlsNqcDwHnaLDZ3gCyf4_2aPONaR4GIDCtSNWGw5VhMgDO7vL_D3XhsBWYlVS2E_qBXlWkGrOJ7XfPOmxiuDwWTRmYrOqPBe0_EEh0G27pO_e95nr7FMAt0AMXq6lK4fMaORARrAp_QXVRDsVoxovA7Cz0o0PvCdjPKdeygY5etqDwf26_6vsROwZ5Ex_vRjOCaB0HBRL4xqs5sa2yJU3GAA3J1y_YI5U_ffXhKEKSucOWmj8m_xKI5afsZOjP0GKRVOy36nmp59H48eA3qgMzsfeWM-QUURZ=w1914-h958-no
 [image7]: https://lh3.googleusercontent.com/y_J_yslGvUEhnDzf0RtQ4zFXrlWG427hUzNL5F1b2WCASmkD1I0NhYXKaDwgt4q2lGT3s0l4IRetZiS4sGCP-layErG7Cldf1ZVe54yjbh_r0Stv58g1ndnq1N6bHpVyeqbCReR3BqX7Y0skmdpxhroB-mP1iNxLQ7zroG7lMDE0DR76KjE95FxokVFqF4lMaNkj0vpSJ974rhjRY7h2M47vdmcL4b4AmK-ygwjr6zXiQUaVRjO_en8GL3AXQtuOr4Sj6iRGqGiYl8uD7KI--t5pqCiudfqnCTzcoXkGIRV1CXkz-8pHEzMfvFCT5BUOodECOEYlRIBWoem9Jxg6Xsh9O08jS6euISCBNS-5jiujN3yWeYscPS-YfZmb_nYidqkTAP8IvIe5-6mAT83FkryJV4o47nnDlrTCb9r91yjqBSsAqO6UhMMsJzTLIUwRZncN9r771dQ2_heASPPQeJzfnC_poENDK3e-mpJ3DV56DSgdMStZOINPM-MnkTCwc7rdNlgoeRQ1BR5P0JH4-1deQtdFG0FjuUpyMeCIyINkvIjpvBn4aXvZuhrasVZOfkYSjkQ_NInBUHzzUTwdEiJYLBAketVYYFx5h-mWy7nmEeyKcN0AYy3a=w584-h322-no
+[image8]: https://lh3.googleusercontent.com/RZEdyoheelD-a0NgUbb3ZcAHJqdTz_KXa8aGskYHXjLCKSF8wuM2Jbr6mreNStM3h72pxrtMagNlvGp1leTWD8zquLU_5HiP6lUcLc78RlpR5cgTLi2qIVZ8OAp69PiLdUaY5ng62XsHY9XxjWRMSCrsyWzhY3FMouCI6OVT3dmdwR0bG5EZJqdE-cJq2CnKqnO1C0DfA_MaV_4sfh_edVIEgx8BSPbHqZv7mNssh6MFE7qQ8IwaClrytFzklVM5tT9GZ7fZysWwhoLNoGb0COVwZu7pAZWXH5TKTqfCEIWeajZdQzySNIIZYDz_3zk5Sd9TQGNhj6B3UqAEQKAP5mwbeOaP7fh2Myf8yZFWDVLcqwla7jKoXhdJcZF9MiGuU8L9ry0X3Vq1pfe0Xa8hNFA3jYLq_usqinBXArWZTtsSt6-oPDlwLLWIwlQWKgc7q9haB3sBkW7MesyQPo3v4_QPhGMzLKhei505VwMioEXibA7RjrtB60rn3oGNsOXBJE_SgOlF_vsoQ-vRis7a-JMPBK--rd9CAF_OI6Y5yrayRB5uSXvOEktRLFjhGsxexWao9S8zcbi6hqESD6gesztK70xfrER_NzFIkOwM3GG9O81j9k08=w1094-h946-no
+[image9]: https://lh3.googleusercontent.com/atytBnhFGoh80MrvLtXVpJ3QOQlEgrLS03nM7cOGR3aKAi7a4-77xqaAp0WNA_0MjsqSw-NtsKQyvH735rLELyHwUttCYIGxY_RonThTM7nLddkRfjC_7N_PCShgNc9yv1UWTHHtG06moqfwQyuL8zg37f9SJy7NeK3aziGU-mzEy7qIpB2jGHW_4hMdZXuNcbIEZJfH3b3eCT_OYGYrdVEX6xsDvnOLQ2TpBR1Qd-iMp1EP15Ew1ToVBbSTlm9II9p7yCzWgk-K-b3MG6oWq1XIV75NOt6nK74Sh5_36tzNwipHIc3JMtxriedzYq9_1tgI9q9CMyYcuuDoe1FubFO1eGpHsxaaYGgrJSs_cKlK3lldKTmTX24Hrp2jj0EK9WDiMMgkRdWa0kbqmjJuLUNpEPx9aZZ_GrXNX_5jn4tu_sB3ZPGyPoNLqf5F9s9GH0qyO6-Uf0TpBAtzSvv1m_6nO97uNKHSs5jrks37wMjDbiEhlSsJDL3mbmmKyHd10YFEf-1hKyCRSro-o1IhWF0L3WBP4sDVkWpaXreWbqyuVrfJoc2z8E-awzB1nowL8m3OHub589PZU6Zga-4qxkAuUzAAdYfquH3rEs3ohbiR8qytSsqm=w1056-h842-no

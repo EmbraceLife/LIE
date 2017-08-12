@@ -20,7 +20,14 @@
 	- resources
 		- math expressions http://www.rapidtables.com/math/symbols/Basic_Math_Symbols.htm#annotations:w0yVRvONEeaRnMP1yvzSZg
 		- math latex http://csrgxtu.github.io/2015/03/20/Writing-Mathematic-Fomulars-in-Markdown/
-		
+	- most used notations
+		- $\sigma$
+		- $\alpha$
+		- $\partial$
+		- $w^T$
+		- $\sum_{i=1}^m$
+		- $\frac{1}{m}$
+
 1. how to make alias in `.bash_profile` and `.pdbrc`: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/bash_profile-pdbrc.md)
 
 1. how to use pdb: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/152528672306f2868568d7b65dfefb1da6900986/tutorial-contents/pdb.md)
