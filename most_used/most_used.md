@@ -27,6 +27,11 @@
 		- $w^T$
 		- $\sum_{i=1}^m$
 		- $\frac{1}{m}$
+		- $\Delta$
+		- $\delta$
+
+	- 加颜色
+		- <span style="color:pink">(能得到吗？我目前不知道如何做这个代入过程的演算）</span>
 
 1. how to make alias in `.bash_profile` and `.pdbrc`: [source](https://github.com/EmbraceLife/PyTorch-Tutorial/blob/my_progress/tutorial-contents/bash_profile-pdbrc.md)
 
