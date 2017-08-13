@@ -165,6 +165,146 @@
 - vectorization remove loops and much faster
 - `np.dot(w,x)+b` 代替 上面的2个loops
 	- ![][images20]
+- numpy basics for vectorization
+	- vectorization 比 Loops 快 500 倍
+	- 尽可能多使用Vectorization, 规避Loops
+	```python
+	import numpy as np
+	a = np.array([1,2,3,4])
+
+	# 计算Vectorization运算所需时间
+	import time
+	a = np.random.rand(1000000)
+	b = np.random.rand(1000000)
+	# 开始计时
+	tic = time.time()
+	c = np.dot(a,b)
+	toc = time.time()
+	print(c)
+	print("Vectorization version:" + str(1000*(toc-tic))+ "ms")
+
+	# 计算Loop所需时间
+	c = 0
+	tic = time.time()
+	for i in range(1000000):
+		c += a[i]*b[i]
+	toc = time.time()
+	print(c)
+	print("For loop:" + str(1000*(toc-tic)) + "ms")
+
+	# 250190.813275
+	# Vectorization version:0.9486675262451172ms
+	# 250190.813275
+	# For loop:520.2362537384033ms
+	```
+---
+
+## More Examples of Vectorization
+- goals: transform from Loop to Vectorization
+	- basic usage:
+		- Vectorization 的简单运算
+		- ![][image21]
+	- logistic regression forward backward pass in Vectorization
+		- 包含2个Loop
+		- 先用Vectorization替换第二个Loop
+		- ![][image22]
+
+---
+
+## Vectorizing logistic regression
+- goals: forward backward pass without any loops
+	- ![][image23]
+- 关键点
+	- X: tensor shape (num_features, num_samples)
+	- $w^T$: tensor shape (1, num_features)
+	- $Z = np.dot(w^T, X) + b$
+	- $A = 1/(1+np.exp(-Z))$
+
+---
+
+## Vectorizing Logistic Regression's Gradient Output
+- goals: Vectorizing the last Loop for multiple samples
+	- ![][image24]
+	- ![][image25]
+	- <span style="color:cyan"> $Xw^T == w^TX$  这个等式成立吗？</span> qcg: yes
+		- <span style="color:red"> 不论 $X, w^T$ 谁在前后，`np.dot(X, w.T)`中的顺序必须按照合规来调整 </span>
+	- `for i = 1 to m: z[i] = w^T * x[i] + b`
+		- $\to Z = w^TX + b \to$ `Z = np.dot(w^T, X) + b`
+	- `for i = 1 to m: a[i] = 1/(1+math.exp(-z[i]))`
+		- $\to A = \sigma(Z) \to$ `A = 1/(1+np.exp(-Z))`
+	- `for i = 1 to m: dz[i] = a[i] - y[i]`
+		- $\to dZ = A - Y \to$ `dZ = A - Y`
+	- `for i = 1 to m: dw1 += x1[i]*dz[i], dw2 += x2[i]dz[i], ...`
+		- $\to$ `for i = 1 to m: dw += X[i]*dz[i]`
+		- $\to dw = \frac{1}{m}XdZ^T = \frac{1}{m}dZ^TX$
+		- $\to$ `dw = 1/m * np.dot(dZ.T, X)`
+	- `for i = 1 to m: db += dz[i]`
+		- $\to db = \frac{1}{m}\sum(dZ)$
+		- `db = 1/m * np.sum(dZ)`
+	- 现在是所有的Loops都被Vectorization取代了
+- 但是在训练次数上的Loop是无法逃避的
+	- `for iter in range(1000):`
+
+---
+
+## Broadcasting in python
+- goals
+- example
+	- ![][image26]
+	```python
+	import numpy as np
+	A = np.array([[56.0, 0.0, 4.4, 68.0],
+				  [1.2, 104.0, 52.0, 8.0],
+				  [1.8, 135.0, 99.0, 0.9]])
+	cal = A.sum(axis=0) # axis=0 refer to rows; 1 refers to cols
+	print(cal)
+	percentage = 100 * A/cal.reshape(1,4) #不确定时，就用reshape(,)
+	print(percentage)
+	```
+- broadcasting in python
+	- python and numpy will do:
+		- $100 \to [100, 100, 100, 100]$
+		- ![][image27]
+		- ![][image28]
+
+---
+
+## a note on python numpy
+- never use rank 1 array
+- always use rank 2 array
+- ![][image29]
+	```python
+	import numpy as np
+	a = np.random.randn(5) # avoid this!
+	# a.shape = (5,) rank 1 array
+	a = np.random.randn(5,1) # recommended
+	# a.shape (5,1)
+	assert(a.shape == (5,1)) # double check in code
+	# change shape
+	a = a.reshape((5,1))
+	```
+
+## Explanation of logistic regression cost function
+- 深入理解ogistic regression损失函数
+	- ![][image30]
+	- 损失函数，就是对prediction内涵的解读
+	- $\hat{y}$ 要被解读为涨的概率， 接近1就是涨的概率高，接近0就是涨的概率低：
+		- 如果$y == 1$, 预测值就应该越接近于涨，即概率值接近1， $\hat{y} = P(y|x)$
+		- 如果$y == 0$, 预测值就应该越接近于跌，即概率值接近0, $\hat{y} = 1-P(y|x)$
+	- 文字转化为数学表达：
+		- ![][image31]
+		- $P(y|x) = \hat{y}^y * (1-\hat{y})^{1-y}$
+		- but 为什么这里要用$log$
+			- log: monotonical increasing function
+			- $logP(y|x) = log(\hat{y}^y * (1-\hat{y})^{1-y})$
+			- $\to .. = ylog\hat{y} + (1-y)log(1-\hat{y})$
+			- $\to .. = -L(\hat{y}, y)$
+			- 此刻，我们得到了单个样本的损失函数（Loss function for a single sample）
+		- ![][image32]
+			- minimize loss == maximize log of probability ??
+
+
+---
 
 
 [image1]: https://lh3.googleusercontent.com/KqzCHNE4GoH-8Mgqdh7Y6PQkkR0xDcLyFvZbMTHX8cSDTmHB-0efMYrQe2njCjvGaP86tyZ8s2q3XnQ3nsPp9laAt7YgYpCONNkVm__m6mY_fjquRPFbFNn33hyHxu5m_vw1DYhXCWXrVBnjF8Fgdc4f7zOJATLkWnwjOy-2dqrfbc4u20s6L0H5JleMbThY7iZW2QG_PPqDkIgG0qg4F9GdybM-Ku1O_feYYzHFuieCWci4gV4qFjJmuPx4Y9eAq1P7bUx39_ht6BrNIhy02qDDr4vxWSvI7xzoZdR-HVJhkZrqJWidVrwAAIifMITCTLlB-aow1eB6cSSmCrF2227FklG2xUE8Sw2P6CU1qohuFw4hj5IbUVBfmGXPX_2Gmk61CuJYWUx2eFA5iUE3KnhzwPabhl7enmJmQrTR-l6FDa4Kf5g5zw51Ef7MUuKQNf1F_O4ZZmgh-uPgT93AQx0-G8dPp9Bw6uaXbGkw1XfXQ3XuYDN54uD0stA0Jtj_H9hWLDOeunfOBrbeK7XakoGBDQgvs1jGrpfsBlkqHt-LrVIAUnKqMu8mMIqpjRDvWYvqbHVrZ4qsqexRd3lpasfF3F06g1k44pLg1yYNrtU22uWcvulqF3eu=w1900-h1032-no
@@ -196,3 +336,24 @@
 [image19]: https://lh3.googleusercontent.com/oeFaKKc7oxihPTQnlQhqB6cWqdIXFd3uFiUQ7JzeyFUDhn0bN2p-2aZiQMmFqEj86RD_k97Xv6p8e6LXWu03DIUY1YJsC5r5RTNL4Bc7EZWSzpBD35k85YceL4LCwBTDHGhLKq4PcefPgbV6hvRpQrh0NUINNQ7-VU8kJtzJxq2eZ4zF6z4Rgrsm5CtP71X7V1SWJOuWFuYtBE1ztUBF_qTaFmUBFbDYn9Ap9jib6Jaj7uMVgea1NO3GmLbq-a7tVtz984huCoevSP5UsctUJ-T9NmLTdUYbH7gZVyJ4HgBkHQSIdO0m4rhTNVzixy9NRzAbJaaAy03SWJNizwkdIdtS9xbzcHA7-mIfili53pTIE2CoEXQfPpcXdwvRnGCtz_O5QbPsGG5UpxEUaOQPw0CMpozPIcWRaR3wXeoOkcUO2i0-s9Zfkm-O8v4a3Y8e189ZYEplAIRJhPlUnp4L8E4B_KTr_YPlB0eigOe6Kx6pJaBZJ46AxcnMwIqijQRGDO7fX8a9L035GmlUxvdNLf66zbJys5QF4U-135CmUxAVHIx_7VeAhJ6ZHwKybdXRYFrKdz76l5KNT85Pt1pRJd0SL_tN_Bj2hE6h83gHhcGuw3rg6GnR=w2066-h1224-no
 
 [images20]: https://lh3.googleusercontent.com/N0gi0s-ACbES3rxQvgxHz828ntGJqcS7tWpgtCTXCEZY467UJ2Tvu7k3U-f71Yu72SieE0yqX0OYKcCZFulDWiGwQzmrN0sfKnSzO43ZesLbcYczq_Te5KLPPo3Q6b6aP8qrEPEJ2HisdJGCKMWk0FFqytFAIEd5RrHt5BsrZZ242f6Ujbk1_mx9iCdIM7MrO-3dI4nNx3nZpJJOr2wu4T4kEf_2j7rAP_aEKSYDj9KEuMRFSjpNgAg6pt0Wqjq6qBsabTeVhYtMYUwBQbp3Ts-bADxg-48CoatoKwLH-p7DPK40zYwUm-vxIaYaJa7g7bmmM-_yaag5dGmI2xNDTihZiFJuyvYzmp3_JHw-XARNTFhNFC5jahou1xzTFLxHRd-pmgys55-7SDQ87Ka4U_EdjUGrCR72bjx8yi-JiKe95k6Udz_bqqlUA6mp2WPv_kcwWgXr2f-7a-UVJO-pw-inDoKC4-ffYLOmr7llb_LQWxal8_p88J7p4WjekFR6p1VsV_Tn7FBKcsEWYNmVHTOl15Y0io3fS1H9gBQYZKcVmsF8vucua9Ub9yP4_FrXa8jRJsQbTSSPtvE39Pee0zKEIfs6x4wbYtKHgpGBo8qFRsj_VMJz=w1720-h806-no
+
+[image21]: https://lh3.googleusercontent.com/TWVRqBqJFS9Wus4ON9XhR1aF097QrFv2_rdX6WdR33czMaBamOZjR7kOvxb-e0fR6iNUzV9AD6wkVAjx0GcWP8FDfD3-EJYDyKUF9qOeqFFyVrvdOPsUpZYZljjTKTX_U6ebVL2KBP27yXsQ7-TB4XSvOsPZpbcwZUSHw8GTctzv2eiISHt5qMyDawwDyH0CXQOSvH4ImDCObbO4aFLdXUPzrX22We9RnFFgdy9xc6pUE5bvwWKSawaMsv7QY8TIeV6lk9P_gr5wH8QQHO-jEWLMie4pxu62kI69BElvmOUkS8QC4MX9jFesiz5hs6uZa_YV-csvWrpyCYrjaMVVSVmRKrotWCWqk_GOBeUIB8i1N-DfEUDaBG9Pe-N4iYrvUqvGcfV-QIeAKrE6Rk_CXrhkKFECSQqgNhvEF7l00_M3Ib65iuhLqx2zLkQVTb8-u5MS9DDLx9qU8JjEzUsTkOzXpr0scO1IYOnNNIIV2EfxrFU14EZccON0QMQ9HG0ftQK5rTGxKChCsrteKQObQ-37of0VFwb4wrDLhoVC2YkoERHUbM0I-aE_1ZgEVd_9K1FTGdNXpEFDm2UU0hbmlAhXJqQqmPbaht75CJCMukwasSb5majO=w1692-h928-no
+
+[image22]: https://lh3.googleusercontent.com/hNn5Ox0VAcXDwHRDZhMiCY8yOjcxs-K44yClG3uoGl1QvgJLr86Iv902ifOCE1fcoWcl-g_IevAeIby1kN1tICJSaHWlBCsMyQH0hxlJNEs_LfqYC5WolCec0dkw8fcKE73zlVQ45tEtPmZJmndLOjvwCJts8uPG09M44OSXiXNvk1eGy6Iue0sH-NiSDVKmmdDp1c3gr75ytQUmCNLgLAS7lBqKBGsaD_5EkwcS1LBBuJYTITzvJiOF5N-qXNO5JnqSZ5nqMFXadjbykbjN7f90yQIEFTpvd-ZJwRmpbYNbjxsFt2iSx9feVIMwK9VSauFJxx-Nez6m1aJK0KWxE06EM_6YKbhlhw2p7vEVUZzqnW7_cXfot8DWM5k_p-wN141PvnoMf887NlURD0hlzxuRvygl8klovcfRMGrj0LZZQUCWGoYd-VGhduoFv3MnKdQ88CwrGiNArEClKwTi4yk48hvBHyEMBbxzmhpFFJhVDMKLhw7Xs_hsVihR-a4VyWxvcWsENeLfzlUtiE3TdWkNl0EUDnWf0aPkzprBy3rUcvQ0PWZak0eZ90SS9u-p_8qkoYJ6JVJWhCijivx9yI6B7Rz1XlexztEhKtT9q1ZHMFOrHB-D=w1786-h922-no
+
+[image23]: https://lh3.googleusercontent.com/A_Oozm_tp_Ixx2TQCwmq278Ob-XdG4NYXDM5P0vxqNI3l1lJhC8SXt-GpeAvbUl437rYYR-Om0weAFBpuo2j_lkjCrjZfnT0-dCd2DbpnyxGnKUtBLQE0KB4EkHumZFhk_EnfsMRdFp5256s0B6bls9vhqcnAvXVcblh2OWOcCVLU8U4m5c7fnpcjL9KEIwZs0CkqkZATnvXkmVvIphTK8S_fwpJQCoqyLj8GETIlOue_lfU77hEotOkZWa_z142Jm_x7OlsqVS7b-bcKvAOUiCAP8P_g_ok-E-RlM_JOe_pz-ADRko7fw82KdosDUvEEvgj_JWMZIT6gY0KpDxHC-UbOP4sB-SOj6xXAJOTxLRCKrzG7YFJ2Wa7wKZ8qcWPUm5pcsWryLl6HSOw20UZwoU-b4pC8dR168QjoPSEYImiF-smSYtMgdH7HWkijWZ1o_eh2pPkemJDcrPdDUo4sw8cZ_yzdwWNpZTfjV560RL7lfNHhMfCgZKWWHZSpmW8ym9jS9D1ySmddUn65zpMslFZiii9OzlC7s9aZ8GRguRzDVajLwmy3yNznEZX0vEvTB5d2zPNerJ496NPJsx2rHESlOlzihWv9-fDzQvLVxxMQb_VgK-H=w1728-h922-no
+
+[image24]: https://lh3.googleusercontent.com/Q9Qst-lyae3_iMLNGcLNRWdIwt5oeq506FFgbV1DteXCQehYyhH5S9uCa1_on8YBWUWXMlpZGniX61NGAEqDRGlDPG24DrTH9qtHII9pSe_9zbIuFqEicI1gTK3ElK9oY46aZ331iit67pLkgOJ9X9Tzz9-VIhGx3-otrdVKrxAk0Sq4jCSZaQVUJcVRHSC98hbCEkSVsLlJ_V8fFnnVgayFKHCEqfZmN1aD3b-jNVYcqv2DusCEVzckHmBFVEMxsAybo5Wvo7gD-Vw66mXOzUsNSsxBtqTy6hg6NOZs-cV8BwY10wBqM3KRpvqneJVcmePuzhiyF8zW6-F5tMrQwjybzJs_9jBB7tI6Uic48yC7Sxlar6oXtnCkn16y2OvmHoo6WiSGv8OhCRGjLTyJyv5DeElvX6vvAdS-LmnqhSMpnRPQD0jzCROv3iVvj1TrK3gWtEQxFCMUvu1oSnDCsZr40XQtvMMw5sdfiusDvjJUx5QiD06iygaCDlmlYSgf233L8wpf9MuI55tz98I__BQt5YG5u-GbbKcBvyI8ejgOoy_zkCBysTo8GSSDzmhaMgz6NZ5pZgjrk9r6kPyT4i8_2MAVMJkZidWdDC-ZW_Xh575s5avk=w1836-h940-no
+
+[image25]: https://lh3.googleusercontent.com/Bpjpj6UjP6u1cWB8vs4c6ZM4bK1pCsq2xR6IEYBFgoxS_ZRW5OzfkHWaEpeq7YZGcRvW_TSgLY1LabqfE9sgpguUGqhRmpkVucKVqW4TpmqOvzhZIB6UIegiQOFIZ-PXpsxYAGo1HrKCUhEsBW-d3RjQdfo0p9avoZZScDBvRA_qw4nY8UytsqWLY5aT8x70ty_ztcXxCPH8bgneepq7HGnyd04OxiFwubz1jQ91p4PUBzyeAw9JT1LpNXs87Fdl_Q5y3QzZnzg9gKcA2M3aoyxYW8fXwDTsFvjxpl4N2qsXGxxQ8haCILGJNrjXD2pDQXFLQUbfMNGgPiHZO3cB1AdVdR05CDaVwv47AjqvGeJtuqervMEekuQ4eQlu9yWW0sbnKl1O0WmbiQBum45KOqaI6cOK3tJYWw73lrWyxMy-gkuldan2IdI0ncA13NaqhLIBh_WfIPOF_lPxYrmpf93u202-V1Bd4lBEBsk4ycxiCOMBMf85dtV_gX_vyQJQ1QyvF-nJnns3jXZ6v8-F6xkNkmVRUtTmxMqoBJwwACnHfSB8CPij9nyPbXlYEIXGcwcCbwF3K43bDOwC3zQkOM1q6zlhh1plvPw4Gm5UzvkTWWLwceRf=w1814-h938-no
+
+[image26]: https://lh3.googleusercontent.com/G97-8yEM9cHSml7lDesCtw-zkqw4UKGsjXTGo4Xp_nnnQV_-g3X1Oi6118SqCT4XbN2yv_zi2HdoSfPFso-VWmGYxQG_69ReOnr4sLM-Uw5Sn7l5t_qbnwmVSeQpZz4wjUFlPFtHJgcCSCVK8h3dXLaVhgwzE4zrBiGVdOp2bX3b6m7znPY2YdicI9NT3lgqCcpsHNlghGBzaBxioPLh6bU38CzW5wuSXNp4Te1_0PLu6mQxoO0xP8qOArgchPLWK7lCOhQYmLXyb4UWbj4_vKLAODXyCswm09d2rFAxdra8BKsP4K95k7kVQg6399tYPgP1Cs6JA4k89u5cHkh7uza1m36t6HzVYaX5PkozMdeqTF2wdfQEgy2nYYEUoSsurzsEEaQpscSBwThz3oI7Em34eWR9N36aPQrQZNGVSs1ZEaGor6d3T6Tkgss3cpl_6RwfT5nVNtWNGWcW_WVaolj8nk00lFRdinWbkWi0kCJ36-rdhgy7NW888EbOJPB-lpLGwWWfpDYhW82ueMhgmhbarmYW1xOW12YPW_-hlr8clQ3Grwc1O-vlzTtPJaT1U51FBHXwUSiQd549hZuXt8AGoaSppEnqoUHSa43yptcPpqX5ktdU=w1834-h762-no
+
+[image27]: https://lh3.googleusercontent.com/_LiwilVzfcqIGWOO_OqD2WSenJ1gtTbMhXiINBOuXMRj_w8Pli1nEEIMmnw3IOXkyLDcGB1FuL2JnQOYy9D9-Sv0KVz27_9R1r7D4830H3p03XzIkTKULTQbB4JC6zLuOQlBjpTcAgQU3xjKt3TC0P0umuXMvk59O0XFSUYfG61MyD-LtsnUdQVrYIbzso2hnVslUbH0D9YhsFPOsJQLJQy4i2YHpBMhB5wG6gdjttJlCAd0KqbijvB4nPWR0o-J0ySGU9hcSJEo4Jb7O8RW4nrjrzxA9r_mttc3XvrsjhkprCd5p-2WHgheWBYfBFP_qvzJVCCjXRDfN9MnSZ2HDtx0I9jb7tNbtjUu4ExNSoHd5eDRVIaswNnWblH9rdoPdCsIypyeWP6DQ02AoFTfUy2m3oEG9mfqAXrzeY6E_sabPeXPbf0Tl5Ir5EA5VX-feft38I1MfnR-mVS2FAWlBOFT7lapwN4jsg0t6QzJtYGmvLggiXdhATolYAS7xtcO0oeY4S61JDDkTB-bwEOMFWuVIJqgxABMUwNnBV_qlh64NqkZZ4qDz5bxQzfoHWhHMdnC8adhRceQjViyizwJuzznU0NLeX-7rHCqyLhEdC0iIkGjGzDD=w528-h291-no
+
+[image28]: https://lh3.googleusercontent.com/G0rY9_-DYu2L8T13gZtozgpwcKPtrMNg5Sylvov6TRFmtFfKyB9vjuS0aLW3dpwSiDmAN8W1cPiZdvOAgrKXjeMUTnCvuxloACWkrNW_0CREkbZJu3Ih-pXvKLHfBk8qyiX5zUhB2-2aeM_KrC8TvyYqSjrnK2YeoN7EOKqouDOKsLKO6P5ZAEmKCb2KVzFpc5gXTH0Y4L8NcfX17hGVRf6JvEBZDHSbkIK4yKDrX08rAOLBOMWteCXWDQkEeWFFHlTj9H-Rkh0ar8g4MvdFiO3LsoSCKBVtDYXd_q4azW6UvlYv0_U3HcOVEax1dsg-Je8fVIjL4hKVjzImgT5D9D0GLDPjKCPDXJNa_iQ0-3RsPSwCL-5cFYDoxwHfuW6Z8o5ynxOzotxCf2AIqdJMUy81dcr4JyhlWY_tqK1dUqZ2_bP7qKn4g_DZkKAM9ayO_Mq2FnDjrlITameV_fSEXpDWdAYmDrOKxNJoAsmArvQWXvcOC6RKMFCN0wW_1KVUt9PiR5E5nafCwKPGZXgpu-C8_L0hPrYv3eINTTK7y9eCyw1XyhxucR33uDQivttDCdWrhXVuystZMDSTiK9ZqnsmJNGv1NpSI48HCZZwhbWbpFLIUp7B=w1708-h968-no
+
+[image29]: https://lh3.googleusercontent.com/nzBXX42obHFyAs2aRoiKEinpqqicNrJfbvTfe4L72x-KYrJYcjyTuMT7qPf4xd6pF7ohi5MtrkkDqj6CdwbLTvxlV1WRSNkvnTTgAaZuqMYoq1R9NydleB7JWOTVtCat0YjvXyaCaZg0wn29dXlY-Pm3OKvwLWqtrD3YrNya4z_iV_6iVn2cvc6RSMRSuhFuSwxfn0e7Tz2S0_hzYrfB_wL6Xj9d4mW3vdaEWv1xdsNWsIfwY1ky2FanoxVCVSKKIws2wsRk2IrkBDwi-_plV1Pv-DoO_naa2urfe9_MA4RX9EGrGYDAIlI4-DBeJRa6v3fP5YhDVpPXMbYQuMasnCDVaw6KDc9n8teSXbqEWtMdgthuEcJCIL12JrCYibePKs7dCliLPI-_mLmysLBFJxg6MiIGjlTCfb34C2r13BRiTs3d8V4Gt8z8sHqa3XuFQ8JD7lBRtC7XbIfZ5ww98jQpCJK6C43LCP-jB5De373Aud3xNVcQKAPvTO5CkLAzy6oomNNlq-TaexyMxNvXKeaR1Dz_rPPj3ts1xlE05j59UE53afvg1DruvmETTKqtVbyhxfCLhIstQeP1HcbV9jyLCiQ116lmBMg0ShqUf3MO4f9wB9ox=w1886-h938-no
+[image30]: https://lh3.googleusercontent.com/0D_-4x2pyC3PichME2jKaR9BIIYB2wdEYBabec6I47lcmk-AiT63gHMAjGqXswEUr18l7FERmn9X6PRMnrDDXEix0skyl-fksuvtHsoCAhsR449U-ZSyeYhSjyzVq0YO-ZoZC4F9ixgAjNYBM3kbscn_3DxWiLczVJ7udEQ9kOXPu6H-ksB148fTI06NVTnYB2HrLkUB8FYj-4FwZzEG6Wc4moDaTXCPBxbZh8Ta_X7vDXCgDZjL-iB1x58onV02vM8M8z8alz5klkQY6nkAtI1yJULl8e1M2QnSjO2cTiM3qfMDP_VKaXFjlI8IkRBaULQAiWh_TWOLEIy9Ac-eY0yGy2WgGif3EiADiJ4kRP-USiuoD4N-J4GEr-CYD9auV6cf97t4ZPkBV7yf5yFp9omvDFhsL00Ua4dcXs9AB_5H_soRM1z8gNz5n-CyWeoOsj1ltv_lybY3Y1fsy6n3ACKIlsqsyqeTFFhRdVbJE3Vt7Xm6_S_QlsIpD2WZDGzrB5yijFyIz3mCSMij4_2loILHIpPaDWhaAkXijtAPC6ANSyGQUSiSleb8FBQq42RsZaBQVC5JQiAKNYLXIt1QaOJlV7OJKeUlBRbMc33QpFIgnqzy9Z6-=w1532-h734-no
+[image31]: https://lh3.googleusercontent.com/G2qAfy8Sp8pXW928xYJlf5_o9Cnd8RCS53RrTju_aXMjJTsw8LxPRnBcfGx93mawGiaPv-QCWvKWM0fQucTr3T09UDI2fHYrcsHUCRUKz-7Zf05feg4qh0Uam9pROdE86MEEIxdkhRgyS7u1f8sYai7vUTr1MJPDsUAJfHy05mhf913TJZIhrl75a_bdNofNsINHBCwvbuDTof5A2MTDpDi2jM3iEt8S8qHGlg4X-mDMpN_9mT6QnrIk5LHyzE1ZvuVzaExrDYTZ18UqcYn0xkjiGdjhC8Y3sCktm75IEHKciiFepWkmNf_qZQL0KsqBPDTFEYzZI2ToivZKUUORLGM_ZG1kyWrV0GYzf-n54IkmX7nSiSWinftX7iQ65_VlIBcODeYL8yosVxRiREuY-gzZ3roR7nnCThj2IC4WXMTw4BRvkytXRGNH5UPqkS-1j6QAZKWsra-TkkEQVwRxjKCd72Cyj01t1HwtiPVqqQOX5VjQidd1mkdRAnzeHnQT5lW1UOXuIuhjW409EnrP3wDRVlzNRcCOyeImL0QNhs02R5IYMA6zlEHZ4R72FfP9GmlZXP9AcNu7wNOmu01TuQn0PgP3gWmwCDmWny3SxrtO2_XIphUw=w1914-h1016-no
+[image32]: https://lh3.googleusercontent.com/nF-KYY1OSyLiBSdq2sjTwWn1K2NnoFqMaH2Yz0HLaPnaYEcMw6Fi4w1Ns4l9NnhfC9IxuiJvuZR-37v9eeeGShH_nm3EDxyLyhv_coB4WN8Emmu38k6uL_7faVX78ltFyrF3--NybsuRdTTGsl0PZv2DAk6Jh7v15yRwQMSwU3YF2sGTRK8mCO6Wz8jgrsbSqj-2dyMowWb5NG-ZAJ8Vtlwugh6t7obYAHKNKoQs0JbMiy7bsmYd8q-Do236T_0sdgczPRPuoZlXECCHrSPoLyhzfW2KxINJgULmq3qlwhjDK19yeXcylnUyIMy1rEln4qF2Lpuh9GPM58LRn19Vf5u4Hz4n1YpwZNt3ATe6PW_-gYvIa1rHl5zIepi4AkkB9sVPxpXj1La2xaM3ZBgqPwjI6i0cPHUCA26BqZHz9vZkjX4sgGmABdIUJIixhEk2fR7tBZu_0QEyRoaLC23a0bhYSBcJfcm59WWppoiwqpxk4vCEknIOJaC1z688rJgw-TVSZ9sDELQ_P6BZIpWPWEs32isHKRXb0muqycm8nRk5BRyNa1dJwyPr8ieFEyD7fx7OCw6eFG_TEtv1l2o3-juAQ0wWOCnxQHakNDxDHTBRt4tLu1eu=w1846-h974-no
