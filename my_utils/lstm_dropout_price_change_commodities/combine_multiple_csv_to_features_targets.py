@@ -103,6 +103,8 @@ dataset_dir = "/Users/Natsume/Downloads/data_for_all/stocks/commodities"
 total_csv_combine = 41
 current_num_csv = 0
 
+# 这5个文件数据少于720，几个技术指标要求数据超过720，所以暂时不用这5个文件
+small_datasets = ['CS.txt', 'NI.txt', 'PP.txt', 'SN.txt', 'T.txt'] #
 # loop through every csv to convert from csv to arrays OHLCV, to arrays features and targets, and concatenate features and targets of different csv files
 for filename in os.listdir(dataset_dir):
     if current_num_csv >= total_csv_combine:
@@ -136,6 +138,10 @@ for filename in os.listdir(dataset_dir):
 
 	    test_features = moving_features[train_end_test_begin+days_for_valid:train_end_test_begin+days_for_valid+days_for_test]
 	    test_targets = moving_targets[train_end_test_begin+days_for_valid:train_end_test_begin+days_for_valid+days_for_test]
+
+		## how_to_use_any
+    elif any([filename == sm for sm in small_datasets]):
+	    pass
 
     else:
 	    print("processing file (start counting from 0) no. %d: " % current_num_csv + filename)

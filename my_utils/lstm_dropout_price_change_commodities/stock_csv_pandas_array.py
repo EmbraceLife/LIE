@@ -59,6 +59,6 @@ def csv_df_arrays(filename):
 
 # Example
 
-stock_path = "/Users/Natsume/Downloads/data_for_all/stocks/commodities/A.txt"
-
-dates, opens, highs, lows, closes, volumes = csv_df_arrays(stock_path)
+# stock_path = "/Users/Natsume/Downloads/data_for_all/stocks/commodities/A.txt"
+#
+# dates, opens, highs, lows, closes, volumes = csv_df_arrays(stock_path)

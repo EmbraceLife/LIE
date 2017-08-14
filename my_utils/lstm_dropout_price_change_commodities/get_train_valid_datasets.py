@@ -25,11 +25,11 @@ import numpy as np
 ## train_features_path: dataset use 700 days for validation, 0 days for testing
 ## train_features_path1: use 125 days for validation, 250 for testing
 ########################################################################
-# train_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/train_features_path"
-# train_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/train_targets_path"
-#
-# valid_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/valid_features_path"
-# valid_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/valid_targets_path"
+train_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets_commodities/train_features_path"
+train_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets_commodities/train_targets_path"
+
+valid_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets_commodities/valid_features_path"
+valid_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets_commodities/valid_targets_path"
 
 ############### No need for test set for now ##################
 # test_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets/test_features_path"
@@ -40,11 +40,11 @@ import numpy as np
 ##### 1. loading data from Floyd input folder, For floyd training
 ########################################################################
 
-train_features_path = "/input/train_features_path"
-train_targets_path = "/input/train_targets_path"
-
-valid_features_path = "/input/valid_features_path"
-valid_targets_path = "/input/valid_targets_path"
+# train_features_path = "/input/train_features_path"
+# train_targets_path = "/input/train_targets_path"
+#
+# valid_features_path = "/input/valid_features_path"
+# valid_targets_path = "/input/valid_targets_path"
 
 ############### No need for test set for now ##################
 #### test_features_path = "/input/test_features_path"

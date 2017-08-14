@@ -44,12 +44,12 @@ batch_size = 512
 
 ########################################################################
 #### store model locally
-# best_model_in_training = "/Users/Natsume/Desktop/best_model_in_training1.h5" # local computer training
+best_model_in_training = "/Users/Natsume/Desktop/best_model_in_training_comm.h5" # local computer training
 
 
 ########################################################################
 #### store model on floydhub
-best_model_in_training = "/output/during_best.h5" # store on floydhub
+# best_model_in_training = "/output/during_best.h5" # store on floydhub
 
 
 
@@ -59,9 +59,9 @@ wp.fit(train_features, train_targets, batch_size=batch_size,
 	   validation_data=(valid_features, valid_targets),
 	   callbacks=[TensorBoard(histogram_freq=1,
 	   ######################## train and save on floyd ######################
-	   log_dir='/output/log'), # store on floydhub
+	#    log_dir='/output/log'), # store on floydhub
 	   ######################## train and save on locally ######################
-	    # log_dir="/Users/Natsume/Desktop/log1"),
+	    log_dir="/Users/Natsume/Desktop/log_comm"),
 				  ModelCheckpoint(filepath=best_model_in_training, save_best_only=True, mode='min')])
 
 

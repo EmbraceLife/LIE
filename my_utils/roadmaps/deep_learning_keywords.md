@@ -7,6 +7,7 @@
 - neuralNet_structure_cheatsheet
 - terminology_chinese
 - pandas_examples
+- how_to_use_any
 
 ## basic concepts
 - neuralNet
