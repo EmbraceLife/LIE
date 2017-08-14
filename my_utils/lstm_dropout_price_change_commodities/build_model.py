@@ -17,8 +17,13 @@ Return:
 
 from construct_model_framework import WindPuller
 
-# input_shape (window, num_indicators)
-input_shape = (30, 61) # (30, 61) original or (30, 24) for QCG
+####### input_shape (window, num_indicators)#########################
+### for ETF datasets
+# input_shape = (30, 61)
+### 用于商品数据，移除了需要720个数据的技术指标
+input_shape = (30, 57)
+###############################################################
+
 lr = 0.001 # first floyd_model2_1000 used 0.002
 n_layers = 1
 n_hidden=16

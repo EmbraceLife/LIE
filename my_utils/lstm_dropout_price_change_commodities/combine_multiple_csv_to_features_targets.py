@@ -139,9 +139,10 @@ for filename in os.listdir(dataset_dir):
 	    test_features = moving_features[train_end_test_begin+days_for_valid:train_end_test_begin+days_for_valid+days_for_test]
 	    test_targets = moving_targets[train_end_test_begin+days_for_valid:train_end_test_begin+days_for_valid+days_for_test]
 
-		## how_to_use_any
-    elif any([filename == sm for sm in small_datasets]):
-	    pass
+		###### how_to_use_any
+		### 移除数据量小于720个的数据
+    # elif any([filename == sm for sm in small_datasets]):
+	#     pass
 
     else:
 	    print("processing file (start counting from 0) no. %d: " % current_num_csv + filename)
