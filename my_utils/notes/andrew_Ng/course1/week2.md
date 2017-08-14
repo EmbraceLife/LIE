@@ -4,7 +4,7 @@
 
 神经网络的两个小特点
 - no for loop on dataset
-	- 一次性计算所有数据，而非一个就一个地让样本通过模型
+	- 一次性计算所有数据，而非一个接一个地让样本通过模型
 - forward and backward passes
 	- 模型训练包含有两个阶段：正向传递和反向传递
 
@@ -25,25 +25,30 @@
 	- Input, Output的范围表达
 	- Ouput的内涵以及数学表达
 	- Sigmoid的内涵和数学表达
-	- `w` has $n_x$ dimensional vectorand `b`(a real number) 是分开表达，但有些地方将`b`作为`w`的第一个值，见图右上红色字体内容
+	- `w.shape` ($n_x$, 1) and `b.shape`(1,1) 是分开表达，
+	- 但有些地方将`b = w[0,1]`vector 的第一个值，见图右上红色字体内容, 不建议这么用
 
 ---
 
 ## Logistic Regression Cost Function
 - ![][image4]
 - logistic regression 的数学表达
+	- linear combination: $z = w^Tx + b$
+	- sigmoid function: $\sigma = 1/(1+e^{-z})$
+	- loss function: $L(\hat{y},y) = -(y\log{\hat{y}} + (1-y)\log{(1-\hat{y})})$
 - logistic regression 损失函数
 	- 损失函数是建立在 $\hat{y}$ 和 $y$ 的数学关系，寻求损失值最小化
 	- 最直观建议的数学关系可以是 $L(\hat{y}, y) = \frac{1}{2}(\hat{y} - y)^2$
-	- 问题在于，上述关系式，右侧中间波浪曲线，意味着会有多个最小值
+	- <span style="color:pink">虽然MSE作为损失函数，也能在 $\hat{y}$ 越接近 $y$ 时，损失值越小，但对于二元分类问题，预测值是概率时，并没有优势？</span>
 - 针对binary classification 的损失函数
-	- $L(\hat{y}, y) = -[y*log(\hat{y}) + (1-y)log(1-\hat{y})]$
-	- 当`y==1`时，$L(\hat{y}, y) = -log(\hat{y})$
-	- 当`y==0`时，$L(\hat{y}, y) = -log(1-\hat{y})$
-	- 这两个函数图可以找到最小值？？？
+	- $L(\hat{y}, y) = -[y*\log\hat{y} + (1-y)\log{(1-\hat{y})}]$
+	- 当`y==1`时，$L(\hat{y}, y) = -\log(\hat{y})$,函数图让 $\hat{y}$ 约接近1损失值越接近0
+	- 当`y==0`时，$L(\hat{y}, y) = -\log(1-\hat{y})$,函数图让 $\hat{y}$ 约接近0损失值越接近0
+	- <span style="color:pink">选择该损失函数的原因？也许是更直观？</span>
 	- ![][image5]
 - loss function vs cost Function
 	- loss function: 一个样本的损失值
+		- $L(\hat{y}, y) = -[y*\log\hat{y} + (1-y)\log{(1-\hat{y})}]$
 	- cost function: 所有样本的平均损失值
 		- $J(w,b) = \frac{1}{m}\sum_{i=1}^mL(\hat{y}, y)$
 	- 在不断最小化损失值的尝试中，`w`和`b`不断得到更新
@@ -68,11 +73,11 @@
 	- 如果 将`w`, `b`,通过代入公式1，2，3_b, 4 可以得到一个基于 $f(w,b) = sin(w)cos(b)$ 为原型的函数，<span style="color:pink">(能得到吗？我目前不知道如何做这个代入过程的演算）</span>
 	- 如果演算成立，这样的函数会呈现波浪型，没有唯一最小值， 如下图
 	- ![][image9]
-- 参数`w`和`b`是如何更新的
+- 在让损失值不断变小的目标下，参数`w`和`b`是如何更新的
 	- ![][image7]
-	- `w` and `b` and `J(w,b)`构建了碗形函数，单一一个变量`w`or `b` and `J(w)` or `J(b)`得到如上图
-	- 如何利用当前的 $J(w)^{i}$ 和 $w^{i}$ 来判断 $w^{i}$ 应该的更新方向和量，得到 $w^{i+1}$，从而让下一个损失值 $J(w)^{i+1}$ 更逼近最小值
-	- $w^{i}$ 应该的更新方向和量，由 $-\alpha\frac{dJ(w)}{dw}$ 决定
+	- `w and J(w)`单独构建的函数图，如上图
+	- 只要函数图是弧线，不论开口朝上或下，有一个不变的规律: $w - \frac{dJ(w)}{dw}$ 不断更新`w`值，从而让`J(w)`不断缩小
+	- $w$ 应该的更新方向和量，由 $-\alpha\frac{dJ(w)}{dw}$ 决定， $\alpha$ 决定变化步伐的大小
 	- 当 $J(w)$ 变成 $J(w,b)$ 时，只需要换个符号就行，$d$ as derivative 变成 $\partial$ as partial derivative
 	- `w`更新的公式: $w := w -\alpha\frac{\partial J(w,b)}{\partial w} = w - \alpha*{dw}$
 	- `b`更新的公式: $b := b -\alpha\frac{\partial J(w,b)}{\partial b} = b - \alpha*{db}$
@@ -85,8 +90,8 @@
 - 什么是derivative?
 	- ![][image10]
 	- 函数图形在一个瞬间的变化：量和方向
-	- `slope` at a particular `a` value
-- 简单：不变的derivative 或 slope
+	- `slope` value at a particular `a` value
+- 简单情况（线性函数）：不变的derivative 或 slope
  	- $y = 3a$
 	- 上图中的函数的`slope`在任何点上或任何一个瞬间变化上（不论`a`向右或向左变化），都是相等的方向和量
 	- `slope` 总是 3， $\frac{dy}{da} = 3 = \frac{\Delta{y}}{\Delta{a}}$
@@ -95,33 +100,35 @@
 ----
 
 ## More Derivative Examples
-- goals： 更复杂的derivative 状态
+- goals： 更复杂的函数图中的`derivative`会不断变化
 	- ![][image11]
 	- 复杂的情况 $y = a^2$, $\frac{dy}{da} = 2a$
 	- `slope`在不同的瞬间的变化，或量和方向，可以是不同的
-	- 当 $a = 2, \frac{dy}{da} = 4$
-	- 当 $a = 5, \frac{dy}{da} = 10$
+		- 当 $a = 2, \frac{dy}{da} = 4$
+		- 当 $a = 5, \frac{dy}{da} = 10$
 	- derivative的计算，可以借助书和软件计算，推演过程不重要
 	- 更多复杂的函数的derivative 的值
 		- ![][image12]
+			- $f(a) = a^3, \frac{df(a)}{da} = 3a^2$
+			- $f(a) = \log_e(a), \frac{df(a)}{da} = \frac{1}{a}$
 
 ----
 
 ## Computation Graph
-- goal: show forward pass when optimizing the final output
+- goal: 拆分每一个计算步骤，方便计算forward pass and backward pass
 	- ![][image13]
-	- given $J(a,b,c) = 3(a + bc)$ , 拆分画出每一个计算步骤，构成computation graph, 来一步一步求`J` or `loss` or `cost`
-	- later, 可以用computation graph画出backward pass来一步一步更新`a,b,c`，实现`cost`不断最小化的目的
+	- 拆分 $J(a,b,c) = 3(a + bc)$ 计算步骤, 构成`computation graph`如图, 来一步一步求`J` or `loss` or `cost`，即`forward pass`
+	- later, 可以用`computation graph`画出`backward pass`来一步一步更新`a,b,c`，实现`cost`不断最小化的目的
 
 ----
 
 ## Derivatives with computation graph
-- goal: show backward pass
+- goal: 展示 backward pass 拆分过程，每一步通过`chain_rule`来连接
 	- ![][image14]
-- meaning of derivative
+- 最终要的结果：每次`backward pass`更新的`dw, db, w, b`
 	- $\frac{d(FinalOutput)}{dvar} = dvar =$ 描述当`var`变化一个最小单位时，`FinalOutput`如何变化
 	- 上图计算了 $\frac{d(FinalOutput)}{da} = \frac{dJ}{dv}\frac{dv}{da}$
-- 当`var`，`FinalOutput`相隔较远，用`chain_rule`来计算他们之间的`derivative`
+- 当`var`，`FinalOutput`相隔较远，用`chain_rule`和中间值的`derivative`来链接计算
 	- ![][image15]
 	- 计算 $\frac{d(FinalOutput)}{db} = \frac{dJ}{dv}\frac{dv}{du}\frac{du}{db}$
 	- 计算 $\frac{d(FinalOutput)}{dc} = \frac{dJ}{dv}\frac{dv}{du}\frac{du}{dc}$
