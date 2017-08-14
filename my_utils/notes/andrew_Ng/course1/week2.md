@@ -155,12 +155,13 @@
 ## Gradient descent on m examples
 - goals: m examples, m losses, update m times
 	- ![][image18]
-	- 上一节，we get 单次损失值和单次更新，单次`derivative`, 即 $dw_1^i = \frac{dL(a^i,y^i)}{dw_1^i}$
-	- 这一节，we get 一次性计算多个样本的损失值，更新和`derivatives`
+	- 上一节，we get 单次损失值和单次更新`derivative`, 即 $dw_1^i = \frac{dL(a^i,y^i)}{dw_1^i}$
+	- 这一节，一次性计算多个样本的损失值，更新和`derivatives`
 		- $dw_1 = \frac{dJ(w,b)}{dw_1} = \frac{1}{m}\sum_{i=1}^m\frac{dL(a^i,y^i)}{dw_1^i}$
 - 计算 $J_{avg}, dw_1, dw_2, db$ 均值，而非单个样本下的值
-	- 需要使用2个loop, 和计算平均值, pay attention to the loop coding on the left
-	- loop所有样本， loop所有参数`w_1, w_2, ..., w_n, b`
+	- 需要使用2个loop, 来计算上述均值
+	- 第一个loop，`for i=1 to m:` 所有样本，
+	- 第二个loop， `loop` 所有 $dw_1, dw_2, dw_3, ...$
 - 使用loop的弊端
 	- 计算效率低
 	- 用vectorization 代替loops
@@ -170,7 +171,7 @@
 
 ## Vectorization
 - vectorization remove loops and much faster
-- `np.dot(w,x)+b` 代替 上面的2个loops
+- `np.dot(w,x)+b` 代替下图左侧的`for loop`
 	- ![][images20]
 - numpy basics for vectorization
 	- vectorization 比 Loops 快 500 倍
@@ -211,10 +212,14 @@
 	- basic usage:
 		- Vectorization 的简单运算
 		- ![][image21]
+			- `np.exp, np.log, np.abs, np.max, np.max, np.square` 都是基于`Vectorization`的运算
+			- `math.log, math.abs, math.exp` 都是需要结合`for loop`使用
 	- logistic regression forward backward pass in Vectorization
 		- 包含2个Loop
 		- 先用Vectorization替换第二个Loop
-		- ![][image22]
+			- ![][image22]
+			- $dw = dw + X^{(i)}dz^{(i)}$ 代替上图左侧被划掉的部分
+			- $^{(i)}$ 代表某个样本
 
 ---
 
@@ -222,9 +227,11 @@
 - goals: forward backward pass without any loops
 	- ![][image23]
 - 关键点
-	- X: tensor shape (num_features, num_samples)
-	- $w^T$: tensor shape (1, num_features)
-	- $Z = np.dot(w^T, X) + b$
+	- X: tensor shape `(num_features, num_samples)` or $(n_x, m)$
+	- $w$: tensor shape `(num_features, num_neurons)` or $(n_x, 1)$
+	- $w^T$: tensor shape `(num_neurons, num_features)` or $(1, n_x)$
+	- $b$: shape `(1,1)`
+	- $Z = np.dot(w^T, X) + b$, 如果`X.shape[1] > 1`，那就是同时处理多个样本
 	- $A = 1/(1+np.exp(-Z))$
 
 ---
@@ -233,6 +240,8 @@
 - goals: Vectorizing the last Loop for multiple samples
 	- ![][image24]
 	- ![][image25]
+		- 上图左侧是2个Loops版本
+		- 右侧是vectorization版本
 	- <span style="color:cyan"> $Xw^T == w^TX$  这个等式成立吗？</span> qcg: yes
 		- <span style="color:red"> 不论 $X, w^T$ 谁在前后，`np.dot(X, w.T)`中的顺序必须按照合规来调整 </span>
 	- `for i = 1 to m: z[i] = w^T * x[i] + b`
@@ -269,7 +278,7 @@
 	print(percentage)
 	```
 - broadcasting in python
-	- python and numpy will do:
+	- broadcasting: 单个数字或序列，横向纵向的复制延展
 		- $100 \to [100, 100, 100, 100]$
 		- ![][image27]
 		- ![][image28]
@@ -300,13 +309,15 @@
 		- 如果$y == 0$, 预测值就应该越接近于跌，即概率值接近0, $\hat{y} = 1-P(y|x)$
 	- 文字转化为数学表达：
 		- ![][image31]
-		- $P(y|x) = \hat{y}^y * (1-\hat{y})^{1-y}$
-		- but 为什么这里要用$log$
-			- log: monotonical increasing function
-			- $logP(y|x) = log(\hat{y}^y * (1-\hat{y})^{1-y})$
-			- $\to .. = ylog\hat{y} + (1-y)log(1-\hat{y})$
-			- $\to .. = -L(\hat{y}, y)$
-			- 此刻，我们得到了单个样本的损失函数（Loss function for a single sample）
+			- 上图中的2个`if`条件表达式，可以转化为一个等式，如下
+			- $P(y|x) = \hat{y}^y * (1-\hat{y})^{1-y}$
+		- 对该等式做`log`处理，即得到`logistic regression cost function`
+			- <span style="color:pink">but 为什么这里要用$log$来处理？</span>
+				- log: monotonical increasing function
+				- $logP(y|x) = log(\hat{y}^y * (1-\hat{y})^{1-y})$
+				- $\to .. = ylog\hat{y} + (1-y)log(1-\hat{y})$
+				- $\to .. = -L(\hat{y}, y)$
+				- 此刻，我们得到了单个样本的损失函数（Loss function for a single sample）
 		- ![][image32]
 			- minimize loss == maximize log of probability ??
 

@@ -78,7 +78,7 @@
 	- `MACOSX_DEPLOYMENT_TARGET=10.9 CC=clang CXX=clang++ python setup.py install`
 
 
-1. how to count number of files in a folder: `ls folder/ | wc -l`
+1. how to count number of files in a folder: `ls folder_name/ | wc -l`
 
 1. how to unzip a zip file: `unzip -q data.zip`
 

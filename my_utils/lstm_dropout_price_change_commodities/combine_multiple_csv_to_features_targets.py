@@ -76,12 +76,12 @@ test_targets = None
 ##############################################################################
 # new dataset folders: 250 validation, 250 test
 ##############################################################################
-train_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets1/train_features_path"
-valid_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets1/valid_targets_path"
-valid_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets1/valid_features_path"
-train_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets1/train_targets_path"
-test_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets1/test_features_path"
-test_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets1/test_targets_path"
+train_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets_commodities/train_features_path"
+valid_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets_commodities/valid_targets_path"
+valid_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets_commodities/valid_features_path"
+train_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets_commodities/train_targets_path"
+test_features_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets_commodities/test_features_path"
+test_targets_path = "/Users/Natsume/Downloads/data_for_all/stocks/features_targets_commodities/test_targets_path"
 
 ########################################################################
 ### How many indicators do we use to create features
@@ -92,15 +92,15 @@ user_indicators = ["ROCP", "OROCP", "HROCP", "LROCP", "MACD", "RSI", "VROCP", "B
 
 
 ###### dir_path for stock csv
-dataset_dir = "/Users/Natsume/Downloads/data_for_all/stocks/dataset"
+# dataset_dir = "/Users/Natsume/Downloads/data_for_all/stocks/dataset"
 ###### dir_path for commodities txt
-# dataset_dir = "/Users/Natsume/Downloads/data_for_all/stocks/commodities"
+dataset_dir = "/Users/Natsume/Downloads/data_for_all/stocks/commodities"
 
 
 ##### count number of csv of stocks
-total_csv_combine = 27
+# total_csv_combine = 27
 ##### count number of txt of commodities
-# total_csv_combine = 41
+total_csv_combine = 41
 current_num_csv = 0
 
 # loop through every csv to convert from csv to arrays OHLCV, to arrays features and targets, and concatenate features and targets of different csv files
@@ -109,7 +109,9 @@ for filename in os.listdir(dataset_dir):
 	    break
 
 	###### 000001.csv must be the first file when dealing with ETFs
-    if filename == '000001.csv':
+    # if filename == '000001.csv':
+	###### A.txt must be the first file when dealing with commodities
+    if filename == 'A.txt': #
 
 	    print("processing the first file: " + filename)
 	    filepath = dataset_dir + "/" + filename
