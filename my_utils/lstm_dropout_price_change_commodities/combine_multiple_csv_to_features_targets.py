@@ -47,11 +47,11 @@ import numpy as np
 from save_load_large_arrays import bz_save_array
 
 ####### original data split ########################################
-# days_for_valid = 700 # 1000 is too much dataset to be taken away from training
-# days_for_test = 0 # number of test samples
+days_for_valid = 700 # 1000 is too much dataset to be taken away from training
+days_for_test = 0 # number of test samples
 ####### hope for better model ########################################
-days_for_valid = 125 # 1000 is too much dataset to be taken away from training
-days_for_test = 250 # number of test samples
+# days_for_valid = 125 # 1000 is too much dataset to be taken away from training
+# days_for_test = 250 # number of test samples
 
 
 # create gobal variables for storing training, validation and testing features arrays and targets arrays
@@ -141,8 +141,8 @@ for filename in os.listdir(dataset_dir):
 
 		###### how_to_use_any
 		### 移除数据量小于720个的数据
-    # elif any([filename == sm for sm in small_datasets]):
-	#     pass
+    elif any([filename == sm for sm in small_datasets]):
+	    pass
 
     else:
 	    print("processing file (start counting from 0) no. %d: " % current_num_csv + filename)

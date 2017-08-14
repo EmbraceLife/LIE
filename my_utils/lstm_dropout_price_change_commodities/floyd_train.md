@@ -30,8 +30,8 @@ python -m pdb combination_multiple_linear_functions.py
 - go to the folder for training dataset
 - init and upload dataset with the name above
 ```
-cd /Users/Natsume/Downloads/data_for_all/stocks/features_targets
-cd /Users/Natsume/Downloads/data_for_all/stocks/features_targets1
+cd /Users/Natsume/Downloads/data_for_all/stocks/features_targets_commodities
+
 floyd data init lstm_sigmoid_1_dataset
 floyd data upload
 ```

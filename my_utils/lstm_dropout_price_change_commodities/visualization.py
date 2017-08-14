@@ -25,10 +25,13 @@ from stock_csv_pandas_array import csv_df_arrays
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/index000001.csv"
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF50.csv"
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF500.csv"
-index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF300.csv"
+index_path = "/Users/Natsume/Downloads/data_for_all/stocks/commodities/IF.txt"
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/index50.csv"
+index_path1 = "/Users/Natsume/Downloads/data_for_all/stocks/commodities/CU.txt"
 
 date,open_prices,_,_, closes, _ = csv_df_arrays(index_path)
+_,_,_,_, closes1, _ = csv_df_arrays(index_path1)
+
 
 
 from model_predict import get_stock_preds_target
@@ -45,26 +48,33 @@ index_preds_target[:, 1]:下一日的当天价格变化
 
 # 30 days
 # 90 days
-# time_span = 700  # 从今天回溯700 days
+time_span = 700  # 从今天回溯700 days
 # time_span = 500  # 从今天回溯500 days
 # time_span = 250  # 从今天回溯250 days
 # time_span = 100
 # time_span = 30  # 从今天回溯30 days
 # time_span = 1  # 从今天回溯1 days
 # from 20170720 to 20170728
-time_span = 12  # 昨天开始交易，到今天收盘，交易开始两天了
+# time_span = 12  # 昨天开始交易，到今天收盘，交易开始两天了
 
 
 
 # zoom in and out for the last 700 trading days
 open_prices = open_prices[-time_span:]
 closes = closes[-time_span:]
+closes1 = closes1[-time_span:]
 index_preds_target = index_preds_target[-time_span:]
 date = date[-time_span:]
 y_pred = index_preds_target[:,0]
 y_target = index_preds_target[:,1]
 origin_y_pred = np.copy(y_pred)
 origin_y_target = np.copy(y_target)
+
+
+plt.plot(closes/closes[0], c="blue", label="IF")
+plt.plot(closes1/closes1[0], c="cyan", label="CU")
+plt.legend(loc='best')
+plt.show()
 ################################################################
 # The latest algo to cut down trade frequency
 ################################################################
@@ -371,6 +381,13 @@ maximum_drawdown_rate = np.array(capital_drawdown_rate).max()
 ###### what is the frequencies of y_pred
 y_pred_hist = np.copy(origin_y_pred)
 y_target_hist = np.copy(origin_y_target)
+plt.hist(y_pred_hist)
+plt.title("prediction's distribution")
+plt.show()
+plt.hist(y_target_hist)
+plt.title("targets' distribution")
+plt.show()
+
 
 ###### what is the accuracy of predicting up or down
 for idx in range(len(origin_y_target)):

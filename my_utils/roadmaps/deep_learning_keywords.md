@@ -98,6 +98,7 @@
 - understand_y_pred_differently_solve_trade_frequency
 - threshold_reduce_noise_trade
 - y_pred_open_close_on_same_day
+- add_custom_loss_function
 
 ## Discussions and Experiments
 - reduce_trade_frequency
@@ -109,3 +110,11 @@
 - maximum_drawdown
 - full_trades_positions
 - winning_trades_positions
+
+
+add_custom_loss_function
+```
+cd /Users/Natsume/miniconda2/envs/experiment3.5/lib/python3.5/site-packages/keras/losses.py
+
+insert a loss function
+```
