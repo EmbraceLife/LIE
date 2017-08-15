@@ -8,25 +8,33 @@ import keras.backend as K
 from keras.utils.generic_utils import get_custom_objects
 from keras.backend.tensorflow_backend import _to_tensor
 from keras.callbacks import TensorBoard, ModelCheckpoint
-
+import bcolz
+import numpy as np
 
 ### 调用数据
-from get_train_valid_datasets import train_features, train_targets, valid_features, valid_targets #, test_features, test_targets
-
+# from get_train_valid_datasets import train_features, train_targets, valid_features, valid_targets #, test_features, test_targets
+# train_features = bcolz.open("E:/Deep Learning/Comm/OutPut/train_features_path")[:]
+# train_targets = bcolz.open("E:/Deep Learning/Comm/OutPut/train_targets_path")[:]
+# valid_features = bcolz.open("E:/Deep Learning/Comm/OutPut/valid_features_path")[:]
+# valid_targets = bcolz.open("E:/Deep Learning/Comm/OutPut/valid_targets_path")[:]
+train_features = bcolz.open("/Users/Natsume/Downloads/data_for_all/stocks/features_targets_commodities/train_features_path")[:]
+train_targets = bcolz.open("/Users/Natsume/Downloads/data_for_all/stocks/features_targets_commodities/train_targets_path")[:]
+valid_features = bcolz.open("/Users/Natsume/Downloads/data_for_all/stocks/features_targets_commodities/valid_features_path")[:]
+valid_targets = bcolz.open("/Users/Natsume/Downloads/data_for_all/stocks/features_targets_commodities/valid_targets_path")[:]
 
 # input_shape: 简单例子我们用了(20，)， 这里时LSTM，我们要用（30，61），下面的表达式用的是 input_shape=(input_shape[0], input_shape[1])
 # lr: 学习步伐的大小
 # n_layers: 隐藏层的数量
 # n_hidden: 隐藏神经元的数量
 # rate_dropout: 当输入值经过Dropout层后，得到的特征值纬度（30, 61)中有20%的权重被设置为0.0
-shape=(30, 61)
+shape=(30, 3)
 lr=0.01
 n_layers=2
 n_hidden=8
 rate_dropout=0.2
 loss='mse'
 # path="E:/Deep Learning/Comm/OutPut/my_model.h5"
-path = "/Users/Natsume/Desktop/best_model_in_training_comm.h5"
+# path = "/Users/Natsume/Desktop/best_model_in_training_comm.h5"
 
 
 #### 训练模型保存地址 locally
@@ -90,8 +98,7 @@ model.fit(train_features, # x: 训练特征值
                   ModelCheckpoint(filepath=best_model_in_training, save_best_only=True, mode='min')]) # 训练时保存最优秀的模型，并非最后一轮训练的模型版本
 
 
-model.summary()
-
+# model.summary()
 # 调用模型
 model = load_model(best_model_in_training)
 
@@ -101,3 +108,24 @@ out = model.evaluate(valid_features, valid_targets, batch_size=32, verbose=1,
 
 # 模型预测
 pred = model.predict(valid_features, batch_size=32, verbose=1)
+
+# 保存 loss, accuracy, pred 在npy中
+# loss_accu_path = "E:/Deep Learning/Comm/OutPut/loss_accu.npy"
+# np.save(loss_accu_path, out)
+# pred_path = "E:/Deep Learning/Comm/OutPut/pred.npy"
+# np.save(pred_path, pred)
+# pred_out_path = "E:/Deep Learning/Comm/OutPut/pred_loss_acc.npy"
+# np.save(pred_out_path, (pred,out))
+
+# 保存 loss, accuracy, pred 在npy中
+loss_accu_path = "/Users/Natsume/Desktop/loss_accu.npy"
+np.save(loss_accu_path, out)
+pred_path = "/Users/Natsume/Desktop/pred.npy"
+np.save(pred_path, pred)
+pred_out_path = "/Users/Natsume/Desktop/pred_loss_acc.npy"
+np.save(pred_out_path, (pred,out))
+
+# 从npy中调取数据
+out1 = np.load(loss_accu_path)
+pred1 = np.load(pred_path)
+pred_out = np.load(pred_out_path)

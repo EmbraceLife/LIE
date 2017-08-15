@@ -50,39 +50,70 @@ class IndicatorCreator(object):
     5. return feature array (6434, 61*30), target array (6434, )
     """
     def moving_extract(self, window=30, open_prices=None, close_prices=None, high_prices=None, low_prices=None,
-                       volumes=None, with_label=True, flatten=True):
-        self.extract(open_prices=open_prices, close_prices=close_prices, high_prices=high_prices, low_prices=low_prices,
-                     volumes=volumes) # self.feature is a list with 61 indicators
-        feature_arr = np.asarray(self.feature) # list to array, shape (61, 6464) = (num_indicators, num_days)
-        p = 0
-        rows = feature_arr.shape[0]
-        print("feature dimension: %s" % rows)
-        if with_label:
-            moving_features = []
-            moving_labels = []
-            while p + window < feature_arr.shape[1]: # start from 30th day, loop for each everyday onward
-                x = feature_arr[:, p:p + window] # take all indicators for 30 days range, start from day 1, then start from day 2, and so on
-                # p_change: (the day-30th-price - day_29th_price)/day_29th_price
-                p_change = (close_prices[p + window] - close_prices[p + window - 1]) / close_prices[p + window - 1]
-                # use percent of change as label
-                y = p_change
-                if flatten:
-                    x = x.flatten("F") # from (61, 30) to (61*30, )
-                moving_features.append(np.nan_to_num(x)) # 1. convert nan to 0.0; 2. store x a 30_days_61_indicators as a long vector into list moving_features
-                moving_labels.append(y)
-                p += 1
-			# now moving_features is a list of 6434 == 6464 - 30
-            return np.asarray(moving_features), np.asarray(moving_labels)
-        else:
-            moving_features = []
-            while p + window <= feature_arr.shape[1]:
-                x = feature_arr[:, p:p + window]
-                if flatten:
-                    x = x.flatten("F")
-                moving_features.append(np.nan_to_num(x))
-                p += 1
-            return moving_features
+                       volumes=None):#, with_label=True, flatten=True):
 
+		# 这行代码生成 self.feature = a list with 61 indicators =  [指标1， 指标2， 。。。 指标61]
+        self.extract(open_prices=open_prices, close_prices=close_prices, high_prices=high_prices, low_prices=low_prices,
+                     volumes=volumes)
+
+		# 将 [指标1， 指标2， 。。。 指标61] 变成 数组, 数组.shape (指标数量， 样本数量)
+        feature_arr = np.asarray(self.feature)
+		# list to array, shape (61, 6464) = (num_indicators, num_days)
+
+        p = 0
+        num_indicators = feature_arr.shape[0] # 指标数量
+        print("feature dimension: %s" % num_indicators)
+
+		## 如果with_label == True
+        # if with_label:
+        moving_features = [] # 特征值的容器（序列， list）
+        moving_labels = [] # 目标值容器（list)
+
+		# 想象一个扫码器，每次扫30天（样本），每天的所有指标值也都扫进去了，将这30天放进x里，每次扫码后往前进一天，直到用完所有天数
+        while p + window < feature_arr.shape[1]: # start from 30th day, loop for each everyday onward
+
+			# 每30天的所有指标值，都存入x中；
+			# 第一个x包含，从第0天开始到第29天的所有技术指标值
+            x = feature_arr[:, p:p + window] # take all indicators for 30 days range, start from day 1, then start from day 2, and so on
+
+			# 第一个p_change，即 第一个x对应的目标值， 是（第30天收盘价-第29天收盘价）／第29天收盘价
+            # p_change: (the day-30th-price - day_29th_price)/day_29th_price
+            p_change = (close_prices[p + window] - close_prices[p + window - 1]) / close_prices[p + window - 1]
+
+            # 用 p_change （每第30天与第29天的价格变化比）作为目标值
+            y = p_change
+
+
+			########## 可以删除的部分，因为不会使用
+			# 如果 flatten == True, 将 2维数组（61，30），转化为1维数组 （61*30，）
+            # if flatten:
+            #     x = x.flatten("F") # from (61, 30) to (61*30, )
+			######################################
+
+
+			# 将x中所有NaN值，变为0.0；然后存在moving_features这个list 里
+            moving_features.append(np.nan_to_num(x)) # 1. convert nan to 0.0; 2. store x a 30_days_61_indicators as a long vector into list moving_features
+
+			# 将y存在moving_labels这个list里
+            moving_labels.append(y)
+
+			# 计数，处理下一个x,y
+            p += 1
+
+		# 所有数据处理完毕，moving_features 作为一个list, 里面包含了feature_arr.shape[1] - 30 个小array, 每个array.shape (61, 30);然后将list 转化为 array, array.shape (feature_arr.shape[1]-30，61，30)
+        return np.asarray(moving_features), np.asarray(moving_labels)
+
+		##### 其实可以删除掉了
+        # else:
+        #     moving_features = []
+        #     while p + window <= feature_arr.shape[1]:
+        #         x = feature_arr[:, p:p + window]
+        #         if flatten:
+        #             x = x.flatten("F")
+        #         moving_features.append(np.nan_to_num(x))
+        #         p += 1
+        #     return moving_features
+        ##############################
 
     """
     1. check every user provided indicators, see whether match with internally supported indicators
@@ -285,7 +316,9 @@ class IndicatorCreator(object):
 from stock_csv_pandas_array import csv_df_arrays
 # from stock_csv_object_array import read_csv_2_arrays
 
-def extract_feature(selector, file_path, window=30, with_label=True, flatten=False):
+
+#### with_label=True, flatten=False, 想不到需要更改这两个参数的场景
+def extract_feature(selector, file_path, window=30):#, with_label=True, flatten=False):
 	# selector: user_selected_indicators to create IndicatorCreator object
     indicators = IndicatorCreator(selector)
 
@@ -295,18 +328,18 @@ def extract_feature(selector, file_path, window=30, with_label=True, flatten=Fal
     # else: # to be commnet out
     	# _, dates, opens, highs, lows, closes, volumes = read_csv_2_arrays(file_path)
 
-    if with_label:
-        moving_features, moving_labels = indicators.moving_extract(window=window, open_prices=opens, close_prices=closes, high_prices=highs, low_prices=lows, volumes=volumes, with_label=with_label, flatten=flatten)
-		# extract_feature: func outside ChartFeature class
-		# dive into ChartFeature.moving_extract():
-		# then into ChartFeature.extract(): extract one feature group at a time
-		# ChartFeature.feature is a list has 61 indicators in total
-        return moving_features, moving_labels
-    else:
-        moving_features = indicators.moving_extract(window=window, open_prices=opens, close_prices=closes,
-                                                       high_prices=highs, low_prices=lows, volumes=volumes,
-                                                       with_label=with_label, flatten=flatten)
-        return moving_features
+    # if with_label:
+    moving_features, moving_labels = indicators.moving_extract(window=window, open_prices=opens, close_prices=closes, high_prices=highs, low_prices=lows, volumes=volumes)#, with_label=with_label, flatten=flatten)
+	# extract_feature: func outside ChartFeature class
+	# dive into ChartFeature.moving_extract():
+	# then into ChartFeature.extract(): extract one feature group at a time
+	# ChartFeature.feature is a list has 61 indicators in total
+    return moving_features, moving_labels
+    # else:
+    #     moving_features = indicators.moving_extract(window=window, open_prices=opens, close_prices=closes,
+    #                                                    high_prices=highs, low_prices=lows, volumes=volumes,
+    #                                                    with_label=with_label, flatten=flatten)
+    #     return moving_features
 
 """
 ### dataset example 1

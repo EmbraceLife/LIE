@@ -119,9 +119,41 @@
 	- tanh is always better than sigmoind for hidden layer activation
 	- relu is default activation for hidden layer, if you don't know better
 	- `leaky_relu`: $= \max(0.01z, z)$
+- practical tips
+	- 虽然有default 选择，但不同的问题，不同的activation function表现不同，
+	- 逐个尝试一遍，比较一下，才知道谁最合适解决当前的问题
 
+---
 
+## Why do you need non-linear activation functions?
+- within domain of 1 hidden layer neural network
+- ![][image12]
+	- non-linear activation: `relu, sigmoid, tanh, leaky_relu`
+	- linear activation: `linear`, 即, $g(z) = z$
+	- 为什么hidden layer 必须用non-linear activation func?
+		- if hidden layer and output layer both use linear activation function,
+		- 处理后，就是一个新的linear function or linear combination
+		- meaning, hidden layer, output layer 失去存在的意义
+		- 其意义在于，通过non-linear activation 创造任何形态的函数
+	- 在预测股价或价格变化率时，可以用linear activation function 在output layer
+---
 
+## Derivatives of activation functions
+- 求解sigmoid函数的`slope`
+	- ![][image13]
+	- $a = g(z) = \sigma(z) = \frac{1}{1+e^{-z}}$
+	- $g^{\prime}(z) = a(1-a)$
+	- sanity check:
+		- 当‘z = 10’（比较大时），`a`接近1， `1-a`接近0， $g^{\prime}(z)$ 接近0
+		- 当‘z = -10’（比较小时），`a`接近0， `1-a`接近1， $g^{\prime}(z)$ 接近0
+		- 当‘z = 0’（中间），`a=1／2`， `1-a=1/2`， $g^{\prime}(z)=1/4$
+- 求解tanh函数`slope`
+	- ![][image14]
+	- 具体的细节见图
+- 求解relu函数的`slope`
+	- ![][image15]
+	- 具体的细节见图
+		- `z = 0`情况很少很少见，所以可以归并在 `z >= 0`的情况下
 
 
 [image1]: https://lh3.googleusercontent.com/a7C1XrUZCxjqgVE85HgrHvh0sdlfXHt5zrK47eopwIoz3h9tS1AjL-0H0rcxIi2eaivXPIVGV7MFvnLHclltWnrnhr9L4ipS-QZaybmWEPTk71C9e8QFtE2JwFpWEhLuplzOfjFL2L0t9W5eGwoDjXNMFU1kZML1cXjZVz1d0ztFUGqQlI6w0RXObFq8SQGrcxov08XJLpYy1DyfS_kVREAuwKKwBFwzuxeT7VugNn-CwjJlqedV7S2FZPXHnVMIRbac1qxq4nF_NHpb5F200tyDRaoINSc33g0aLgl7qKsRjeKQbCtwOD0zpNbgtvgm-Wg_XRFMqFDtK7BBFQQe1HlMqHY44lTZQyn2832VdezUCTLlXKn0Oyj6lgx0FBmGDKqHqJQCBniv9AFZSCf-zY3M0VWm4o1P4eQodK2CUh2CLovqRMTT_fooiA_D_BTfSWAi_9XDW1gvo4eXy5jr6nZ70iNwex2byAk74qk6AcrNd9iTq02sml32jCUGNmK0PQfRqgW9PePFMkdARG6TqQoq3GxIZ1r4hUtGRf_TJZdkMdZJks0D4Wh7iGBUHruHlfDEpCZ2NUEBEb_fCzhYaz8RoqrxrByLhJt0dKZjN9qfH64lyUJZ=w2014-h1136-no
@@ -145,3 +177,11 @@
 [image10]: https://lh3.googleusercontent.com/K9zMOy9vvVv0bWR-PfV7ALhkH81I5w-30Rw94CDyHIVeGCJTIjS_YLQO7SDPxbm-Aj1nw54hCBLaCWEzHJXzcwjIrq_SJRMxPvdH-pSJfB1KFn2N7yDEWXG9D8su8cOm7ivJI57zqm5iUwcuYtduCT4OiQhQttTKMCMf40piwSbutmL_HFg1wvspDzhqevAStLnQftN1V4tC6dQRpya9cs0qu_7z61bcarIBB5tFBvMoONe7blRAYtbhUZhLOGvgM52MA3a2u5igqaGaClRtFce3mGOWe-_pIMzvUsO6dsI71lCKTE7zeXsFRiq5V7xj9NpWZ7NJQtQNvovEzn5eQm7ftfV84FaFfG1-Dw41GIRhwp-RNTOoKhKRCkg4jaNmdxF1xPZ2lgw0pXny_Z1cdwdfkWKNvBNjkB7zVURyeTwg_BARZSW8tdOcs0_C8iQ5XGwJAaAo-eF3EfHfUVLrO3TKVtoyMvYUDsp3MwZBdHXDoOM0M19CGprenRtdXqnh3F0wumPymcE_LhtlS9w6Ootd5E3OG3ViLvtMKOVkRMSN7-TVvL6cj4tOpcVrPeeYr4trxDJ18g6G19IQIOw3nxDeWootto0WfYjPd0G3aTqHpIuZOQHI=w2016-h1136-no
 
 [image11]: https://lh3.googleusercontent.com/rteQ9oUfYwQnPwwR8uC_3hMRT9E44nHUuV1cOJVuzP1gXlSnUiRfeXfPBiTKZqq_wsc8Fnbrz754oLPWBHSrjo1iPIRQEwOPIIH0gTFeRC0QNSZNd6T1Jkj0gJ5pk8LmduXJHmGREbcj-KERlyvALIJKBr7p9ZKmsuml-IYgCL6Hno33B4R7z5TbC4iflZ14ibmKEa_aVJp3lYpw-QALqSsWtckOMwIgWoHZEaReLE0zI1xqJ8L4Xw8YerCgTgY4sNLytIexLVtaQ1oWY9fHUXyzXmErnan9UmfiLoophsAWHYmbag0k8CdMqDtILxe0F74DOi3HU6qMAhe5LZjC-wwDyOXB0Q44uuTplmnbivJZ7kXA6PIw6kL8vSc_WGuEFDF0f9Wv6Fg_wSRJX0p2Mrud49nKQFtCxsQ49Izhi-4xrYxFO-XVIeM_P4JiHAix4MrqmmapLwJ0nm8R-kbyAdUo0NMv2M6HSWKQCJyQfv6Sgs1bHt-XQxrJ_p8z8ZBR7IgmqNEYGzCgo4y-tfSj0vFZzlg2oKIPDp7Rwh2OJ-c0m75ahdesBv4tJudHwUTnknvly4LapUrjbNTzd34uFOzMhFMrxiITEzYv5VOBX4XMuBUZtyFY=w2040-h1136-no
+
+[image12]: https://lh3.googleusercontent.com/gGeRcprsw4s0ec2u3EfGa81Pen3nHGsTSDSmVXsILc9cNy6POPN5MSYruMS2K7TeRJu9MogXEf0GS1ylQI16iytCijrMaJL_WRzi_uucOGO6Pkp2gPn42-l-qwDsCoCvKujzRqThz0jffzOyQAWnrY8TvjGlVC6_1lXWelpbl9B1rcS1mgTduPGL7_4RyzhJCNPP-yJY22sOUHnQ49XK0orTL__xlh4YBLADbPpgM6bH3WYbnJ6TibmDs5kBGEgK2-1rKvSVQeyUpgdbfErIBJ2_2H5fIjhHtzq9Lz5pp8tJJvz991VsF-TtibLNR49-Vb8NPZNYvY9MmoGlaK4DkrjVtw4-BQ9KJphPffh6Lr6x3RA9wgH-HusjOzITiV_D3CXuUX_w0t-J7ZPWTw4OWKEK_wblsDE0dIbqvPrvuZOQuqpK9j_pnzk_1r0y62plgfcXj5aSpNB79oDCbFyPOO6HIXtae7AmEmgnvvj2x4ahZ2eqMQ0kSMJAP1dx9qX6tlweqzhSdDBjlzPDB17aqy6BgiTOrDaIEhqIYtxtZ6JrJyOG8Jx0TJWE0AxWAFrt8BXNP2oHucKsS_4q547HkRMO5gD6wgJe-1lFAG9WqV9P6QPuJqpr=w2138-h1136-no
+
+[image13]: https://lh3.googleusercontent.com/O4C0P1UVlubTgYASIrawHQ2pZBuDpyzaYw87pz4ZrnD1W8PV7sJBJINvCwjaxlWGR4NMNVJH9daGiLQSOs2sQPyq2jvXE9DKO_N4Z3ZIEBvQpGWi1I-N-ao35JlyiT4tBNqIkT8zDmt1rsgLTU2VjIGwiCNztidq9ZBOdwXF5GYU_ZdNgCfqpMNLMga99jGhKaQ6phAinx-B7CSlE4Ms6TJERC-gfLICY9zUtgsTxngO11tG9N95IlLThm4263r2lNpnYarHsM5aFEizGhXushmkYbaRwT-Pk3k3iSWBES7d6ftMargI69enH19ePLoABf2tZY3Z2xMMt9uycnDmC6XO6O4BZgKY6-RdxxFIq5epRmqb8CSS8TcmcTmyTop2h0HHuBVpdGshOHAn6hhGUw3ReDQYuabxyog9M74xK3kh43EhBD7kH8XHLQK4joOTVL_wNxwPpJL7Am1eif-vOqMsheXj-RI-ALzk87HE9-S9It2GVxRMc3iYip6RoyGVM9LVU33CGxzFXZ92OEE_hP8D42yTxyduC2yFdoUY0Yy6jfEFeh2qIXmddquBZrLu40ljchrPW6Wx7oK0fMReckJiEVrB1fajWHMa6NhUY3NT0VgRDPeW=w2110-h1136-no
+
+[image14]: https://lh3.googleusercontent.com/8lN3usB7YZCjuQfGVMTLMEbcu3wnOV8DBbucQc1OdF63AJkzgXnR0vVC9v-ilQDcwsECF1jxs2SrQd9fY0xY1J2l9G_YrcM7A5_WTTEI91a5EzjhQFhxxvof4uGmFD5P5pnzo20V2BvWQkAmETrCebtTava7bizpue-oL2efWRkLMLbL7bHZAIqed66q8XiJX8fGPXijiYLbiifIk6OH3W5FAiQzRyMUemF3g8NieBrcNy-LSq4JwY5eyy53snesMwXKgUDUGz1u8TIORiY10k2yjapQRnEJ4cqg9HZaa7mMWpayqN5X1xjGO9k3rh2SlRwis6HS8lHukDp9TpClvHn5asoTTJrLwv1R7swojLhRGLpZBGGpglyfng86kU4m_vE8srMa6UgJ9nRL1VLVK3VMwSiBm6BEjgoY5h4oN8xxSBe_HwyHxBCUHa84ecYuMd0t1mcgEpAHxmItXYHnEudWM8QHqgdAyMcU1nkCT_fXWaBwEAaTGEJTjI3WEZr37ErXSdWQvg9CM2yrBIscOxQCDM8Q9k-5HzgvmVsbeTsMBE05j3lBmmgdoam97KdDvTcECwqo7SH3Tli8fJOveSgVeka-OyedAJYWcb1bggqDoD03uUI0=w2062-h1136-no
+
+[image15]: https://lh3.googleusercontent.com/_XhcoKNRAM3wZhckyQOPOSHqbNxAFGy-V6h1FzlDVrcF80zqvHwCqdoMy-MIUhodzW76n5sczTwfj9pn4w7hTMsXWdbA_IhjBY07H3qtIX7dGFwZuVVyn28VGF8XjHzctG6NZ82dgh-qCWX_2ltUjabEInuecYHqqejAm_6y_T4Uh7qW3qsqULg9cVBs3-ySq1_Cyc3go72lm9u3-tSwTjXCwHAmyfRR3XW1DGo3aUNe-lcYrz3GGIWWqI8uZqLU9JtarR7XoIzTGmBfCecbDq_l_IbtzOxnOiiFIitmVDjyyWzcO-nNwClWr3qaB6-cmK8ZcuU2rVzArkTKDIHX2T0OM7oIn5rdUqyDbyJpmFmQgEjKyqo9kOWdkJ9ompZD7Sx8h71kPJO1aZGEyAsz2y_DWt8Cg-oSs8jS8A5PObB6m1-sO9ON1A5-mDSGEi08QXNSA4Y5T_2diP1jhHl_C7rCEyrnGmbtQr2UlVkmzieBxgDrlwxqh3byuG0RDG8GIX-TtNuOtZCsSgJWMWjVTQJNThlsNZzoPKeJSIfSdnWr-x-WlDgPrRMxM0EPfeClz_9M-3OTle5d_NiOBSxEw1gbNl4KKZ469sTzebwsVlsowaRL-OPL=w2066-h1136-no
