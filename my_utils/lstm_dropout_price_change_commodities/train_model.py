@@ -43,7 +43,7 @@ nb_epochs = 1000 # set it large when train with floyd
 batch_size = 512
 
 ########################################################################
-#### store model locally
+#### 训练模型保存地址 locally
 best_model_in_training = "/Users/Natsume/Desktop/best_model_in_training_comm.h5" # local computer training
 
 
@@ -61,8 +61,8 @@ wp.fit(train_features, train_targets, batch_size=batch_size,
 	   ######################## train and save on floyd ######################
 	#    log_dir='/output/log'), # store on floydhub
 	   ######################## train and save on locally ######################
-	    log_dir="/Users/Natsume/Desktop/log_comm"),
-				  ModelCheckpoint(filepath=best_model_in_training, save_best_only=True, mode='min')])
+	    log_dir="/Users/Natsume/Desktop/log_comm"), # 画图保存
+				  ModelCheckpoint(filepath=best_model_in_training, save_best_only=True, mode='min')]) # 训练时保存最优秀的模型，并非最后一轮训练的模型版本
 
 
 # evaluate model

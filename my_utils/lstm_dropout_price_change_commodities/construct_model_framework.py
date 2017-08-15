@@ -124,23 +124,23 @@ class WindPuller(object):
 ###################################################
 # 实验： 简单尝试上述每一个functions and class
 ###################################################
-wp = WindPuller(input_shape = (30, 61))
-
-# 调取训练集和验证集数据
-from get_train_valid_datasets import train_features, train_targets, valid_features, valid_targets #, test_features, test_targets
-
-# 查看模型结构
-wp.model.summary()
-
-# 训练模型： 训练时，训练数据和验证数据的总数会打印出来的
-wp.fit(train_features, train_targets, batch_size=32, nb_epoch=1, verbose=1,callbacks=None, validation_split = 0.2, validation_data=None, shuffle=True, class_weight=None, sample_weight=None, initial_epoch=0)
-
-# 评估模型训练效果: 输出损失值和准确度（如果设置了）
-out = wp.evaluate(valid_features, valid_targets)
-print(out)
-
-# 用模型预测: 输出预测值值序列
-pred = wp.predict(valid_features)
+# wp = WindPuller(input_shape = (30, 61))
+#
+# # 调取训练集和验证集数据
+# from get_train_valid_datasets import train_features, train_targets, valid_features, valid_targets #, test_features, test_targets
+#
+# # 查看模型结构
+# wp.model.summary()
+#
+# # 训练模型： 训练时，训练数据和验证数据的总数会打印出来的
+# wp.fit(train_features, train_targets, batch_size=32, nb_epoch=1, verbose=1,callbacks=None, validation_split = 0.2, validation_data=None, shuffle=True, class_weight=None, sample_weight=None, initial_epoch=0)
+#
+# # 评估模型训练效果: 输出损失值和准确度（如果设置了）
+# out = wp.evaluate(valid_features, valid_targets)
+# print(out)
+#
+# # 用模型预测: 输出预测值值序列
+# pred = wp.predict(valid_features)
 
 ###################################################
 ###### 实验：dropout在输入层和LSTM层上产生的直接影响

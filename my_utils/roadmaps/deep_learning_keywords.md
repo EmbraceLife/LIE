@@ -118,3 +118,6 @@ cd /Users/Natsume/miniconda2/envs/experiment3.5/lib/python3.5/site-packages/kera
 
 insert a loss function
 ```
+
+# questions
+- **kwargs

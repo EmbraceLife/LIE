@@ -93,6 +93,37 @@
 
 ---
 
+## Activation functions
+- one hidden layer neural network
+- ![][image10]
+	- every layer has linear combination and activation function
+	- 隐藏层 hidden layers，tanh 总是优于 sigmoid
+		- Input layer 输入层，不用linear combination or activation
+		- Output layer 输出层，对于二元分类问题binary classification，选sigmoid，因为取值范围0到1，更合适
+		- tanh: $g(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}}$
+			- 实质就是 $\sigma(z)$ 向下平移，在1到-1取值
+	- `tanh and sigmoid`的弊端
+		- 当`z`稍微比较大或比较小时，如大于2， 小于-2，根据两个函数曲线来看，他们的`slope`都很小很小接近0.0，`slope`快成一条水平线
+		- 意味着，`z`很多时候都导致`slope`接近0
+		- 导致结果是，梯度消失，最早前的隐藏层的参数会更新得特别特别小
+	- `RELU`出来取代`tanh`的地位
+		- relu: $relu(z) = \max(0, z)$
+			- 当`z`小于0， `slope`为0
+			- 当`z`大于0， `slope`为1
+		- leaky_relu:
+			- 当`z`小于0， `slope`大于0，但较小
+			- 当`z`大于0， `slope`为1
+		- 多数情况下，`z`都会 `> 0`, 所以`slope`都会 `=1`
+		- 因此，`relu` 是 `default` 选择，虽然`leaky_relu`看起来更高级
+- ![][image11]
+	- tanh is always better than sigmoind for hidden layer activation
+	- relu is default activation for hidden layer, if you don't know better
+	- `leaky_relu`: $= \max(0.01z, z)$
+
+
+
+
+
 [image1]: https://lh3.googleusercontent.com/a7C1XrUZCxjqgVE85HgrHvh0sdlfXHt5zrK47eopwIoz3h9tS1AjL-0H0rcxIi2eaivXPIVGV7MFvnLHclltWnrnhr9L4ipS-QZaybmWEPTk71C9e8QFtE2JwFpWEhLuplzOfjFL2L0t9W5eGwoDjXNMFU1kZML1cXjZVz1d0ztFUGqQlI6w0RXObFq8SQGrcxov08XJLpYy1DyfS_kVREAuwKKwBFwzuxeT7VugNn-CwjJlqedV7S2FZPXHnVMIRbac1qxq4nF_NHpb5F200tyDRaoINSc33g0aLgl7qKsRjeKQbCtwOD0zpNbgtvgm-Wg_XRFMqFDtK7BBFQQe1HlMqHY44lTZQyn2832VdezUCTLlXKn0Oyj6lgx0FBmGDKqHqJQCBniv9AFZSCf-zY3M0VWm4o1P4eQodK2CUh2CLovqRMTT_fooiA_D_BTfSWAi_9XDW1gvo4eXy5jr6nZ70iNwex2byAk74qk6AcrNd9iTq02sml32jCUGNmK0PQfRqgW9PePFMkdARG6TqQoq3GxIZ1r4hUtGRf_TJZdkMdZJks0D4Wh7iGBUHruHlfDEpCZ2NUEBEb_fCzhYaz8RoqrxrByLhJt0dKZjN9qfH64lyUJZ=w2014-h1136-no
 
 [image2]: https://lh3.googleusercontent.com/Ev4_Mukf6BBI0qefa6NVOl6Y3qPykyO2gCCKC_S9gk0hw6T94cpjmxfg21lRpBXG7shnHMKhi8D5_KB-Z900H1yBBs6EXkxWhCo7y86zHgA__hZvXxWDWboE9xTnOZ_qaLsP-CiK-N8h42UBhHWLJ8mJk16rvXC2DLHKWBHNnV-LF59SE0TGm1aIadAciC4tT2wOCuAxbjMNa-tEI2IigrJOgA1hrKpHguXNQR3q6lK-Wz1xkpJ6udRHRH-y-IZWZRAbtfJk5pfgfA5O1mDBmnGHQrSvdWKGq_aoig-3ybOatnoOmgXR16qTtGwMRHnAetJmXMxrIR8WnUYa6tylvFKXArwK_9RfGWRJm3uzTngzDXnw6rl7YerVGdt5S4EG52ohJtUL8WdAHASEDruLptNBgjtcgnOYFhWlt1TCXrOrXL_p6LrAg4CIEjw59EBjQRidkNuBZCMQpSJ8kB15fhU2kgKMro0drXsFc_hlG2S91YUNtdLb-H2OafID0iRUKbcxiyIul8Cnxw4Tj_p_xAv2EQyc4zeI3iKXjChhHDWR6U2DSuleuN8mooQmuHrER47MKZxTwW7MOQsPBtgnRLfWxfaGX1PTU9AFTK2HJzHPk5bxIopA=w1914-h994-no
@@ -110,3 +141,7 @@
 [image8]:https://lh3.googleusercontent.com/-XSh0ZPu-iQ4WdYOD2g7w9THYiWYCfQYVFh5JLtyFk_JZtFyM22024xeTOnYm60SD_ZZIqdsVFegWPXHAnZkd16cdW1uZwGMVChI7DBpC6qDJzVUpllgPWWalEBkOKXd15IhJKQsdkzHI8jESWoVYqds_X09ox6yx8mYfgciEO6tT29MO6howBNAuiDH50KOlGarX76la05zMk8p3e4X4mmM_oiuLzMUODD-KKQxMwzCRaIRAcH1x8ICTbkTqWFdJyraDJSGUqxEVwhDR1JsPpayMfs-1xTrlV-uMEq4Bj6Eveiu3FtIeoIauf6xY6bcII0tp-ISQuOutE9YU9daoZ6BpB_mgT8Oo2vbmB6mEUAKKIvsbDyBMx818MSSVRNFKfeO9FaardxlcEJnxNOvuIML8tlKiqYHe9FujTRVe8RE4lliZdvMlmSHzSIpzDXTq7ubk7_wnYMupKGUQU-qZXqJiVEUtc_ZtkVxV4lojbMahQZdSPyHtJVavE_kNHHb48ArhJtLDXKQLcS_I0eEVhavtUVdMWFITfhzSm1AnuRBe3Fa2Q5J1QU-7WqeKvEQ41GiRdPfTjIbsDxVV5cvrN7OyDSp-PxzwdMySZ-YcPXElI8x9o0X=w2082-h1136-no
 
 [image9]: https://lh3.googleusercontent.com/WT_DfTZ4S9Kz59BtQYvokQ1tL7TcKdgCNusH28M-3zQJXQB5VqMrcSkBLbaqWhY8Md8b0YmHXqOkFxD69NQsA0_UPSdITUTHtGFjTzbtpjo1gFaxUs-n3h_8kguhvz6LhE8F0Bj0hRylFtzXRbPTboGnJXeYtPwQ34Eajj_KxMr3ehvuvrg0Oe0ARQ-cLu2IcRxAdtPR8SNuNN7n61jEcYx0jljPDut_nhXNnEkFzT_ph4uENvKuIv3kPntD2w0676kkXPq9ptpS9chAVx-J6ux-dw_cfFdD7DirJhZKzVk7OxogUysrZglphmi57a5PCkwy3eDUN0qv5aChLXu0cmJ2v5hOmyL-3JRNj0cDhX7EioNwqxBQ3YQh0_l-VTjOGwVnvwVEM2awyuut0oWNgPnYOozxIcTKb_ymk4qZ9LjWJQGMmgMyULj5VvALmNRG7SohyFr12zK9wt9pEi5uRDaIcOe7tG0rFSKbjMGnq2TaYxiis7_oj8rXDx0Ha0rq99TN5wqCxVKrpxza0cG_wgmfTK7zNp-enYcaB-SV0i-OFEIcwE_K5zB70UuXrRz55Dnqoi_V5y0rQBxxSHVBdEDTiiKmAp-VpEKABXKszrDGNL5GJhur=w2106-h1136-no
+
+[image10]: https://lh3.googleusercontent.com/K9zMOy9vvVv0bWR-PfV7ALhkH81I5w-30Rw94CDyHIVeGCJTIjS_YLQO7SDPxbm-Aj1nw54hCBLaCWEzHJXzcwjIrq_SJRMxPvdH-pSJfB1KFn2N7yDEWXG9D8su8cOm7ivJI57zqm5iUwcuYtduCT4OiQhQttTKMCMf40piwSbutmL_HFg1wvspDzhqevAStLnQftN1V4tC6dQRpya9cs0qu_7z61bcarIBB5tFBvMoONe7blRAYtbhUZhLOGvgM52MA3a2u5igqaGaClRtFce3mGOWe-_pIMzvUsO6dsI71lCKTE7zeXsFRiq5V7xj9NpWZ7NJQtQNvovEzn5eQm7ftfV84FaFfG1-Dw41GIRhwp-RNTOoKhKRCkg4jaNmdxF1xPZ2lgw0pXny_Z1cdwdfkWKNvBNjkB7zVURyeTwg_BARZSW8tdOcs0_C8iQ5XGwJAaAo-eF3EfHfUVLrO3TKVtoyMvYUDsp3MwZBdHXDoOM0M19CGprenRtdXqnh3F0wumPymcE_LhtlS9w6Ootd5E3OG3ViLvtMKOVkRMSN7-TVvL6cj4tOpcVrPeeYr4trxDJ18g6G19IQIOw3nxDeWootto0WfYjPd0G3aTqHpIuZOQHI=w2016-h1136-no
+
+[image11]: https://lh3.googleusercontent.com/rteQ9oUfYwQnPwwR8uC_3hMRT9E44nHUuV1cOJVuzP1gXlSnUiRfeXfPBiTKZqq_wsc8Fnbrz754oLPWBHSrjo1iPIRQEwOPIIH0gTFeRC0QNSZNd6T1Jkj0gJ5pk8LmduXJHmGREbcj-KERlyvALIJKBr7p9ZKmsuml-IYgCL6Hno33B4R7z5TbC4iflZ14ibmKEa_aVJp3lYpw-QALqSsWtckOMwIgWoHZEaReLE0zI1xqJ8L4Xw8YerCgTgY4sNLytIexLVtaQ1oWY9fHUXyzXmErnan9UmfiLoophsAWHYmbag0k8CdMqDtILxe0F74DOi3HU6qMAhe5LZjC-wwDyOXB0Q44uuTplmnbivJZ7kXA6PIw6kL8vSc_WGuEFDF0f9Wv6Fg_wSRJX0p2Mrud49nKQFtCxsQ49Izhi-4xrYxFO-XVIeM_P4JiHAix4MrqmmapLwJ0nm8R-kbyAdUo0NMv2M6HSWKQCJyQfv6Sgs1bHt-XQxrJ_p8z8ZBR7IgmqNEYGzCgo4y-tfSj0vFZzlg2oKIPDp7Rwh2OJ-c0m75ahdesBv4tJudHwUTnknvly4LapUrjbNTzd34uFOzMhFMrxiITEzYv5VOBX4XMuBUZtyFY=w2040-h1136-no
