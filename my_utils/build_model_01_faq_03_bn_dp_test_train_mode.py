@@ -88,7 +88,7 @@ batchNorm_train = K.function([model_best.input, K.learning_phase()], [model_best
 
 
 # dropout_layer_behaviour
-
+## 下面代码帮助解释，dropout_rate = 0.3的含义，将30%的neuron权重参数设置为0
 ##### in test, there is 0 neuron output to be 0.0
 drop_test = K.function([model_best.input, K.learning_phase()], [model_best.layers[-3].output])([input_array_small, 0])[0]
 ##### in train, there are 30% neuron output to be 1500 items of 0.0

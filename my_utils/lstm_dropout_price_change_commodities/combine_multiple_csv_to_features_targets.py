@@ -47,7 +47,7 @@ import numpy as np
 from save_load_large_arrays import bz_save_array
 
 ####### original data split ########################################
-days_for_valid = 700 # 1000 is too much dataset to be taken away from training
+days_for_valid = 300 # 1000 is too much dataset to be taken away from training
 days_for_test = 0 # number of test samples
 ####### hope for better model ########################################
 # days_for_valid = 125 # 1000 is too much dataset to be taken away from training
@@ -104,7 +104,8 @@ total_csv_combine = 41
 current_num_csv = 0
 
 # 这5个文件数据少于720，几个技术指标要求数据超过720，所以暂时不用这5个文件
-small_datasets = ['CS.txt', 'NI.txt', 'PP.txt', 'SN.txt', 'T.txt'] #
+small_datasets = ['CS.txt', 'NI.txt', 'PP.txt', 'SN.txt', 'T.txt']
+similar_dataset1 = ['RB.txt', 'I.txt', 'J.txt', 'JM.txt', 'ZC.txt', 'HC.txt']
 # loop through every csv to convert from csv to arrays OHLCV, to arrays features and targets, and concatenate features and targets of different csv files
 for filename in os.listdir(dataset_dir):
     if current_num_csv >= total_csv_combine:
@@ -113,7 +114,7 @@ for filename in os.listdir(dataset_dir):
 	###### 000001.csv must be the first file when dealing with ETFs
     # if filename == '000001.csv':
 	###### A.txt must be the first file when dealing with commodities
-    if filename == 'A.txt': #
+    if filename == 'HC.txt': #
 
 	    print("processing the first file: " + filename)
 	    filepath = dataset_dir + "/" + filename
@@ -139,12 +140,20 @@ for filename in os.listdir(dataset_dir):
 	    test_features = moving_features[train_end_test_begin+days_for_valid:train_end_test_begin+days_for_valid+days_for_test]
 	    test_targets = moving_targets[train_end_test_begin+days_for_valid:train_end_test_begin+days_for_valid+days_for_test]
 
-		###### how_to_use_any
-		### 移除数据量小于720个的数据
-    elif any([filename == sm for sm in small_datasets]):
-	    pass
+	########################################
+	###### how_to_use_any
+	### 移除数据量小于720个的数据
+    # elif any([filename == sm for sm in small_datasets]):
+	#     pass
 
-    else:
+	##### 只训练 small_datasets 以外的数据
+    # else:
+	###############################################
+
+
+	##### 只训练 similar_dataset1 中的数据
+    elif any([filename == sm for sm in similar_dataset1]):
+
 	    print("processing file (start counting from 0) no. %d: " % current_num_csv + filename)
 	    filepath = dataset_dir + "/" + filename
 	    # _, _, opens, highs, lows, closes, volumes = read_csv_2_arrays(filepath)

@@ -25,12 +25,12 @@ from stock_csv_pandas_array import csv_df_arrays
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/index000001.csv"
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF50.csv"
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/ETF500.csv"
-index_path = "/Users/Natsume/Downloads/data_for_all/stocks/commodities/IF.txt"
+# index_path = "/Users/Natsume/Downloads/data_for_all/stocks/commodities/IF.txt"
 # index_path = "/Users/Natsume/Downloads/data_for_all/stocks/indices_predict/index50.csv"
-index_path1 = "/Users/Natsume/Downloads/data_for_all/stocks/commodities/CU.txt"
+index_path = "/Users/Natsume/Downloads/data_for_all/stocks/commodities/RB.txt"
 
 date,open_prices,_,_, closes, _ = csv_df_arrays(index_path)
-_,_,_,_, closes1, _ = csv_df_arrays(index_path1)
+# _,_,_,_, closes1, _ = csv_df_arrays(index_path1)
 
 
 
@@ -48,9 +48,9 @@ index_preds_target[:, 1]:下一日的当天价格变化
 
 # 30 days
 # 90 days
-time_span = 700  # 从今天回溯700 days
+# time_span = 700  # 从今天回溯700 days
 # time_span = 500  # 从今天回溯500 days
-# time_span = 250  # 从今天回溯250 days
+time_span = 300  # 从今天回溯250 days
 # time_span = 100
 # time_span = 30  # 从今天回溯30 days
 # time_span = 1  # 从今天回溯1 days
@@ -62,7 +62,7 @@ time_span = 700  # 从今天回溯700 days
 # zoom in and out for the last 700 trading days
 open_prices = open_prices[-time_span:]
 closes = closes[-time_span:]
-closes1 = closes1[-time_span:]
+# closes1 = closes1[-time_span:]
 index_preds_target = index_preds_target[-time_span:]
 date = date[-time_span:]
 y_pred = index_preds_target[:,0]
@@ -71,10 +71,10 @@ origin_y_pred = np.copy(y_pred)
 origin_y_target = np.copy(y_target)
 
 
-plt.plot(closes/closes[0], c="blue", label="IF")
-plt.plot(closes1/closes1[0], c="cyan", label="CU")
-plt.legend(loc='best')
-plt.show()
+# plt.plot(closes/closes[0], c="blue", label="IF")
+# plt.plot(closes1/closes1[0], c="cyan", label="CU")
+# plt.legend(loc='best')
+# plt.show()
 ################################################################
 # The latest algo to cut down trade frequency
 ################################################################
@@ -447,7 +447,7 @@ for start, stop, col in zip(xy[:-1], xy[1:], color_data):
 
 ax1.plot(accum_profit, c='gray', alpha=0.5, label='accum_profit')
 ax1.legend(loc='best')
-ax1.set_title('ETF300 from %s to %s return: %04f' % (date[0], date[-1], accum_profit[-1]))
+ax1.set_title('RB from %s to %s return: %04f' % (date[0], date[-1], accum_profit[-1]))
 
 ax2 = plt.subplot2grid((14, 3), (4, 0), colspan=3, rowspan=2)
 ax2.hist(y_pred_hist, color='red', alpha = 0.5, label='pred')

@@ -24,7 +24,7 @@ input_shape = (30, 61)
 # input_shape = (30, 57)
 ###############################################################
 
-lr = 0.001 # first floyd_model2_1000 used 0.002
+lr = 0.0001 # first floyd_model2_1000 used 0.002
 n_layers = 1
 n_hidden=16
 rate_dropout = 0.3
