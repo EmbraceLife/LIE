@@ -154,7 +154,62 @@
 	- ![][image15]
 	- 具体的细节见图
 		- `z = 0`情况很少很少见，所以可以归并在 `z >= 0`的情况下
+---
 
+## Gradient descent for neural network
+- <span style="color:cyan">for 1-hidden_neuralnet_weights_dimension</span>
+	- num_neurals each layer $n_x=n^{[0]}, n^{[1]}, n^{[2]}=1$
+	- $w^{[1]}, (n^{[1]}, n^{[0]}); b^{[1]}, (n^{[1]}, 1)$
+	- $w^{[2]}, (n^{[2]}, n^{[1]}); b^{[2]}, (n^{[2]}, 1)$
+	- ![][image16]
+		- run each sample through model for 2 passes
+		- forward pass: Loss function and Cost function
+		- backward pass: update $dw^{[1]}, db^{[1]}, dw^{[2]}, db^{[2]}$, therefore, update $w^{[1]}, b^{[1]}, w^{[2]}, b^{[2]}$
+	- formulas of forward (4) and backward (6) pass
+		- ![][image17]
+		- forward (4 formula)
+		- backward (6 formula)
+
+---
+
+## Backpropagation intuition
+- logistic regression neuralnet: no hidden layer, just input and output layer
+	- ![][image18]
+		- forward pass formula in boxes
+		- backward pass formula:
+			- $da = \frac{dL(a, y)}{da} = -\frac{y}{a}+\frac{1-y}{1-a}$
+			- $dz = \frac{dL(a,y)}{dz} = \frac{dL(a,y)}{da}\frac{da}{dz} = \frac{dL(a,y)}{da}\sigma^{\prime}(z) = \frac{dL(a,y)}{da}g^{\prime}(z) = [-\frac{y}{a}+\frac{1-y}{1-a}][a(1-a)] = a-y$
+			- $dw = dzx$
+			- $db = dz$
+- 1-hidden layer neuralnet
+	- ![][image19]
+	- ![][image20]
+		- **1-hidden_backward_formular**
+		- <span style="color:pink">关于运算过程和纬度变化，仍不清楚？？</span>
+---
+
+## Random Initialization
+- initialize weights to 0.0, won't work, why?
+	- ![][image21]
+	- if all weights are 0.0, then all $dw$ will be symmetric or the same
+	- so, all weights are the same, no matter how long you train
+	- if so, no point to have many neurons!
+- why set weights random and `*0.01`
+	- ![][image22]
+	- if use `sigmoid and tanh` as activation, large `w` $\to$ large `z` $\to$ `a = 1 or a = 0 (sigmoid)` or `a = 1 or a =-1 (tanh)`
+	- as result, `slope` will be 0 $\to$ `very slow training`
+	- if deep neuralnet (more than 1-hidden), `0.01` will be replaced by other numbers
+
+## multiple choice excercise
+- weak point: dimension of forward and backward pass
+
+## programming assignment on planar
+- things to do:
+	- try different learning rates
+	- try different number of neurons
+	- try different activation functions
+
+---
 
 [image1]: https://lh3.googleusercontent.com/a7C1XrUZCxjqgVE85HgrHvh0sdlfXHt5zrK47eopwIoz3h9tS1AjL-0H0rcxIi2eaivXPIVGV7MFvnLHclltWnrnhr9L4ipS-QZaybmWEPTk71C9e8QFtE2JwFpWEhLuplzOfjFL2L0t9W5eGwoDjXNMFU1kZML1cXjZVz1d0ztFUGqQlI6w0RXObFq8SQGrcxov08XJLpYy1DyfS_kVREAuwKKwBFwzuxeT7VugNn-CwjJlqedV7S2FZPXHnVMIRbac1qxq4nF_NHpb5F200tyDRaoINSc33g0aLgl7qKsRjeKQbCtwOD0zpNbgtvgm-Wg_XRFMqFDtK7BBFQQe1HlMqHY44lTZQyn2832VdezUCTLlXKn0Oyj6lgx0FBmGDKqHqJQCBniv9AFZSCf-zY3M0VWm4o1P4eQodK2CUh2CLovqRMTT_fooiA_D_BTfSWAi_9XDW1gvo4eXy5jr6nZ70iNwex2byAk74qk6AcrNd9iTq02sml32jCUGNmK0PQfRqgW9PePFMkdARG6TqQoq3GxIZ1r4hUtGRf_TJZdkMdZJks0D4Wh7iGBUHruHlfDEpCZ2NUEBEb_fCzhYaz8RoqrxrByLhJt0dKZjN9qfH64lyUJZ=w2014-h1136-no
 
@@ -185,3 +240,17 @@
 [image14]: https://lh3.googleusercontent.com/8lN3usB7YZCjuQfGVMTLMEbcu3wnOV8DBbucQc1OdF63AJkzgXnR0vVC9v-ilQDcwsECF1jxs2SrQd9fY0xY1J2l9G_YrcM7A5_WTTEI91a5EzjhQFhxxvof4uGmFD5P5pnzo20V2BvWQkAmETrCebtTava7bizpue-oL2efWRkLMLbL7bHZAIqed66q8XiJX8fGPXijiYLbiifIk6OH3W5FAiQzRyMUemF3g8NieBrcNy-LSq4JwY5eyy53snesMwXKgUDUGz1u8TIORiY10k2yjapQRnEJ4cqg9HZaa7mMWpayqN5X1xjGO9k3rh2SlRwis6HS8lHukDp9TpClvHn5asoTTJrLwv1R7swojLhRGLpZBGGpglyfng86kU4m_vE8srMa6UgJ9nRL1VLVK3VMwSiBm6BEjgoY5h4oN8xxSBe_HwyHxBCUHa84ecYuMd0t1mcgEpAHxmItXYHnEudWM8QHqgdAyMcU1nkCT_fXWaBwEAaTGEJTjI3WEZr37ErXSdWQvg9CM2yrBIscOxQCDM8Q9k-5HzgvmVsbeTsMBE05j3lBmmgdoam97KdDvTcECwqo7SH3Tli8fJOveSgVeka-OyedAJYWcb1bggqDoD03uUI0=w2062-h1136-no
 
 [image15]: https://lh3.googleusercontent.com/_XhcoKNRAM3wZhckyQOPOSHqbNxAFGy-V6h1FzlDVrcF80zqvHwCqdoMy-MIUhodzW76n5sczTwfj9pn4w7hTMsXWdbA_IhjBY07H3qtIX7dGFwZuVVyn28VGF8XjHzctG6NZ82dgh-qCWX_2ltUjabEInuecYHqqejAm_6y_T4Uh7qW3qsqULg9cVBs3-ySq1_Cyc3go72lm9u3-tSwTjXCwHAmyfRR3XW1DGo3aUNe-lcYrz3GGIWWqI8uZqLU9JtarR7XoIzTGmBfCecbDq_l_IbtzOxnOiiFIitmVDjyyWzcO-nNwClWr3qaB6-cmK8ZcuU2rVzArkTKDIHX2T0OM7oIn5rdUqyDbyJpmFmQgEjKyqo9kOWdkJ9ompZD7Sx8h71kPJO1aZGEyAsz2y_DWt8Cg-oSs8jS8A5PObB6m1-sO9ON1A5-mDSGEi08QXNSA4Y5T_2diP1jhHl_C7rCEyrnGmbtQr2UlVkmzieBxgDrlwxqh3byuG0RDG8GIX-TtNuOtZCsSgJWMWjVTQJNThlsNZzoPKeJSIfSdnWr-x-WlDgPrRMxM0EPfeClz_9M-3OTle5d_NiOBSxEw1gbNl4KKZ469sTzebwsVlsowaRL-OPL=w2066-h1136-no
+
+[image16]: https://lh3.googleusercontent.com/4jgt-JTdOR1Yb-g-n4EOeDX-6mTYTLUNYirp7Fc-h-WXQtMcFMFnXikOXN8e2U_tnJkURsGV5P6BRvWZT52fThmXIibPa-gvbGsvSKyMEhbfhs1eDlLF2T9IkwlNmozZZYppmwRHgcdK1rzxDa8Acu-4U7LFG7eZ1cM8FkXwctADrABP0Mfepuap8lG3u6dZxMSoCjP1mjC067FQymfeWrTU5r2pXoi-_vZGTAjOFGFfPgMZ4pNdrBGON96uVbBtYywq_TrQ1PT1ap_Yp6Ld1CkfHK9ddPZyFaLNKie8GxzB5pUuJG7DldtwdKkFufGrDpa86bV8OBat1_g6LIgg2Add4fswUAeWPesuj1R8u0HPtgg5FYaZTNh7SA9keonCKsNivN_ce8jIe5h5qVd80WVSKmMeLJnpwjZ-3K3iM4bRcpViARHfCqgCaYM-duE7mLacFKBbdUEubntlt7Qma8_3RI6vgDe9IFC6affkB4WoU5Vj8-jJxOkkij6cs_crJpZWQQemvHLJ5B-dCL5WIKfZztkGwNjQFRR8m7s-8aduzZGoYsIaxO8DllnP_TLMbTOZA69vkJTSsNMfYRW8_m06xWdXupZ93kisZ65thgGG55ajshPW=w2234-h1136-no
+
+[image17]: https://lh3.googleusercontent.com/SVZn-PU_OYfowz1xK0J1KEo76G5H3KUd9pi1PTZqnamy0bUUVMDlVs81MxLnULoibNn_n2lk6wBNi0NnSgUWplt_UUuK8ZHBGITXJv5zk_TvkZRAyTCPiVuMAaG5IAPsVPIGbJ0CFbeIfIR6en6coAtUbyCLkI1aJ6R5nRS_Yeqo6Y3LNKJE23R9P0IpLWm7Loy1U4yay6iPRRGEc8Og7wKd9GrTurq3IJJHy8kn5UDSOeL-pN0OlTo0GujFuPVn7u08uhWPlUSX_PTQ6qdyvmlkpAEcU9iWoprsqmRshm6rH6aHuZbnSAQpd-bovEbobMIaWUCpBT_ikHyWn95NbqXNzrboiRJrP8JLKonlHsiuZr-jR1JFV31-O4yo8Cs3VMb3LmlIQ0ekWaWnIMzp35F8UrhDKHRzZCUo-TyVD98AjplBdZSJpaBBih6M3OOkVxeBCtYYPAj52M0hVUOlpxm9FibwQ8FFyqts0XToFdt2qnShWj3V_TdP_u6YFzuwnfLAbixN4ULHn18GsfQKFHa40S3tvDwMdLee26sSko6g-3y1wvpvJG9_qw-3eihfyJQFETfOb1gY4pMlkRD-L9uWB5Jo21by3-00ye-qwPApC3H3J1n6=w2186-h1136-no
+
+[image18]: https://lh3.googleusercontent.com/Vyxd-ORFnU7B7sGA4fWgnvpwmv_JHJmxEzHWK4SAOkMFMCgTWn4toVas8ZFC0dvSUU2ekGX9qAEerWP-ncLRVuGQimgvAJYog25Dg4V8q4zlogocO0vHd58BvuHklxfveg6D7ZOuEuFSQGbHRbiL1xdsa-O6CAsGgi7QWbkarkazwAQqmUWBzWXkXXl_IIkPnfx7KwFjdbTkiHNEUDVWfUVAm-i7RdIGByPDQG45xWBwUQzrcitbSweCY2RdRWiBdW3QiWzNNX0BgGSlWPqHPp-cv9xOiKZl84olcjaqwIgHQ7OPchIVt8kNHY10gu5-G7jGXz1LRBZCfMlI37yQZrYiA4fkwMspN_qWqzeBQyI2bTdiRaXyfI1qeJhB8N8gJY-nmZBjD_Q0NyS_3FxDQT_jElIDlFlgweIYnJzklZ3RMdV6bvKSfJQaNKepSSQg8FtNG2o8g4OAX8GlrwBOsEgdFIsVqLjscnitjjxPVW0CkEpbpadAEvfua2sWwKA33v6Y_sUS8plELQpU4g7iEZbmLHKwQx516GRNfHmP2XFLvyJD8oVNl6c9vVcZj4emkXRV7tPCgBqL527-zQIntRE3V2HgCH6CxrXC0Au2VM4cxlrNvxZx=w2128-h1136-no
+
+[image19]: https://lh3.googleusercontent.com/3PGXr5ycFy48T0WHXpaV7ZWTMn2SnswlFhBDtJFnYEjp4XmIjvR2lVCk8V4gKW_suXuMFJA4yWrXYGc3Ot5Mujxd-GZf7U-6FjmuPiY5-wOEE0YC_DTDzhsTdSSFFSId86gtRw6Icp_v_zYGld-wa_lDUcx0STBUzKXs_D2YJJ2Bs3EDcDD_-9x_Nj8LiByz29p75xwU-Rk3D0DW6ncbIwnQP55vDYEXLhGGX9VLs12tZTHdybRODe4ilan10wG3id_W6rGzesESbrAl1EJOJk4GwVkToT8Tltne5fSNPZVQZsomIu2KttXZwErqrTtadV9ybwdpimxwPLCy_EdqdeoHBPsI9uwvt1H7jkXYYN4eSLlCbs7nlkBPwdnZ3P_fcQuYSbu3x0LnRmuxbz_6oE7Ga8XL3E3MbgThyU2kRpBmqvVVITldRWQg_VYSWrMGYQ-wdkiZyxElYIdk2pSialWj7RH54bsP0UwhG1nksMTcP4JEJfARlHUxg2sMERziS5kpHiOrb93SxYfjnjuy6AdKSkibMoRukvvwbroGmYu9zF3K8Q3d9rffAFW9rIC2ZOkAcBzTUz4Fsr34aYUiyBDXui4PwsLoBlB9IUyypgrleWp5XNvR=w533-h296-no
+
+[image20]: https://lh3.googleusercontent.com/BkR5WGWOOBx8_TUTzG7CmybIMou2bE6K76WiMC5HkXfdnQEMc90WyVIbeepp47ElRBPedvVo6ZyG5QWtXzB6kFgkczw4N_w2M9YUER_UonwP9XDVb1UXeykL7-pfqw0yvM1h2R1Un-wUON2ITWx3oejQnY7sRrooa4KwScoKx-Tmzv0yzIMAZkDBkJUU_kVYF6aOKqnh6apd1JUYcaaAqgpKBHsEgho0Y3lrkfCBqdNW5k0HRKrbxr1fvxOnsM21Sb9QJ1cefaS1qr-XrlGnaa1qHTrSDWmvgvyI5ixN-PoBtnS88bkOA7IPb9KeYUQs3vwW5t-4WEFnmn8EuZe1XbuOdjsUhk-6u4yIEA7W1lpEmGKc7NmPCO-F61LUE9gZsWmwpEl8ddl9HxD5WImHB4RqNg79ih7pB5iL8MfB2H8QAJlODjRWYSaBtjnh42_HBYtJ2-W2cgQkBD9eNlhNTnT-PNFaIDDhUj2v1rvXwDjvhxOBF-oXBZvKFX73lkjfm1npARvedkLOGsAYmooYefchSylCt_S90aRQMAfb_wjHsD46Nb3tJsws1Mz-i8IyhSFS4Q6F50HScbOcOtoNqvanyUF2oOoUqCdqy8reotS5QH2TOg1C=w2090-h1136-no
+
+[image21]: https://lh3.googleusercontent.com/OPVJFBm1Tfe1OXyOezS9QBHc77Nut2DUdaa5oaqHtYspdgleO1Q90ja9VTg_-AK3G89tRgKV5me4HU8lExfxwVzI9mj34RnQNQVvb8vvvF6jdMh961GsylRXQNSszJQBlobc8PbIw-VmNESad4EqJ8Umc3i-sav63qChkLCj5KIP3hSJg9y9Ss6VNt4Syia__rRO-0zLCFQwNy1PSyWWyUF0Guyww142iXacTwclnxqR9_ShC1SBMFSCFAnoic3e39c3qKQaPibLC9I31adByPTA1iNCX06VdGLD6Z1Mps7p1-QAjYXBmBqvez_BmLVzwMI-FH6nrNXIkJaqNPdEp16AA0OoQ8l0wz4Av6MHaZ_lwc1UA5JqyAsI1-ZEo3AZtUJszr40ECuVmrikJQsQsW6XioEmNfn2wkNBtf32mthWUWfZ9Ry_DgEQSORU6s0VDqUEJepKheU4SpLNFzh2Wsg4fgULR7PW5q-JEK1pHHI1dQGUsqgmB1NmDpMtB_TyePhDrob_ECoc3zLKe_0xPKcVucfEnkH6Yd6kOybhK4BdjblMKRh7Xs1yT2Ou15Y3Z1xA8rdI382W6txm1Dpo1NrVIOj4_0QptA9j3chZCR1kmwVSvfac=w605-h346-no
+
+[image22]: https://lh3.googleusercontent.com/HFaFhE4GbzwhvWmVgJylAHPFu3phJs5Nx30_avkdnL2z0m3XYat6vgtCnpnnAgfHIy4edy81baMLvcpELZzUap8FQjX-97paaTu6D_bUyY2cuAsWxaOhWz2XyI-UfKlDSzEcK0hzTj5fdG6t62dtzmrwXmq6f-GZis3s9TrMOLWLZTQAiDSzgM_2ec-Pmd9b8KdxLVZlrRLcTlsgumsVJaVNQAS1XSISgj5Sg57RQ2KZ3UopRO1k3y8jkoK8cGapWld93Qt7er4lHGxXnjstMS_KrlZHr3uBIhGjk2pMPG2ncOTj-i2UOXfRmeZcy5aBbuq_2siu5noFGaBmHzWLe0HitiT5nzhmWdXG_9uxtBGaqBuND8c_2IfXybdP5eeY834_2AAGNu-pr-1noCN2YDkdUc_QMVg06f_ycB_Q9wk_KbFWzyfsAePXL3esdRW0D7Dcxph8n76PanXo1e6ljHGCumPt02MgaHejsaP4QYJBGBx93kne881IKkoOa4BGf85UBmZe7hd1nSQ-u4sX5vkzn3TLL85AlmJxXzM4sGdaDlBlS3aK6GNfKifvTyxOg6-kzeAGSqpnU_pADx6068NeJF0k2Ppaar4vuYPOODg98PqptdIO=w537-h296-no

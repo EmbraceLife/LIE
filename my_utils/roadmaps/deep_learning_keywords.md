@@ -66,6 +66,8 @@
 - prediction_as_price_curve_color
 - replace_value_with_earlier_value
 - add_annotation_plot
+- 1-hidden_backward_formular
+- 1-hidden_neuralnet_weights_dimension
 
 ## simple examples
 - xor_example
